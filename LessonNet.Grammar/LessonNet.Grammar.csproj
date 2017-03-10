@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.6</TargetFramework>
+    <AssemblyName>LessonNet.Grammar</AssemblyName>
+    <RootNamespace>LessonNet.Grammar</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="obj\**" />
+    <EmbeddedResource Remove="obj\**" />
+    <None Remove="obj\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Antlr4 Include="LessLexer.g4">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>LessonNet.Grammar</CustomToolNamespace>
+    </Antlr4>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Antlr4" Version="4.6.1-beta002" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Antlr4 Include="LessParser.g4">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>LessonNet.Grammar</CustomToolNamespace>
+    </Antlr4>
+  </ItemGroup>
+
+</Project>
