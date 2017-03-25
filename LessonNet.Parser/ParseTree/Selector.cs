@@ -10,12 +10,21 @@ namespace LessonNet.Parser.ParseTree {
 		public Selector(IEnumerable<SelectorElement> elements) {
 			this.elements = elements.ToList();
 		}
-		public override IEnumerable<LessNode> Evaluate(EvaluationContext context) {
-			throw new NotImplementedException();
+
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
+			yield return this;
 		}
 
 		protected override string GetStringRepresentation() {
 			return string.Join(" ", elements.Select(e => e.Element));
+		}
+
+		protected override string GetCss() {
+			return GetStringRepresentation();
+		}
+
+		public Selector Inherit(Selector parentSelector) {
+			return new Selector(parentSelector.elements.Concat(elements));
 		}
 	}
 
@@ -25,7 +34,8 @@ namespace LessonNet.Parser.ParseTree {
 		public SelectorElement(string element) {
 			Element = element;
 		}
-		public override IEnumerable<LessNode> Evaluate(EvaluationContext context) {
+
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			throw new NotImplementedException();
 		}
 	}

@@ -11,7 +11,8 @@ namespace LessonNet.Parser.ParseTree {
 			this.selectors = selectors;
 			this.block = block;
 		}
-		public override IEnumerable<LessNode> Evaluate(EvaluationContext context) {
+
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			yield return this;
 		}
 	}

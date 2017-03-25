@@ -13,7 +13,7 @@ namespace LessonNet.Parser
 			var context = new EvaluationContext(new LessTreeParser(), new FileResolver(inputFileName));
 			var rootNode = context.ParseCurrentStylesheet();
 
-			string css = rootNode.ToCss(context);
+			string css = rootNode.GenerateCss(context);
 
 			Console.WriteLine(css);
 		}

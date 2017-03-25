@@ -13,8 +13,14 @@ namespace LessonNet.Parser.ParseTree {
 			this.values = values.ToList();
 		}
 
-		public override IEnumerable<LessNode> Evaluate(EvaluationContext context) {
-			throw new NotImplementedException();
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
+			yield return this;
+		}
+
+		protected override string GetCss() {
+			string cssValues = string.Join(", ", this.values.Select(v => v.ToCss()));
+
+			return $"{property}: {cssValues};";
 		}
 	}
 }

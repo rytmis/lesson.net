@@ -17,7 +17,7 @@ namespace LessonNet.Parser.ParseTree
 			return $"@import '{Url}'";
 		}
 
-		public override IEnumerable<LessNode> Evaluate(EvaluationContext context) {
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			var importContext = context.GetImportContext(Url);
 
 			return importContext.ParseCurrentStylesheet().Evaluate(importContext);

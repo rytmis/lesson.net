@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 
 namespace LessonNet.Parser.SyntaxTree
 {
@@ -14,7 +15,17 @@ namespace LessonNet.Parser.SyntaxTree
 			return this;
 		}
 
-		public override IEnumerable<LessNode> Evaluate(EvaluationContext context) {
+		public string GenerateCss(EvaluationContext context) {
+			StringBuilder builder = new StringBuilder();
+
+			foreach (var childNode in Evaluate(context)) {
+				builder.Append(childNode.ToCss());
+			}
+
+			return builder.ToString();
+		}
+
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			foreach (var statement in Statements) {
 				foreach (var generatedStatement in statement.Evaluate(context)) {
 					yield return generatedStatement;

@@ -11,11 +11,15 @@ namespace LessonNet.Parser.ParseTree {
 		public Expression(string value) {
 			this.value = value;
 		}
-		public override IEnumerable<LessNode> Evaluate(EvaluationContext context) {
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			throw new NotImplementedException();
 		}
 
 		protected override string GetStringRepresentation() {
+			return value;
+		}
+
+		protected override string GetCss() {
 			return value;
 		}
 	}
@@ -26,7 +30,7 @@ namespace LessonNet.Parser.ParseTree {
 		public ExpressionList(IEnumerable<Expression> values) {
 			this.values = values.ToList();
 		}
-		public override IEnumerable<LessNode> Evaluate(EvaluationContext context) {
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			throw new NotImplementedException();
 		}
 
@@ -37,6 +41,10 @@ namespace LessonNet.Parser.ParseTree {
 		IEnumerator IEnumerable.GetEnumerator() {
 			return GetEnumerator();
 		}
+
+		protected override string GetCss() {
+			return string.Join(" ", values.Select(v => v.ToCss()));
+		}
 	}
 
 	public class ListOfExpressionLists : LessNode, IEnumerable<ExpressionList> {
@@ -46,7 +54,7 @@ namespace LessonNet.Parser.ParseTree {
 			this.expressionLists = expressionLists.ToList();
 		}
 
-		public override IEnumerable<LessNode> Evaluate(EvaluationContext context) {
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			throw new NotImplementedException();
 		}
 

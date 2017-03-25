@@ -19,7 +19,7 @@ namespace LessonNet.Parser.ParseTree {
 			Name = name;
 		}
 
-		public override IEnumerable<LessNode> Evaluate(EvaluationContext context) {
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			yield return this;
 		}
 	}

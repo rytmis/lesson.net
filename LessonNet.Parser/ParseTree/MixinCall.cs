@@ -13,7 +13,7 @@ namespace LessonNet.Parser.ParseTree {
 			this.arguments = arguments.ToList();
 		}
 
-		public override IEnumerable<LessNode> Evaluate(EvaluationContext context) {
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			throw new NotImplementedException();
 		}
 	}
@@ -30,7 +30,7 @@ namespace LessonNet.Parser.ParseTree {
 			listOfExpressionListsValue = value;
 		}
 
-		public override IEnumerable<LessNode> Evaluate(EvaluationContext context) {
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			throw new NotImplementedException();
 		}
 	}
