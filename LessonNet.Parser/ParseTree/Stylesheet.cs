@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
+using LessonNet.Parser.ParseTree;
 
 namespace LessonNet.Parser.SyntaxTree
 {
@@ -28,7 +29,9 @@ namespace LessonNet.Parser.SyntaxTree
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			foreach (var statement in Statements) {
 				foreach (var generatedStatement in statement.Evaluate(context)) {
-					yield return generatedStatement;
+					if (generatedStatement is Ruleset rs) {
+						yield return new Ruleset(rs.Selectors.RemoveParentReferences(), rs.Block) { IsEvaluated = true };
+					}
 				}
 			}
 		}

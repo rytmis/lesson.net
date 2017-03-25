@@ -9,19 +9,19 @@ namespace LessonNet.Parser.ParseTree
 {
 	public class Ruleset : Statement
 	{
-		private readonly SelectorList selectors;
-		private readonly RuleBlock block;
+		public SelectorList Selectors { get; }
+		public RuleBlock Block { get; }
 
 		public Ruleset(SelectorList selectors, RuleBlock block) {
-			this.selectors = selectors;
-			this.block = block;
+			this.Selectors = selectors;
+			this.Block = block;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			IList<Rule> generatedRules = new List<Rule>();
 			IList<Ruleset> generatedRulesets = new List<Ruleset>();
 
-			foreach (var lessNode in block.Evaluate(context)) {
+			foreach (var lessNode in Block.Evaluate(context)) {
 				switch (lessNode) {
 					case Rule r:
 						generatedRules.Add(r);
@@ -40,21 +40,21 @@ namespace LessonNet.Parser.ParseTree
 			};
 
 			var evaluatedRuleset =
-				new Ruleset(selectors.EvaluateSingle<SelectorList>(context), evaluatedBlock) {IsEvaluated = true};
+				new Ruleset(Selectors.EvaluateSingle<SelectorList>(context), evaluatedBlock) {IsEvaluated = true};
 
 			yield return evaluatedRuleset;
 
 			foreach (var generatedRuleset in generatedRulesets) {
-				var combinedSelectors = generatedRuleset.selectors.Inherit(selectors);
-				yield return new Ruleset(combinedSelectors, generatedRuleset.block) { IsEvaluated = true };
+				var combinedSelectors = generatedRuleset.Selectors.Inherit(Selectors);
+				yield return new Ruleset(combinedSelectors, generatedRuleset.Block) { IsEvaluated = true };
 			}
 		}
 
 		protected override string GetCss() {
 			var builder = new StringBuilder();
-			builder.Append(selectors.ToCss());
+			builder.Append(Selectors.ToCss());
 			builder.AppendLine(" {");
-			builder.Append(block.ToCss());
+			builder.Append(Block.ToCss());
 			builder.AppendLine("}");
 			return builder.ToString();
 		}

@@ -15,6 +15,10 @@ namespace LessonNet.Parser.ParseTree {
 
 		public IReadOnlyList<Selector> Selectors => selectors.AsReadOnly();
 
+		public SelectorList RemoveParentReferences() {
+			return new SelectorList(selectors.Select(s => s.RemoveParentReferences()));
+		}
+
 		public SelectorList Inherit(SelectorList parent) {
 			IEnumerable<Selector> InheritSelectors() {
 				foreach (var selector in selectors) {

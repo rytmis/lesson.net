@@ -12,7 +12,7 @@ namespace LessonNet.Parser {
 			var charStream = new AntlrInputStream(input);
 			var lexer = new LessLexer(charStream);
 
-			var tokenStream = new BufferedTokenStream(lexer);
+			var tokenStream = new CommonTokenStream(lexer);
 
 			var parser = new LessParser(tokenStream) {
 				ErrorHandler = new BailErrorStrategy()

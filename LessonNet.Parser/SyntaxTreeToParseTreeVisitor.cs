@@ -41,7 +41,7 @@ namespace LessonNet.Parser {
 		public override LessNode VisitSelectorElement(LessParser.SelectorElementContext context) {
 			var parentSelector = context.parentSelectorReference();
 			if (parentSelector != null) {
-				return new ParentReferenceSelectorElement(context.GetText());
+				return new ParentReferenceSelectorElement(context.identifier()?.GetText() ?? "");
 			}
 
 			return new SelectorElement(context.GetText());
