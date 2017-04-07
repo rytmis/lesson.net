@@ -16,7 +16,7 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override string GetStringRepresentation() {
-			return string.Join(" ", elements.Select(e => e.Element));
+			return string.Join("", elements.Select(e => e.Element + (e.HasTrailingWhitespace ? " " : ""))).Trim();
 		}
 
 		protected override string GetCss() {
@@ -34,7 +34,9 @@ namespace LessonNet.Parser.ParseTree {
 
 					if (selectorElement is ParentReferenceSelectorElement parentRef) {
 						// Propagate the parent ref upwards in the tree
-						yield return new ParentReferenceSelectorElement(string.Empty);
+						yield return new ParentReferenceSelectorElement() {
+							HasTrailingWhitespace = true
+						};
 
 						// Add all parent selector elements except the last one
 						for (int i = 0; i < parentSelector.elements.Count - 1; i++) {
@@ -43,11 +45,11 @@ namespace LessonNet.Parser.ParseTree {
 
 						var lastParentElement = parentSelector.elements.Last();
 
-						// Join the parent ref content with the last parent element
-						// - If the parent ref was empty, this is equivalent to simply
-						//   yielding the parent element
-						// - If the parent ref was not empty, this will transform &-foo to parentelement-foo
-						yield return new SelectorElement(lastParentElement.Element + parentRef.Element);
+						yield return new SelectorElement(lastParentElement.Element) {
+							HasTrailingWhitespace = parentRef.HasTrailingWhitespace
+						};
+					} else {
+						yield return selectorElement;
 					}
 				}
 			}
@@ -61,6 +63,7 @@ namespace LessonNet.Parser.ParseTree {
 
 	public class SelectorElement : LessNode {
 		public string Element { get; }
+		public bool HasTrailingWhitespace { get; set; }
 
 		public SelectorElement(string element) {
 			Element = element;
@@ -69,9 +72,13 @@ namespace LessonNet.Parser.ParseTree {
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			throw new NotImplementedException();
 		}
+
+		protected override string GetStringRepresentation() {
+			return Element;
+		}
 	}
 
 	public class ParentReferenceSelectorElement : SelectorElement {
-		public ParentReferenceSelectorElement(string element) : base(element) { }
+		public ParentReferenceSelectorElement() : base(string.Empty) { }
 	}
 }

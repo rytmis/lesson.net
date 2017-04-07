@@ -140,14 +140,13 @@ parentSelectorReference
     ;
 
 selectorElement
-  : parentSelectorReference? 
-    ( HASH identifier
+  : parentSelectorReference
+  | ( HASH identifier
     | DOT identifier 
     | (COLON|COLONCOLON) Identifier
     | attrib
     | identifier
     | '*')
-  | parentSelectorReference
   ;
 
 /* "combinator" in dotless parlance */

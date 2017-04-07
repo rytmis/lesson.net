@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using LessonNet.Grammar;
 using LessonNet.Parser.ParseTree;
@@ -7,6 +8,12 @@ using LessonNet.Parser.SyntaxTree;
 
 namespace LessonNet.Parser {
 	internal class SyntaxTreeToParseTreeVisitor : LessEvaluatorVisitorBase {
+		private readonly ITokenStream tokenStream;
+
+		public SyntaxTreeToParseTreeVisitor(ITokenStream tokenStream) {
+			this.tokenStream = tokenStream;
+		}
+
 		public override LessNode VisitStylesheet(LessParser.StylesheetContext context) {
 			Stylesheet stylesheet = new Stylesheet();
 
@@ -39,18 +46,33 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitSelectorElement(LessParser.SelectorElementContext context) {
+			int possibleWhitespaceIndex = context.Stop.TokenIndex + 1;
+
+			bool hasTrailingWhitespace = possibleWhitespaceIndex < tokenStream.Size
+				&& tokenStream.Get(possibleWhitespaceIndex).Type == LessLexer.WS;
+
 			var parentSelector = context.parentSelectorReference();
 			if (parentSelector != null) {
-				return new ParentReferenceSelectorElement(context.identifier()?.GetText() ?? "");
+				return new ParentReferenceSelectorElement() {
+					HasTrailingWhitespace = hasTrailingWhitespace
+				};
 			}
 
-			return new SelectorElement(context.GetText());
+			return new SelectorElement(context.GetText()) {
+				HasTrailingWhitespace = hasTrailingWhitespace
+			};
 		}
 
 		public override LessNode VisitSelector(LessParser.SelectorContext context) {
 			IEnumerable<SelectorElement> GetElements() {
+				SelectorElement lastSelector = null;
 				foreach (var element in context.selectorElement()) {
-					yield return (SelectorElement) element.Accept(this);
+					lastSelector = (SelectorElement) element.Accept(this);
+					yield return lastSelector;
+				}
+
+				if (lastSelector != null) {
+					lastSelector.HasTrailingWhitespace = true;
 				}
 			}
 

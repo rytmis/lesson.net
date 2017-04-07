@@ -7,12 +7,6 @@ using Antlr4.Runtime.Tree;
 namespace LessonNet.Parser.SyntaxTree {
 	public abstract class LessNode {
 
-		private Lazy<string> toStringCache;
-
-		protected LessNode() {
-			toStringCache = new Lazy<string>(GetStringRepresentation);
-		}
-
 		protected virtual string GetStringRepresentation() {
 			return $"{GetType().Name}";
 		}
@@ -24,7 +18,7 @@ namespace LessonNet.Parser.SyntaxTree {
 		public string ToCss() => GetCss();
 
 
-		public override string ToString() => toStringCache.Value;
+		public override string ToString() => GetStringRepresentation();
 
 		internal bool IsEvaluated { get; set; }
 		public IEnumerable<LessNode> Evaluate(EvaluationContext context) {

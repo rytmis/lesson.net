@@ -6,8 +6,6 @@ using LessonNet.Parser.SyntaxTree;
 
 namespace LessonNet.Parser {
 	public class LessTreeParser {
-		private static readonly SyntaxTreeToParseTreeVisitor parserVisitor = new SyntaxTreeToParseTreeVisitor();	
-
 		public Stylesheet Parse(string fileName, Stream input) {
 			var charStream = new AntlrInputStream(input);
 			var lexer = new LessLexer(charStream);
@@ -22,7 +20,7 @@ namespace LessonNet.Parser {
 			try {
 				var lessStylesheet = parser.stylesheet();
 
-				return (Stylesheet) lessStylesheet.Accept(parserVisitor);
+				return (Stylesheet) lessStylesheet.Accept(new SyntaxTreeToParseTreeVisitor(tokenStream));
 
 			} catch (ParseCanceledException ex) when (ex.InnerException is InputMismatchException ime) {
 				throw ParserException.FromToken(fileName, ime.OffendingToken);

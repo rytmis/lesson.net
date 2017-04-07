@@ -115,7 +115,7 @@ Color
 
 /* Whitespace -- ignored */
 WS
-  : (' '|'\t'|'\n'|'\r'|'\r\n')+ -> skip
+  : (' '|'\t'|'\n'|'\r'|'\r\n')+ -> channel(HIDDEN)
   ;
 
 /* Single-line comments */
@@ -233,7 +233,8 @@ Url                    :  STRING | (~(')' | '\n' | '\r' | ';'))+;
 
 mode IDENTIFY;
 BlockStart_ID             : BlockStart -> popMode, type(BlockStart);
-SPACE                  : WS -> popMode, skip;
+SPACE                  : WS -> popMode, type(WS), channel(HIDDEN);
+
 DOLLAR_ID              : DOLLAR -> type(DOLLAR);
 
 InterpolationStartAfter  : InterpolationStart;
@@ -258,7 +259,7 @@ ATTRIB_EQUAL		: EQ -> type(EQ);
 
 mode NUMBER_STARTED;
 NUMBER_UNIT: Unit -> popMode, type(Unit);
-NUMBER_WS : WS -> popMode, skip;
+NUMBER_WS : WS -> popMode, channel(HIDDEN);
 NUMBER_SEMI : SEMI -> popMode, type(SEMI);
 NUMBER_RPAREN : RPAREN -> popMode, type(RPAREN);
 NUMBER_COMMA : COMMA -> popMode, type(COMMA);
