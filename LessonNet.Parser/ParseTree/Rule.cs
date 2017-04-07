@@ -20,7 +20,7 @@ namespace LessonNet.Parser.ParseTree {
 		protected override string GetCss() {
 			string cssValues = string.Join(", ", this.values.Select(v => v.ToCss()));
 
-			return $"{property}: {cssValues};";
+			return $"\t{property}: {cssValues};";
 		}
 	}
 }

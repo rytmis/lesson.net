@@ -128,7 +128,7 @@ selectors
   ;
 
 selector
-  : (selectorPrefix? selectorElement)+
+  : selectorElement+
   ;
 
 attrib
@@ -139,6 +139,10 @@ parentSelectorReference
     : PARENTREF 
     ;
 
+combinator
+  : (GT | PLUS | TIL | TIMES)
+  ;
+
 selectorElement
   : parentSelectorReference
   | ( HASH identifier
@@ -146,12 +150,7 @@ selectorElement
     | (COLON|COLONCOLON) Identifier
     | attrib
     | identifier
-    | '*')
-  ;
-
-/* "combinator" in dotless parlance */
-selectorPrefix
-  : (GT | PLUS | TIL)
+	| combinator )
   ;
 
 attribRelate

@@ -30,7 +30,7 @@ namespace LessonNet.Parser.SyntaxTree
 			foreach (var statement in Statements) {
 				foreach (var generatedStatement in statement.Evaluate(context)) {
 					if (generatedStatement is Ruleset rs) {
-						yield return new Ruleset(rs.Selectors.RemoveParentReferences(), rs.Block) { IsEvaluated = true };
+						yield return rs;
 					}
 				}
 			}

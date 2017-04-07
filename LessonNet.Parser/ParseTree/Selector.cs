@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using LessonNet.Parser.SyntaxTree;
+using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser.ParseTree {
 	public class Selector : LessNode {
@@ -23,21 +24,12 @@ namespace LessonNet.Parser.ParseTree {
 			return GetStringRepresentation();
 		}
 
-		public Selector RemoveParentReferences() {
-			return new Selector(elements.Except(elements.OfType<ParentReferenceSelectorElement>()));
-		}
+		public IEnumerable<Selector> Inherit(SelectorList parentSelectors) {
+			IEnumerable<SelectorElement> SubstituteFirstParentSelector(Selector parentSelector, IList<SelectorElement> currentElements) {
+				bool substituted = false;
+				foreach (var selectorElement in currentElements) {
 
-		public Selector Inherit(Selector parentSelector) {
-
-			IEnumerable<SelectorElement> SubstituteParentReferences() {
-				foreach (var selectorElement in elements) {
-
-					if (selectorElement is ParentReferenceSelectorElement parentRef) {
-						// Propagate the parent ref upwards in the tree
-						yield return new ParentReferenceSelectorElement() {
-							HasTrailingWhitespace = true
-						};
-
+					if (!substituted && selectorElement is ParentReferenceSelectorElement parentRef) {
 						// Add all parent selector elements except the last one
 						for (int i = 0; i < parentSelector.elements.Count - 1; i++) {
 							yield return parentSelector.elements[i];
@@ -48,16 +40,32 @@ namespace LessonNet.Parser.ParseTree {
 						yield return new SelectorElement(lastParentElement.Element) {
 							HasTrailingWhitespace = parentRef.HasTrailingWhitespace
 						};
+
+						substituted = true;
 					} else {
 						yield return selectorElement;
 					}
 				}
 			}
 
-			if (elements.OfType<ParentReferenceSelectorElement>().Any()) {
-				return new Selector(SubstituteParentReferences());
+			IEnumerable<Selector> SubstituteParentReferences(IList<SelectorElement> currentElements, bool isRoot = false) {
+				if (currentElements.HasAny<ParentReferenceSelectorElement>()) {
+					foreach (var selector in parentSelectors.Selectors) {
+						foreach (var generatedSelector in SubstituteParentReferences(
+							SubstituteFirstParentSelector(selector, currentElements).ToList())) {
+							yield return generatedSelector;
+						}
+					}
+				} else if (isRoot) {
+					foreach (var parentSelector in parentSelectors.Selectors) {
+						yield return new Selector(parentSelector.elements.Concat(currentElements));
+					}
+				} else {
+					yield return new Selector(currentElements);
+				}
 			}
-			return new Selector(parentSelector.elements.Concat(elements));
+
+			return SubstituteParentReferences(elements, true);
 		}
 	}
 

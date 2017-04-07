@@ -15,15 +15,11 @@ namespace LessonNet.Parser.ParseTree {
 
 		public IReadOnlyList<Selector> Selectors => selectors.AsReadOnly();
 
-		public SelectorList RemoveParentReferences() {
-			return new SelectorList(selectors.Select(s => s.RemoveParentReferences()));
-		}
-
 		public SelectorList Inherit(SelectorList parent) {
 			IEnumerable<Selector> InheritSelectors() {
 				foreach (var selector in selectors) {
-					foreach (var parentSelector in parent.selectors) {
-						yield return selector.Inherit(parentSelector);
+					foreach (var generatedSelector in selector.Inherit(parent)) {
+						yield return generatedSelector;
 					}
 				}
 			}
@@ -44,7 +40,7 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override string GetStringRepresentation() {
-			return string.Join(", ", Selectors.Select(s => s.ToString()));
+			return string.Join(",\n", Selectors.Select(s => s.ToString()));
 		}
 
 		protected override string GetCss() {

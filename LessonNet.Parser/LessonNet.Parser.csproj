@@ -7,7 +7,4 @@
   <ItemGroup>
     <ProjectReference Include="..\LessonNet.Grammar\LessonNet.Grammar.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Util\" />
-  </ItemGroup>
 </Project>

@@ -153,12 +153,11 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
-		public virtual LessNode VisitSelectorElement(LessParser.SelectorElementContext context) {
+		public LessNode VisitCombinator(LessParser.CombinatorContext context) {
 			throw new System.NotImplementedException();
 		}
 
-		public virtual LessNode VisitSelectorPrefix(LessParser.SelectorPrefixContext context)
-		{
+		public virtual LessNode VisitSelectorElement(LessParser.SelectorElementContext context) {
 			throw new System.NotImplementedException();
 		}
 
