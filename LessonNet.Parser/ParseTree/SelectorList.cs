@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree {
 	public class SelectorList : LessNode {
@@ -42,8 +43,8 @@ namespace LessonNet.Parser.ParseTree {
 			return string.Join(",\n", Selectors.Select(s => s.ToString()));
 		}
 
-		protected override string GetCss() {
-			return GetStringRepresentation();
+		public override void WriteOutput(OutputContext context) {
+			context.Append(GetStringRepresentation());
 		}
 
 		public bool MatchesAny(SelectorList selectorList) {

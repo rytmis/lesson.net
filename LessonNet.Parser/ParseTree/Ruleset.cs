@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using LessonNet.Grammar;
+using LessonNet.Parser.CodeGeneration;
 using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser.ParseTree
@@ -41,17 +42,15 @@ namespace LessonNet.Parser.ParseTree
 			}
 		}
 
-		protected override string GetCss() {
+		public override void WriteOutput(OutputContext context) {
 			if (Block.RuleCount == 0) {
-				return string.Empty;
+				return;
 			}
 
-			var builder = new StringBuilder();
-			builder.Append(Selectors.ToCss());
-			builder.AppendLine(" {");
-			builder.Append(Block.ToCss());
-			builder.AppendLine("}");
-			return builder.ToString();
+			context.Append(Selectors);
+			context.AppendLine(" {", indent: false);
+			context.Append(Block);
+			context.AppendLine("}");
 		}
 
 		protected override string GetStringRepresentation() {

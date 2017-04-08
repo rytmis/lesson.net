@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree {
 	public class Rule : LessNode {
@@ -21,10 +22,10 @@ namespace LessonNet.Parser.ParseTree {
 			yield return new Rule(property, EvaluateValues()) {IsEvaluated = true};
 		}
 
-		protected override string GetCss() {
+		public override void WriteOutput(OutputContext context) {
 			string cssValues = string.Join(", ", this.values.Select(v => v.ToCss()));
 
-			return $"\t{property}: {cssValues};";
+			context.AppendLine($"{property}: {cssValues};");
 		}
 
 		protected override string GetStringRepresentation() {

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree {
 	public abstract class LessNode {
@@ -8,11 +9,14 @@ namespace LessonNet.Parser.ParseTree {
 			return $"{GetType().Name}";
 		}
 
-		protected virtual string GetCss() {
-			return "";
-		}
+		public virtual void WriteOutput(OutputContext context) { }
 
-		public string ToCss() => GetCss();
+		public string ToCss() {
+			var outputContext = new OutputContext(' ', 4);
+			WriteOutput(outputContext);
+
+			return outputContext.GetCss();
+		}
 
 
 		public override string ToString() => GetStringRepresentation();

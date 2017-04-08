@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LessonNet.Parser.CodeGeneration;
 using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser.ParseTree {
@@ -19,8 +20,8 @@ namespace LessonNet.Parser.ParseTree {
 			return string.Join("", elements.Select(e => e.Element + (e.HasTrailingWhitespace ? " " : ""))).Trim();
 		}
 
-		protected override string GetCss() {
-			return GetStringRepresentation();
+		public override void WriteOutput(OutputContext context) {
+			context.Append(GetStringRepresentation());
 		}
 
 		public IEnumerable<Selector> Inherit(SelectorList parentSelectors) {

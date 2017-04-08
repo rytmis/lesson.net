@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree {
 	public class ExpressionList : LessNode, IEnumerable<Expression> {
@@ -38,8 +39,8 @@ namespace LessonNet.Parser.ParseTree {
 			return GetEnumerator();
 		}
 
-		protected override string GetCss() {
-			return string.Join(" ", values.Select(v => v.ToCss()));
+		public override void WriteOutput(OutputContext context) {
+			context.Append(string.Join(" ", values.Select(v => v.ToCss())));
 		}
 
 		protected override string GetStringRepresentation() {

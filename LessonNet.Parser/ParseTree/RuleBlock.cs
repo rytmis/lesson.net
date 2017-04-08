@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using LessonNet.Parser.CodeGeneration;
 using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser.ParseTree {
@@ -54,18 +55,18 @@ namespace LessonNet.Parser.ParseTree {
 			}
 		}
 
-		protected override string GetCss() {
-			var builder = new StringBuilder();
+		public override void WriteOutput(OutputContext context) {
+			context.IncreaseIndentLevel();
 
 			foreach (var rule in rules) {
-				builder.AppendLine(rule.ToCss());
+				context.Append(rule);
 			}
 
 			foreach (var statement in Statements) {
-				builder.Append(statement.ToCss());
+				context.Append(statement);
 			}
 
-			return builder.ToString();
+			context.DecreaseIndentLevel();
 		}
 	}
 }

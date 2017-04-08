@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree {
 
@@ -40,8 +41,8 @@ namespace LessonNet.Parser.ParseTree {
 			return name;
 		}
 
-		protected override string GetCss() {
-			return name;
+		public override void WriteOutput(OutputContext context) {
+			context.Append(name);
 		}
 	}
 }
