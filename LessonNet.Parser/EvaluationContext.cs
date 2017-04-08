@@ -74,7 +74,7 @@ namespace LessonNet.Parser
 			Parent = parent;
 		}
 
-		public Scope Parent { get; }
+		public Scope Parent { get; protected set; }
 
 		public virtual void DeclareMixin(MixinDefinition mixin) {
 			mixins.Add(mixin);
@@ -85,16 +85,25 @@ namespace LessonNet.Parser
 		}
 
 		public virtual IEnumerable<MixinEvaluationResult> ResolveMatchingMixins(MixinCall call) {
+			var resolvedMixins = ResolveMixinsCore(call);
+			if (!resolvedMixins.Any()) {
+				throw new EvaluationException($"No mixin found: {call} ");
+			}
+
+			return resolvedMixins;
+		}
+
+		private IList<MixinEvaluationResult> ResolveMixinsCore(MixinCall call) {
 			// No namespace support or result caching yet
 			var matchingMixins = mixins
 				.Where(call.Matches)
-				.Select(m => new MixinEvaluationResult(m, this));
+				.Select(m => new MixinEvaluationResult(m, call, this));
 
 			if (Parent == null) {
-				return matchingMixins;
+				return matchingMixins.ToList();
 			}
 
-			return Parent.ResolveMatchingMixins(call).Concat(matchingMixins);
+			return Parent.ResolveMatchingMixins(call).Concat(matchingMixins).ToList();
 		}
 
 		public virtual VariableDeclaration ResolveVariable(string name, bool throwOnError = true) {
@@ -131,15 +140,15 @@ namespace LessonNet.Parser
 
 	public class ClosureScope : Scope {
 		private readonly Scope closure;
-		private readonly Scope overlay;
 
 		public ClosureScope(Scope closure, Scope overlay) {
 			this.closure = closure;
-			this.overlay = overlay;
+
+			Parent = overlay;
 		}
 
 		public override VariableDeclaration ResolveVariable(string name, bool throwOnError = true) {
-			return overlay.ResolveVariable(name, throwOnError: false)
+			return base.ResolveVariable(name, throwOnError: false)
 				?? closure.ResolveVariable(name, throwOnError: throwOnError);
 		}
 	}

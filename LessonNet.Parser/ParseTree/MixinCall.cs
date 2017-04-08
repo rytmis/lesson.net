@@ -6,6 +6,7 @@ namespace LessonNet.Parser.ParseTree {
 	public class MixinCall : Statement {
 		private readonly SelectorList selectors;
 		private readonly List<MixinCallArgument> arguments;
+		public IReadOnlyCollection<MixinCallArgument> Arguments => arguments.AsReadOnly();
 
 		public MixinCall(SelectorList selectors, IEnumerable<MixinCallArgument> arguments) {
 			this.selectors = selectors;
@@ -21,24 +22,34 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		public bool Matches(MixinDefinition mixinDefinition) {
-			return mixinDefinition.Selectors.MatchesAny(selectors);
+			return mixinDefinition.Arity == arguments.Count
+				&& mixinDefinition.Selectors.MatchesAny(selectors);
+		}
+
+		protected override string GetStringRepresentation() {
+			return $"{selectors}({string.Join(", ", arguments)})";
 		}
 	}
 
 	public class MixinCallArgument : LessNode {
-		private readonly ExpressionList expressionListValue;
-		private readonly ListOfExpressionLists listOfExpressionListsValue;
+		private readonly ListOfExpressionLists value;
 
 		public MixinCallArgument(ExpressionList expressionList) {
-			expressionListValue = expressionList;
+			value = new ListOfExpressionLists(new []{expressionList});
 		}
 
 		public MixinCallArgument(ListOfExpressionLists value) {
-			listOfExpressionListsValue = value;
+			this.value = value;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			throw new NotImplementedException();
+			foreach (var expressionList in value.Evaluate(context)) {
+				yield return expressionList;
+			}
+		}
+
+		protected override string GetStringRepresentation() {
+			return value.ToString();
 		}
 	}
 }

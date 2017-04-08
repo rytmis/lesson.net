@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using LessonNet.Grammar;
@@ -122,9 +123,15 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitMixinDefinition(LessParser.MixinDefinitionContext context) {
-			SelectorList selectors = (SelectorList) context.selectors().Accept(this);
+			var selectors = (SelectorList) context.selectors().Accept(this);
+			var ruleBlock = (RuleBlock) context.block().Accept(this);
 
-			return new MixinDefinition(selectors, (RuleBlock) context.block().Accept(this));
+			// TODO: Handle the extra '@' symbol in the parser grammar
+			var arguments = context.mixinDefinitionParam()
+					?.Select(p => p.variableName().GetText().TrimStart('@'))
+				?? Enumerable.Empty<string>();
+
+			return new MixinDefinition(selectors, arguments, ruleBlock);
 		}
 
 		public override LessNode VisitBlock(LessParser.BlockContext context) {

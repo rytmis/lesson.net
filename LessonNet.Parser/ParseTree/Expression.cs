@@ -19,6 +19,10 @@ namespace LessonNet.Parser.ParseTree {
 				yield return expressionList.EvaluateSingle<ExpressionList>(context);
 			}
 		}
+
+		protected override string GetStringRepresentation() {
+			return $"@{name}";
+		}
 	}
 
 	public class Identifier : Expression {

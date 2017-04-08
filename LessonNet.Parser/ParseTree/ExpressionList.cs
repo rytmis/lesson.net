@@ -39,7 +39,11 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override string GetCss() {
-			return string.Join(" ", Enumerable.Select<Expression, string>(values, v => v.ToCss()));
+			return string.Join(" ", values.Select(v => v.ToCss()));
+		}
+
+		protected override string GetStringRepresentation() {
+			return string.Join(", ", values);
 		}
 	}
 }

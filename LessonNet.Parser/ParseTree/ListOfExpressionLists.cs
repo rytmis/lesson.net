@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace LessonNet.Parser.ParseTree {
-	public class ListOfExpressionLists : LessNode, IEnumerable<ExpressionList> {
+	public class ListOfExpressionLists : LessNode {
 		private List<ExpressionList> expressionLists;
 
 		public ListOfExpressionLists(IEnumerable<ExpressionList> expressionLists) {
@@ -12,15 +12,13 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			throw new NotImplementedException();
+			foreach (var expressionList in this.expressionLists) {
+				yield return expressionList.EvaluateSingle<ExpressionList>(context);
+			}
 		}
 
-		public IEnumerator<ExpressionList> GetEnumerator() {
-			throw new NotImplementedException();
-		}
-
-		IEnumerator IEnumerable.GetEnumerator() {
-			return GetEnumerator();
+		protected override string GetStringRepresentation() {
+			return string.Join("; ", expressionLists);
 		}
 	}
 }
