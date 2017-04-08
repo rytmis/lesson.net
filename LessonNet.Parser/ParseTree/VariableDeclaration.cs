@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using LessonNet.Parser.SyntaxTree;
 
 namespace LessonNet.Parser.ParseTree {
-	public class VariableDeclaration : Statement {
+	public class VariableDeclaration : Declaration {
 		private readonly List<ExpressionList> expressionLists;
 
 		public string Name { get; }
@@ -20,7 +19,11 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return this;
+			return Enumerable.Empty<LessNode>();
+		}
+
+		public override void DeclareIn(Scope scope) {
+			scope.DeclareVariable(this);
 		}
 	}
 }

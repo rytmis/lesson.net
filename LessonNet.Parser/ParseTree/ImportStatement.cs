@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using LessonNet.Parser.SyntaxTree;
 
 namespace LessonNet.Parser.ParseTree
 {

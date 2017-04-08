@@ -2,7 +2,7 @@ using System.IO;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
 using LessonNet.Grammar;
-using LessonNet.Parser.SyntaxTree;
+using LessonNet.Parser.ParseTree;
 
 namespace LessonNet.Parser {
 	public class LessTreeParser {

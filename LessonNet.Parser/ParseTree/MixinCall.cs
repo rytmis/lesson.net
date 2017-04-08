@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using LessonNet.Parser.SyntaxTree;
 
 namespace LessonNet.Parser.ParseTree {
-	public class MixinCall : LessNode {
+	public class MixinCall : Statement {
 		private readonly SelectorList selectors;
 		private readonly List<MixinCallArgument> arguments;
 
@@ -14,7 +13,7 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			throw new NotImplementedException();
+			yield break;
 		}
 	}
 

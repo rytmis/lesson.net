@@ -1,20 +1,11 @@
 using System.Collections.Generic;
 using System.Text;
-using LessonNet.Parser.ParseTree;
 
-namespace LessonNet.Parser.SyntaxTree
+namespace LessonNet.Parser.ParseTree
 {
-	public class Stylesheet : LessNode
+	public class Stylesheet : StatementList
 	{
-		public IReadOnlyCollection<Statement> Statements => statements.AsReadOnly();
-
-		private List<Statement> statements = new List<Statement>();
-		public Stylesheet Add(Statement statement)
-		{
-			statements.Add(statement);
-
-			return this;
-		}
+		public Stylesheet(IEnumerable<Statement> statements) : base(statements) { }
 
 		public string GenerateCss(EvaluationContext context) {
 			StringBuilder builder = new StringBuilder();
@@ -24,16 +15,6 @@ namespace LessonNet.Parser.SyntaxTree
 			}
 
 			return builder.ToString();
-		}
-
-		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			foreach (var statement in Statements) {
-				foreach (var generatedStatement in statement.Evaluate(context)) {
-					if (generatedStatement is Ruleset rs) {
-						yield return rs;
-					}
-				}
-			}
 		}
 	}
 }

@@ -1,10 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Antlr4.Runtime.Tree;
 
-namespace LessonNet.Parser.SyntaxTree {
+namespace LessonNet.Parser.ParseTree {
 	public abstract class LessNode {
 
 		protected virtual string GetStringRepresentation() {
@@ -43,7 +40,7 @@ namespace LessonNet.Parser.SyntaxTree {
 				return result;
 			}
 
-			throw new EvaluationException($"Expected node with type {typeof(TNode)} obut got {firstNode.GetType().Name}");
+			throw new EvaluationException($"Expected node with type {typeof(TNode)} but got {firstNode.GetType().Name}");
 		}
 
 		protected abstract IEnumerable<LessNode> EvaluateCore(EvaluationContext context);

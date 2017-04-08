@@ -4,7 +4,6 @@ using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using LessonNet.Grammar;
 using LessonNet.Parser.ParseTree;
-using LessonNet.Parser.SyntaxTree;
 
 namespace LessonNet.Parser {
 	internal class SyntaxTreeToParseTreeVisitor : LessEvaluatorVisitorBase {
@@ -15,20 +14,22 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitStylesheet(LessParser.StylesheetContext context) {
-			Stylesheet stylesheet = new Stylesheet();
-
-			foreach (LessParser.StatementContext child in context.statement()) {
-				stylesheet.Add((Statement) child.Accept(this));
+			IEnumerable<Statement> GetStatements() {
+				foreach (var child in context.statement()) {
+					yield return (Statement) child.Accept(this);
+				}
 			}
 
-			return stylesheet;
+			return new Stylesheet(GetStatements());
 		}
 
 		public override LessNode VisitStatement(LessParser.StatementContext context) {
 			return context.importDeclaration()?.Accept(this)
 				?? context.variableDeclaration()?.Accept(this)
 				?? context.mixinDefinition()?.Accept(this)
-				?? context.ruleset()?.Accept(this);
+				?? context.ruleset()?.Accept(this)
+				?? context.mixinCall()?.Accept(this)
+				?? throw new ParserException($"Unexpected statement type: [{context.GetText()}]");
 		}
 
 		public override LessNode VisitImportDeclaration(LessParser.ImportDeclarationContext context) {
@@ -111,7 +112,13 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitExpression(LessParser.ExpressionContext context) {
-			return new Expression(context.GetText());
+			return context.variableName()?.Accept(this)
+				?? context.Color()?.Accept(this)
+				?? context.measurement()?.Accept(this)
+				?? context.StringLiteral()?.Accept(this)
+				?? context.function()?.Accept(this)
+				?? context.identifier()?.Accept(this)
+				?? throw new ParserException($"Unexpected expression {context.GetText()}");
 		}
 
 		public override LessNode VisitMixinDefinition(LessParser.MixinDefinitionContext context) {

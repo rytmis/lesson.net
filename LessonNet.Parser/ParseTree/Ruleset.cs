@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using LessonNet.Grammar;
-using LessonNet.Parser.SyntaxTree;
 
 namespace LessonNet.Parser.ParseTree
 {
@@ -18,35 +17,37 @@ namespace LessonNet.Parser.ParseTree
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			IList<Rule> generatedRules = new List<Rule>();
-			IList<Ruleset> generatedRulesets = new List<Ruleset>();
+			using (context.EnterScope(Selectors)) {
+				IList<Rule> generatedRules = new List<Rule>();
+				IList<Ruleset> generatedRulesets = new List<Ruleset>();
 
-			foreach (var lessNode in Block.Evaluate(context)) {
-				switch (lessNode) {
-					case Rule r:
-						generatedRules.Add(r);
-						break;
-					case Ruleset rs: 
-						generatedRulesets.Add(rs);
-						break;
-					default:
-						throw new EvaluationException(
-							$"Unexpected evaluation result: rule block produced node with type {lessNode.GetType().Name}");
+				foreach (var lessNode in Block.Evaluate(context)) {
+					switch (lessNode) {
+						case Rule r:
+							generatedRules.Add(r);
+							break;
+						case Ruleset rs:
+							generatedRulesets.Add(rs);
+							break;
+						default:
+							throw new EvaluationException(
+								$"Unexpected evaluation result: rule block produced node with type {lessNode.GetType().Name}");
+					}
 				}
-			}
 
-			var evaluatedBlock = new RuleBlock(generatedRules, null) {
-				IsEvaluated = true
-			};
+				var evaluatedBlock = new RuleBlock(generatedRules, null) {
+					IsEvaluated = true
+				};
 
-			var evaluatedRuleset =
-				new Ruleset(Selectors.EvaluateSingle<SelectorList>(context), evaluatedBlock) {IsEvaluated = true};
+				var evaluatedRuleset =
+					new Ruleset(Selectors.EvaluateSingle<SelectorList>(context), evaluatedBlock) {IsEvaluated = true};
 
-			yield return evaluatedRuleset;
+				yield return evaluatedRuleset;
 
-			foreach (var generatedRuleset in generatedRulesets) {
-				var combinedSelectors = generatedRuleset.Selectors.Inherit(Selectors);
-				yield return new Ruleset(combinedSelectors, generatedRuleset.Block) { IsEvaluated = true };
+				foreach (var generatedRuleset in generatedRulesets) {
+					var combinedSelectors = generatedRuleset.Selectors.Inherit(Selectors);
+					yield return new Ruleset(combinedSelectors, generatedRuleset.Block) {IsEvaluated = true};
+				}
 			}
 		}
 

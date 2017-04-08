@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using LessonNet.Parser.SyntaxTree;
+using System.Linq;
 
 namespace LessonNet.Parser.ParseTree {
-	public class MixinDefinition : Statement {
+	public class MixinDefinition : Declaration {
 		private readonly SelectorList selectors;
 		private readonly RuleBlock block;
 
@@ -13,7 +13,11 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return this;
+			return Enumerable.Empty<LessNode>();
+		}
+
+		public override void DeclareIn(Scope scope) {
+			
 		}
 	}
 }

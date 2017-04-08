@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using LessonNet.Parser.SyntaxTree;
 using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser.ParseTree {

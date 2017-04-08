@@ -1,6 +1,6 @@
 ﻿using Antlr4.Runtime.Tree;
 using LessonNet.Grammar;
-using LessonNet.Parser.SyntaxTree;
+using LessonNet.Parser.ParseTree;
 
 namespace LessonNet.Parser
 {
@@ -38,7 +38,7 @@ namespace LessonNet.Parser
 
 		public virtual LessNode VisitVariableName(LessParser.VariableNameContext context)
 		{
-			throw new System.NotImplementedException();
+			return new Variable(context.Identifier().GetText());
 		}
 
 		public virtual LessNode VisitMathCharacter(LessParser.MathCharacterContext context)
@@ -168,7 +168,7 @@ namespace LessonNet.Parser
 
 		public virtual LessNode VisitIdentifier(LessParser.IdentifierContext context)
 		{
-			throw new System.NotImplementedException();
+			return new Identifier(context.GetText());
 		}
 
 		public virtual LessNode VisitIdentifierPart(LessParser.IdentifierPartContext context)

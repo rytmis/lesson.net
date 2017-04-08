@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using LessonNet.Parser.SyntaxTree;
 
 namespace LessonNet.Parser.ParseTree {
 	public class Rule : LessNode {
@@ -14,7 +12,13 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return this;
+			IEnumerable<ExpressionList> EvaluateValues() {
+				foreach (var value in values) {
+					yield return value.EvaluateSingle<ExpressionList>(context);
+				}
+			}
+
+			yield return new Rule(property, EvaluateValues()) {IsEvaluated = true};
 		}
 
 		protected override string GetCss() {

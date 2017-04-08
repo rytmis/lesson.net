@@ -2,7 +2,6 @@
 using System.IO;
 using Antlr4.Runtime;
 using LessonNet.Grammar;
-using LessonNet.Parser.SyntaxTree;
 
 namespace LessonNet.Parser
 {
