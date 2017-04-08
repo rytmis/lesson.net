@@ -13,7 +13,15 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield break;
+			foreach (var mixinResult in context.CurrentScope.ResolveMatchingMixins(this)) {
+				foreach (var evaluationResult in mixinResult.Evaluate(context)) {
+					yield return evaluationResult;
+				}
+			}
+		}
+
+		public bool Matches(MixinDefinition mixinDefinition) {
+			return mixinDefinition.Selectors.MatchesAny(selectors);
 		}
 	}
 

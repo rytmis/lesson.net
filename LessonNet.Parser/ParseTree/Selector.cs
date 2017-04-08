@@ -66,6 +66,20 @@ namespace LessonNet.Parser.ParseTree {
 
 			return SubstituteParentReferences(elements, true);
 		}
+
+		public bool Matches(Selector s2) {
+			if (s2.elements.Count != elements.Count) {
+				return false;
+			}
+
+			for (var i = 0; i < elements.Count; i++) {
+				if (!string.Equals(elements[i].Element, s2.elements[i].Element)) {
+					return false;
+				}
+			}
+
+			return true;
+		}
 	}
 
 	public class SelectorElement : LessNode {

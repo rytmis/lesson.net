@@ -45,5 +45,9 @@ namespace LessonNet.Parser.ParseTree {
 		protected override string GetCss() {
 			return GetStringRepresentation();
 		}
+
+		public bool MatchesAny(SelectorList selectorList) {
+			return Selectors.Any(s => selectorList.Selectors.Any(s.Matches));
+		}
 	}
 }

@@ -42,6 +42,12 @@ namespace LessonNet.Parser
 			return new ScopeGuard(scopeStack);
 		}
 
+		public IDisposable EnterClosureScope(Scope closure) {
+			scopeStack.Push(new ClosureScope(closure, CurrentScope));
+
+			return new ScopeGuard(scopeStack);
+		}
+
 		private class ScopeGuard : IDisposable {
 			private readonly Stack<Scope> stack;
 
@@ -61,6 +67,8 @@ namespace LessonNet.Parser
 		private IList<Scope> children = new List<Scope>();
 		private IDictionary<string, VariableDeclaration> variables = new Dictionary<string, VariableDeclaration>();
 
+		private IList<MixinDefinition> mixins = new List<MixinDefinition>();
+
 		public Scope(SelectorList selectors = null, Scope parent = null) {
 			this.selectors = selectors;
 			Parent = parent;
@@ -68,20 +76,42 @@ namespace LessonNet.Parser
 
 		public Scope Parent { get; }
 
-		public void DeclareMixin(string selector, MixinDefinition mixin) {
-			
+		public virtual void DeclareMixin(MixinDefinition mixin) {
+			mixins.Add(mixin);
 		}
 
-		public void DeclareVariable(VariableDeclaration variable) {
+		public virtual void DeclareVariable(VariableDeclaration variable) {
 			variables[variable.Name] = variable;
 		}
 
-		public VariableDeclaration ResolveVariable(string name) {
+		public virtual IEnumerable<MixinEvaluationResult> ResolveMatchingMixins(MixinCall call) {
+			// No namespace support or result caching yet
+			var matchingMixins = mixins
+				.Where(call.Matches)
+				.Select(m => new MixinEvaluationResult(m, this));
+
+			if (Parent == null) {
+				return matchingMixins;
+			}
+
+			return Parent.ResolveMatchingMixins(call).Concat(matchingMixins);
+		}
+
+		public virtual VariableDeclaration ResolveVariable(string name, bool throwOnError = true) {
 			if (variables.TryGetValue(name, out var variableDeclaration)) {
 				return variableDeclaration;
 			}
 
-			return Parent?.ResolveVariable(name) ?? throw new EvaluationException($"Undefined variable {name}");
+			var variableInParentScope = Parent?.ResolveVariable(name);
+			if (variableInParentScope != null) {
+				return variableInParentScope;
+			}
+
+			if (throwOnError) {
+				throw new EvaluationException($"Undefined variable {name}");
+			}
+
+			return null;
 		}
 
 		public Scope CreateChildScope(SelectorList selectors) {
@@ -96,6 +126,21 @@ namespace LessonNet.Parser
 			}
 
 			return $"{Parent} -> {this.selectors}";
+		}
+	}
+
+	public class ClosureScope : Scope {
+		private readonly Scope closure;
+		private readonly Scope overlay;
+
+		public ClosureScope(Scope closure, Scope overlay) {
+			this.closure = closure;
+			this.overlay = overlay;
+		}
+
+		public override VariableDeclaration ResolveVariable(string name, bool throwOnError = true) {
+			return overlay.ResolveVariable(name, throwOnError: false)
+				?? closure.ResolveVariable(name, throwOnError: throwOnError);
 		}
 	}
 }
