@@ -62,7 +62,7 @@ namespace LessonNet.Parser
 	}
 
 	public class Scope {
-		private readonly SelectorList selectors;
+		public SelectorList Selectors { get; }
 
 		private IList<Scope> children = new List<Scope>();
 		private IDictionary<string, VariableDeclaration> variables = new Dictionary<string, VariableDeclaration>();
@@ -70,7 +70,7 @@ namespace LessonNet.Parser
 		private IList<MixinDefinition> mixins = new List<MixinDefinition>();
 
 		public Scope(SelectorList selectors = null, Scope parent = null) {
-			this.selectors = selectors;
+			this.Selectors = selectors;
 			Parent = parent;
 		}
 
@@ -123,8 +123,8 @@ namespace LessonNet.Parser
 			return null;
 		}
 
-		public Scope CreateChildScope(SelectorList selectors) {
-			var childScope = new Scope(selectors, this);
+		public Scope CreateChildScope(SelectorList scopeSelectors) {
+			var childScope = new Scope(scopeSelectors, this);
 			children.Add(childScope);
 			return childScope;
 		}
@@ -134,7 +134,7 @@ namespace LessonNet.Parser
 				return "[root]";
 			}
 
-			return $"{Parent} -> {this.selectors}";
+			return $"{Parent} -> {this.Selectors}";
 		}
 	}
 

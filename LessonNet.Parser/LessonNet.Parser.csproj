@@ -5,6 +5,9 @@
     <RootNamespace>LessonNet.Parser</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="system.valuetuple" Version="4.3.0" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\LessonNet.Grammar\LessonNet.Grammar.csproj" />
   </ItemGroup>
 </Project>

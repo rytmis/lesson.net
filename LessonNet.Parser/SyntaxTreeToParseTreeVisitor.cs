@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -30,6 +31,7 @@ namespace LessonNet.Parser {
 				?? context.mixinDefinition()?.Accept(this)
 				?? context.ruleset()?.Accept(this)
 				?? context.mixinCall()?.Accept(this)
+				?? context.mediaBlock()?.Accept(this)
 				?? throw new ParserException($"Unexpected statement type: [{context.GetText()}]");
 		}
 
@@ -183,6 +185,33 @@ namespace LessonNet.Parser {
 			}
 
 			return new ListOfExpressionLists(GetExpressionLists());
+		}
+
+		public override LessNode VisitMediaBlock(LessParser.MediaBlockContext context) {
+			var queries = context.mediaQuery().Select(q => (MediaQuery) q.Accept(this));
+			var block = (RuleBlock) context.block().Accept(this);
+
+			return new MediaBlock(queries, block);
+		}
+
+		public override LessNode VisitMediaQuery(LessParser.MediaQueryContext context) {
+			var modifier = (MediaQueryModifier) Enum.Parse(typeof(MediaQueryModifier), context.MediaQueryModifier()?.GetText() ?? "None", ignoreCase: true);
+			var featureQueries = context.featureQuery().Select(f => (MediaFeatureQuery) f.Accept(this));
+
+			return new MediaQuery(modifier, featureQueries);
+		}
+
+		public override LessNode VisitFeatureQuery(LessParser.FeatureQueryContext context) {
+			var property = context.property();
+			if (property != null) {
+				return new MediaPropertyQuery((Rule) property.Accept(this));
+			}
+
+			return new MediaIdentifierQuery(context.identifier().GetText());
+		}
+
+		public override LessNode VisitMeasurement(LessParser.MeasurementContext context) {
+			return new Measurement(context.Number().GetText(), context.Unit().GetText());
 		}
 
 		private IEnumerable<ExpressionList> GetExpressionLists(LessParser.ValueListContext valueList) {

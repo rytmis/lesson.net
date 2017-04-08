@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser.ParseTree {
 	public abstract class StatementList : LessNode {
-		private IList<Statement> statements;
+		protected IList<Statement> Statements { get; }
 
 		protected StatementList(IEnumerable<Statement> statements) {
-			this.statements = statements?.ToList() ?? (IList<Statement>)new Statement[0];
+			this.Statements = statements?.ToList() ?? (IList<Statement>)new Statement[0];
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
@@ -16,12 +17,16 @@ namespace LessonNet.Parser.ParseTree {
 			// Handle variables and mixin definitions first: Variable scoping rules dictate that within a given
 			// variable scope, the last declaration is the one that takes effect for
 			// both the current scope and child scopes.
-			var declarations = statements.OfType<Declaration>().ToArray();
+			(var declarations, var mediaBlocks, var rest) = Statements.Split<Declaration, MediaBlock, Statement>();
 			foreach (var declaration in declarations) {
 				declaration.DeclareIn(context.CurrentScope);
 			}
 
-			foreach (var statement in statements.Except(declarations)) {
+			foreach (var mediaBlock in mediaBlocks) {
+				yield return mediaBlock;
+			}
+
+			foreach (var statement in rest) {
 				foreach (var generatedNode in statement.Evaluate(context)) {
 					yield return generatedNode;
 				}
@@ -31,6 +36,7 @@ namespace LessonNet.Parser.ParseTree {
 
 	public class RuleBlock : StatementList {
 		private readonly List<Rule> rules;
+		public int RuleCount => rules.Count;
 
 		public RuleBlock(IEnumerable<Rule> rules, IEnumerable<Statement> statements) : base(statements) {
 			this.rules = rules.ToList();
@@ -53,6 +59,10 @@ namespace LessonNet.Parser.ParseTree {
 
 			foreach (var rule in rules) {
 				builder.AppendLine(rule.ToCss());
+			}
+
+			foreach (var statement in Statements) {
+				builder.Append(statement.ToCss());
 			}
 
 			return builder.ToString();

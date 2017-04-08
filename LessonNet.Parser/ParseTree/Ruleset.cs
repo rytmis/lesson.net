@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using LessonNet.Grammar;
+using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser.ParseTree
 {
@@ -18,24 +19,9 @@ namespace LessonNet.Parser.ParseTree
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			using (context.EnterScope(Selectors)) {
-				IList<Rule> generatedRules = new List<Rule>();
-				IList<Ruleset> generatedRulesets = new List<Ruleset>();
+				(var rules, var rulesets, var mediaBlocks) = Block.Evaluate(context).Split<Rule, Ruleset, MediaBlock>();
 
-				foreach (var lessNode in Block.Evaluate(context)) {
-					switch (lessNode) {
-						case Rule r:
-							generatedRules.Add(r);
-							break;
-						case Ruleset rs:
-							generatedRulesets.Add(rs);
-							break;
-						default:
-							throw new EvaluationException(
-								$"Unexpected evaluation result: rule block produced node with type {lessNode.GetType().Name}");
-					}
-				}
-
-				var evaluatedBlock = new RuleBlock(generatedRules, null) {
+				var evaluatedBlock = new RuleBlock(rules, null) {
 					IsEvaluated = true
 				};
 
@@ -44,20 +30,32 @@ namespace LessonNet.Parser.ParseTree
 
 				yield return evaluatedRuleset;
 
-				foreach (var generatedRuleset in generatedRulesets) {
+				foreach (var generatedRuleset in rulesets) {
 					var combinedSelectors = generatedRuleset.Selectors.Inherit(Selectors);
 					yield return new Ruleset(combinedSelectors, generatedRuleset.Block) {IsEvaluated = true};
+				}
+
+				foreach (var generatedMediaBlock in mediaBlocks) {
+					yield return generatedMediaBlock.EvaluateSingle<MediaBlock>(context);
 				}
 			}
 		}
 
 		protected override string GetCss() {
+			if (Block.RuleCount == 0) {
+				return string.Empty;
+			}
+
 			var builder = new StringBuilder();
 			builder.Append(Selectors.ToCss());
 			builder.AppendLine(" {");
 			builder.Append(Block.ToCss());
 			builder.AppendLine("}");
 			return builder.ToString();
+		}
+
+		protected override string GetStringRepresentation() {
+			return $"{Selectors} {{ {Block.RuleCount} }}";
 		}
 	}
 }

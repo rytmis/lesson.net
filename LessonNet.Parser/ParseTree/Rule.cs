@@ -26,5 +26,9 @@ namespace LessonNet.Parser.ParseTree {
 
 			return $"\t{property}: {cssValues};";
 		}
+
+		protected override string GetStringRepresentation() {
+			return $"{property}: {string.Join(", ", values)}";
+		}
 	}
 }

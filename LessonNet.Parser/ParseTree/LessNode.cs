@@ -21,6 +21,7 @@ namespace LessonNet.Parser.ParseTree {
 		public IEnumerable<LessNode> Evaluate(EvaluationContext context) {
 			if (IsEvaluated) {
 				yield return this;
+				yield break;
 			}
 
 			foreach (var resultNode in EvaluateCore(context)) {
