@@ -114,13 +114,30 @@ namespace LessonNet.Parser {
 			return new ExpressionList(GetValues());
 		}
 
+		public override LessNode VisitParenthesizedExpression(LessParser.ParenthesizedExpressionContext context) {
+			return new ParenthesizedExpression((Expression) context.expression().Accept(this));
+		}
+
 		public override LessNode VisitExpression(LessParser.ExpressionContext context) {
+			MathOperation GetMathOperation() {
+				if (context.mathCharacter() == null) {
+					return null;
+				}
+
+				var lhs = (Expression) context.expression(0).Accept(this);
+				var rhs = (Expression) context.expression(1).Accept(this);
+
+				return new MathOperation(lhs, context.mathCharacter().GetText(), rhs);
+			}
+
 			return context.variableName()?.Accept(this)
 				?? context.Color()?.Accept(this)
 				?? context.measurement()?.Accept(this)
 				?? context.StringLiteral()?.Accept(this)
 				?? context.function()?.Accept(this)
 				?? context.identifier()?.Accept(this)
+				?? context.parenthesizedExpression()?.Accept(this)
+				?? GetMathOperation()
 				?? throw new ParserException($"Unexpected expression {context.GetText()}");
 		}
 
@@ -133,7 +150,41 @@ namespace LessonNet.Parser {
 					?.Select(p => p.variableName().GetText().TrimStart('@'))
 				?? Enumerable.Empty<string>();
 
-			return new MixinDefinition(selectors, arguments, ruleBlock);
+			var guard = (MixinGuard) context.mixinGuard()?.Accept(this);
+
+			return new MixinDefinition(selectors, arguments, ruleBlock, guard);
+		}
+
+		public override LessNode VisitMixinGuard(LessParser.MixinGuardContext context) {
+			return new MixinGuard((OrConditionList) context.mixinGuardConditions().Accept(this));
+		}
+
+		public override LessNode VisitMixinGuardConditions(LessParser.MixinGuardConditionsContext context) {
+			var conditionLists = context.conditionList().Select(cl => (AndConditionList) cl.Accept(this));
+
+			return new OrConditionList(conditionLists);
+		}
+
+		public override LessNode VisitConditionList(LessParser.ConditionListContext context) {
+			var conditions = context.condition().Select(c => (Condition) c.Accept(this));
+
+			return new AndConditionList(conditions);
+		}
+
+		public override LessNode VisitCondition(LessParser.ConditionContext context) {
+			bool negate = context.NOT() != null;
+
+			var conditionStatement = context.conditionStatement();
+			var comparison = conditionStatement.comparison();
+			if (comparison != null) {
+				var lhs = (Expression) comparison.expression(0).Accept(this);
+				string op = comparison.comparisonOperator().GetText();
+				var rhs = (Expression) comparison.expression(1).Accept(this);
+
+				return new ComparisonCondition(negate, lhs, op, rhs);
+			} 
+
+			return new BooleanExpressionCondition(negate, (Expression) conditionStatement.expression().Accept(this));
 		}
 
 		public override LessNode VisitBlock(LessParser.BlockContext context) {
@@ -211,7 +262,7 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitMeasurement(LessParser.MeasurementContext context) {
-			return new Measurement(context.Number().GetText(), context.Unit().GetText());
+			return new Measurement(decimal.Parse(context.Number().GetText()), context.Unit()?.GetText());
 		}
 
 		private IEnumerable<ExpressionList> GetExpressionLists(LessParser.ValueListContext valueList) {

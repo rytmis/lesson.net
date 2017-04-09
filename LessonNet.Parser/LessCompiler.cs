@@ -2,6 +2,8 @@
 using System.IO;
 using Antlr4.Runtime;
 using LessonNet.Grammar;
+using LessonNet.Parser.CodeGeneration;
+using LessonNet.Parser.ParseTree;
 
 namespace LessonNet.Parser
 {
@@ -12,9 +14,12 @@ namespace LessonNet.Parser
 			var context = new EvaluationContext(new LessTreeParser(), new FileResolver(inputFileName));
 			var rootNode = context.ParseCurrentStylesheet();
 
-			string css = rootNode.GenerateCss(context);
+			var evaluated = rootNode.EvaluateSingle<Stylesheet>(context);
 
-			Console.WriteLine(css);
+			var outputContext = new OutputContext(' ', 4);
+			outputContext.Append(evaluated);
+
+			Console.WriteLine(outputContext.GetCss());
 		}
 	}
 }

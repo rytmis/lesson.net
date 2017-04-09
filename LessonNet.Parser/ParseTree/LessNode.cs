@@ -50,4 +50,10 @@ namespace LessonNet.Parser.ParseTree {
 
 		protected abstract IEnumerable<LessNode> EvaluateCore(EvaluationContext context);
 	}
+
+	public abstract class NoOutputNode : LessNode {
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
+			return Enumerable.Empty<LessNode>();
+		}
+	}
 }

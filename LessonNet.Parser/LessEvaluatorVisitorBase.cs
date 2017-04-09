@@ -72,13 +72,24 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
-		public virtual LessNode VisitConditions(LessParser.ConditionsContext context)
-		{
+		public virtual LessNode VisitMixinGuardConditions(LessParser.MixinGuardConditionsContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitConditionList(LessParser.ConditionListContext context) {
 			throw new System.NotImplementedException();
 		}
 
 		public virtual LessNode VisitCondition(LessParser.ConditionContext context)
 		{
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitComparisonOperator(LessParser.ComparisonOperatorContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitComparison(LessParser.ComparisonContext context) {
 			throw new System.NotImplementedException();
 		}
 

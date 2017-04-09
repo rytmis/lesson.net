@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree
 {
 	public class Measurement : Expression
 	{
-		private readonly string number;
-		private readonly string unit;
+		public decimal Number { get; }
+		public string Unit { get; }
 
-		public Measurement(string number, string unit) {
-			this.number = number;
-			this.unit = unit;
+		public Measurement(decimal number, string unit) {
+			this.Number = number;
+			this.Unit = unit;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
@@ -21,7 +22,11 @@ namespace LessonNet.Parser.ParseTree
 		}
 
 		protected override string GetStringRepresentation() {
-			return $"{number}{unit}";
+			return $"{Number}{Unit}";
+		}
+
+		public override void WriteOutput(OutputContext context) {
+			context.Append(GetStringRepresentation());
 		}
 	}
 }

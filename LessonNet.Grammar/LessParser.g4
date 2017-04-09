@@ -65,8 +65,12 @@ function
   : functionName LPAREN valueList? RPAREN
   ;
 
-conditions
-  : condition ((AND|COMMA) condition)*
+mixinGuardConditions
+  : conditionList (COMMA conditionList)*
+  ;
+
+conditionList
+  : condition (AND condition)*
   ;
 
 condition
@@ -74,8 +78,16 @@ condition
   | NOT LPAREN conditionStatement RPAREN
   ;
 
+comparisonOperator
+  : ( EQ | LT | GT | GTEQ | LTEQ )
+  ;
+
+comparison
+  : expression comparisonOperator expression
+  ;
+
 conditionStatement
-  : expression ( EQ | LT | GT | GTEQ | LTEQ ) expression
+  : comparison
   | expression
   ;
 
@@ -115,7 +127,7 @@ mixinCall
   ;
 
 mixinGuard
-  : WHEN conditions
+  : WHEN mixinGuardConditions
   ;
 
 mixinDefinitionParam
