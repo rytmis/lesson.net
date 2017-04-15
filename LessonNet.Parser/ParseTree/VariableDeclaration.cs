@@ -22,8 +22,8 @@ namespace LessonNet.Parser.ParseTree {
 			return Enumerable.Empty<LessNode>();
 		}
 
-		public override void DeclareIn(Scope scope) {
-			scope.DeclareVariable(this);
+		public override void DeclareIn(EvaluationContext context) {
+			context.CurrentScope.DeclareVariable(this);
 		}
 	}
 }

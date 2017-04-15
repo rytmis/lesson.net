@@ -79,7 +79,7 @@ condition
   ;
 
 comparisonOperator
-  : ( EQ | LT | GT | GTEQ | LTEQ )
+  : ( EQ | LT | GT | GTEQ | LTEQ_MIXINGUARD )
   ;
 
 comparison
@@ -123,7 +123,7 @@ mixinDefinition
   ;
 
 mixinCall
-  : selectors LPAREN (commaSeparatedExpressionList (';' commaSeparatedExpressionList)*)? RPAREN
+  : selectors (LPAREN (commaSeparatedExpressionList (';' commaSeparatedExpressionList)*)? RPAREN)?
   ;
 
 mixinGuard

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using LessonNet.Parser.CodeGeneration;
+using LessonNet.Parser.ParseTree.Expressions;
 using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser.ParseTree {
@@ -13,11 +14,11 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return this;
+			yield return new Selector(elements.Select(e => e.EvaluateSingle<SelectorElement>(context)));
 		}
 
 		protected override string GetStringRepresentation() {
-			return string.Join("", elements.Select(e => e.Element + (e.HasTrailingWhitespace ? " " : ""))).Trim();
+			return string.Join("", elements.Select(e => e.ToString())).Trim();
 		}
 
 		public override void WriteOutput(OutputContext context) {
@@ -35,11 +36,12 @@ namespace LessonNet.Parser.ParseTree {
 							yield return parentSelector.elements[i];
 						}
 
-						var lastParentElement = parentSelector.elements.Last();
-
-						yield return new SelectorElement(lastParentElement.Element) {
-							HasTrailingWhitespace = parentRef.HasTrailingWhitespace
-						};
+						var lastParentElement = parentSelector.elements.LastOrDefault();
+						if (lastParentElement is IdentifierSelectorElement ise) {
+							yield return new IdentifierSelectorElement(ise.Identifier) {
+								HasTrailingWhitespace = parentRef.HasTrailingWhitespace
+							};
+						}
 
 						substituted = true;
 					} else {
@@ -74,7 +76,7 @@ namespace LessonNet.Parser.ParseTree {
 			}
 
 			for (var i = 0; i < elements.Count; i++) {
-				if (!string.Equals(elements[i].Element, s2.elements[i].Element)) {
+				if (!Equals(elements[i], s2.elements[i])) {
 					return false;
 				}
 			}
@@ -83,24 +85,79 @@ namespace LessonNet.Parser.ParseTree {
 		}
 	}
 
-	public class SelectorElement : LessNode {
-		public string Element { get; }
+	public abstract class SelectorElement : LessNode {
 		public bool HasTrailingWhitespace { get; set; }
 
-		public SelectorElement(string element) {
-			Element = element;
+	}
+
+	public class IdentifierSelectorElement : SelectorElement {
+		public Identifier Identifier { get; }
+
+		public IdentifierSelectorElement(Identifier identifier) {
+			this.Identifier = identifier;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			throw new NotImplementedException();
+			yield return new IdentifierSelectorElement(Identifier.EvaluateSingle<Identifier>(context));
 		}
 
 		protected override string GetStringRepresentation() {
-			return Element;
+			return Identifier + (HasTrailingWhitespace ? " " : "");
+		}
+
+		public override bool Equals(object obj) {
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((IdentifierSelectorElement) obj);
+		}
+
+		protected bool Equals(IdentifierSelectorElement other) {
+			return Equals(Identifier, other.Identifier);
+		}
+
+		public override int GetHashCode() {
+			return (Identifier != null ? Identifier.GetHashCode() : 0);
 		}
 	}
 
 	public class ParentReferenceSelectorElement : SelectorElement {
-		public ParentReferenceSelectorElement() : base(string.Empty) { }
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
+			yield return this;
+		}
+
+		protected override string GetStringRepresentation() {
+			return string.Empty;
+		}
+
+		protected bool Equals(ParentReferenceSelectorElement other) {
+			return true;
+		}
+
+		public override bool Equals(object obj) {
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((ParentReferenceSelectorElement) obj);
+		}
+
+		public override int GetHashCode() {
+			return '&'.GetHashCode();
+		}
+	}
+
+	public class AttributeSelectorElement : SelectorElement {
+		private readonly string attributeReference;
+
+		public AttributeSelectorElement(string attributeReference) {
+			this.attributeReference = attributeReference;
+		}
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
+			yield return this;
+		}
+
+		protected override string GetStringRepresentation() {
+			return attributeReference;
+		}
 	}
 }

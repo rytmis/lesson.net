@@ -1,11 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using LessonNet.Grammar;
 using LessonNet.Parser.ParseTree;
+using LessonNet.Parser.ParseTree.Expressions;
+using LessonNet.Parser.ParseTree.Mixins;
 
 namespace LessonNet.Parser {
 	internal class SyntaxTreeToParseTreeVisitor : LessEvaluatorVisitorBase {
@@ -49,7 +53,57 @@ namespace LessonNet.Parser {
 			return new Ruleset(selectors, (RuleBlock) context.block().Accept(this));
 		}
 
+		private IEnumerable<IdentifierPart> GetIdentifierParts(LessParser.IdentifierContext idContext) {
+			if (idContext.Identifier() != null) {
+				yield return new ConstantIdentifierPart(idContext.Identifier().GetText());
+			}
+
+			if (idContext.identifierVariableName() != null) {
+				yield return new InterpolatedVariableIdentifierPart(idContext.identifierVariableName().GetText());
+			}
+
+			foreach (var partContext in idContext.identifierPart()) {
+				if (partContext.IdentifierAfter() != null) {
+					yield return new ConstantIdentifierPart(partContext.IdentifierAfter().GetText());
+				}
+
+				if (partContext.identifierVariableName() != null) {
+					yield return new InterpolatedVariableIdentifierPart(partContext.identifierVariableName().GetText());
+				}
+			}
+		}
+
+
 		public override LessNode VisitSelectorElement(LessParser.SelectorElementContext context) {
+			IEnumerable<IdentifierPart> GetIdentifierParts() {
+				string prefix = context.HASH()?.GetText()
+					?? context.DOT()?.GetText();
+
+				if (!string.IsNullOrEmpty(prefix)) {
+					yield return new ConstantIdentifierPart(prefix);
+				}
+
+				foreach (var identifierPart in this.GetIdentifierParts(context.identifier())) {
+					yield return identifierPart;
+				}
+			}
+
+			Identifier GetPseudoclassIdentifier() {
+				string prefix = context.COLON()?.GetText()
+					?? context.COLONCOLON()?.GetText()
+					?? "";
+
+				return new Identifier(new ConstantIdentifierPart(prefix + context.Identifier().GetText()));
+			}
+
+			Identifier GetIdentifier() {
+				if (context.Identifier() != null) {
+					return GetPseudoclassIdentifier();
+				}
+
+				return new Identifier(GetIdentifierParts());
+			}
+
 			int possibleWhitespaceIndex = context.Stop.TokenIndex + 1;
 
 			bool hasTrailingWhitespace = possibleWhitespaceIndex < tokenStream.Size
@@ -62,9 +116,19 @@ namespace LessonNet.Parser {
 				};
 			}
 
-			return new SelectorElement(context.GetText()) {
+			if (context.identifier() != null || context.Identifier() != null) {
+				return new IdentifierSelectorElement(GetIdentifier()) {
+					HasTrailingWhitespace = hasTrailingWhitespace
+				};
+			}
+
+			return new AttributeSelectorElement(context.attrib().GetText()) {
 				HasTrailingWhitespace = hasTrailingWhitespace
 			};
+		}
+
+		public override LessNode VisitIdentifier(LessParser.IdentifierContext context) {
+			return new Identifier(GetIdentifierParts(context));
 		}
 
 		public override LessNode VisitSelector(LessParser.SelectorContext context) {
@@ -119,7 +183,7 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitExpression(LessParser.ExpressionContext context) {
-			MathOperation GetMathOperation() {
+			Expression GetMathOperation() {
 				if (context.mathCharacter() == null) {
 					return null;
 				}
@@ -130,29 +194,65 @@ namespace LessonNet.Parser {
 				return new MathOperation(lhs, context.mathCharacter().GetText(), rhs);
 			}
 
+			Expression GetColor() {
+				if (context.Color() == null) {
+					return null;
+				}
+
+				return new Color(context.Color().GetText());
+			}
+
+			Expression GetStringLiteral() {
+				if (context.StringLiteral() == null) {
+					return null;
+				}
+
+				return new StringLiteral(context.StringLiteral().GetText());
+			}
+
 			return context.variableName()?.Accept(this)
-				?? context.Color()?.Accept(this)
+				?? GetColor()
 				?? context.measurement()?.Accept(this)
-				?? context.StringLiteral()?.Accept(this)
+				?? GetStringLiteral()
 				?? context.function()?.Accept(this)
 				?? context.identifier()?.Accept(this)
 				?? context.parenthesizedExpression()?.Accept(this)
+				?? context.measurementList()?.Accept(this)
 				?? GetMathOperation()
+				?? context.url()?.Accept(this)
+				?? context.quotedExpression()?.Accept(this)
 				?? throw new ParserException($"Unexpected expression {context.GetText()}");
 		}
 
+		public override LessNode VisitUrl(LessParser.UrlContext context) {
+			return new Url(context.Url().GetText());
+		}
+
+		public override LessNode VisitQuotedExpression(LessParser.QuotedExpressionContext context) {
+			return new QuotedExpression(context.StringLiteral().GetText());
+		}
+
 		public override LessNode VisitMixinDefinition(LessParser.MixinDefinitionContext context) {
+			IEnumerable<MixinParameter> GetParameters() {
+				if (context.mixinDefinitionParam() == null) {
+					yield break;
+				}
+				foreach (var param in context.mixinDefinitionParam()) {
+					if (param.variableName() != null) {
+						yield return new MixinParameter(param.variableName().GetText().TrimStart('@'), null);
+					} else {
+						var decl = (VariableDeclaration) param.variableDeclaration().Accept(this);
+						yield return new MixinParameter(decl.Name, decl.Values);
+					}
+				}
+			}
+
 			var selectors = (SelectorList) context.selectors().Accept(this);
 			var ruleBlock = (RuleBlock) context.block().Accept(this);
 
-			// TODO: Handle the extra '@' symbol in the parser grammar
-			var arguments = context.mixinDefinitionParam()
-					?.Select(p => p.variableName().GetText().TrimStart('@'))
-				?? Enumerable.Empty<string>();
-
 			var guard = (MixinGuard) context.mixinGuard()?.Accept(this);
 
-			return new MixinDefinition(selectors, arguments, ruleBlock, guard);
+			return new MixinDefinition(selectors, GetParameters(), ruleBlock, guard);
 		}
 
 		public override LessNode VisitMixinGuard(LessParser.MixinGuardContext context) {
@@ -225,7 +325,11 @@ namespace LessonNet.Parser {
 
 			var selector = (SelectorList)context.selectors().Accept(this);
 
-			return new MixinCall(selector, GetArguments());
+			if (context.LPAREN() != null) {
+				return new MixinCall(selector, GetArguments());
+			}
+
+			return new RulesetCall(selector);
 		}
 
 		public override LessNode VisitCommaSeparatedExpressionList(LessParser.CommaSeparatedExpressionListContext context) {
@@ -261,11 +365,23 @@ namespace LessonNet.Parser {
 			return new MediaIdentifierQuery(context.identifier().GetText());
 		}
 
+		public override LessNode VisitMeasurementList(LessParser.MeasurementListContext context) {
+			return new MeasurementList(context.measurement().Select(m => (Measurement) m.Accept(this)));
+		}
+
+
 		public override LessNode VisitMeasurement(LessParser.MeasurementContext context) {
-			return new Measurement(decimal.Parse(context.Number().GetText()), context.Unit()?.GetText());
+			return new Measurement(decimal.Parse(context.Number().GetText(), CultureInfo.InvariantCulture), context.Unit()?.GetText());
+		}
+
+		public override LessNode VisitFunction(LessParser.FunctionContext context) {
+			return new Function(context.functionName().GetText(), GetExpressionLists(context.valueList()));
 		}
 
 		private IEnumerable<ExpressionList> GetExpressionLists(LessParser.ValueListContext valueList) {
+			if (valueList == null) {
+				yield break;
+			}
 
 			var commaSeparatedExpressionListContext = valueList.commaSeparatedExpressionList();
 

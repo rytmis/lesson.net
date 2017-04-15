@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using LessonNet.Parser.CodeGeneration;
+using LessonNet.Parser.ParseTree.Expressions;
 
 namespace LessonNet.Parser.ParseTree {
 	public class ExpressionList : LessNode, IEnumerable<Expression> {

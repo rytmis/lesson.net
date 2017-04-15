@@ -11,7 +11,14 @@ namespace LessonNet.Parser.Util
 			return source.OfType<T>().Any();
 		}
 
-		public static (IEnumerable<TFirst> first, IEnumerable<TSecond> second)
+		public static (TElement first, IList<TElement> rest)
+			SplitFirst<TElement>(this IEnumerable<TElement> source) {
+			var elements = source.ToList();
+
+			return (elements.FirstOrDefault(), elements.Skip(1).ToList());
+		}
+
+		public static (IList<TFirst> first, IList<TSecond> second)
 			Split<TFirst, TSecond>(this IEnumerable source) {
 			IList<TFirst> first = new List<TFirst>();
 			IList<TSecond> second = new List<TSecond>();
@@ -27,7 +34,7 @@ namespace LessonNet.Parser.Util
 			return (first, second);
 		}
 
-		public static (IEnumerable<TFirst> first, IEnumerable<TSecond> second, IEnumerable<TThird> third)
+		public static (IList<TFirst> first, IList<TSecond> second, IList<TThird> third)
 			Split<TFirst, TSecond, TThird>(this IEnumerable source) {
 			IList<TFirst> first = new List<TFirst>();
 			IList<TSecond> second = new List<TSecond>();

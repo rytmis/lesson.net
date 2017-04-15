@@ -46,6 +46,7 @@ PERC            : '%';
 EQEQ            : '==';
 GTEQ            : '>=';
 LTEQ            : '<=';
+LTEQ_MIXINGUARD : '=<';
 NOTEQ           : '!=';
 EQ              : '=';
 PIPE_EQ         : '|=';

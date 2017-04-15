@@ -40,7 +40,7 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override string GetStringRepresentation() {
-			return string.Join(",\n", Selectors.Select(s => s.ToString()));
+			return string.Join($",{Environment.NewLine}", Selectors.Select(s => s.ToString()));
 		}
 
 		public override void WriteOutput(OutputContext context) {
@@ -49,6 +49,10 @@ namespace LessonNet.Parser.ParseTree {
 
 		public bool MatchesAny(SelectorList selectorList) {
 			return Selectors.Any(s => selectorList.Selectors.Any(s.Matches));
+		}
+
+		public static SelectorList Empty() {
+			return new SelectorList(new[] {new Selector(Enumerable.Empty<SelectorElement>())});
 		}
 	}
 }

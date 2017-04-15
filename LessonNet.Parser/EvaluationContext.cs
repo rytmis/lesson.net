@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
 using LessonNet.Parser.ParseTree;
+using LessonNet.Parser.ParseTree.Mixins;
 
 namespace LessonNet.Parser
 {
@@ -68,6 +69,7 @@ namespace LessonNet.Parser
 		private IDictionary<string, VariableDeclaration> variables = new Dictionary<string, VariableDeclaration>();
 
 		private IList<MixinDefinition> mixins = new List<MixinDefinition>();
+		private IList<Ruleset> rulesets = new List<Ruleset>();
 
 		public Scope(SelectorList selectors = null, Scope parent = null) {
 			this.Selectors = selectors;
@@ -84,6 +86,10 @@ namespace LessonNet.Parser
 			variables[variable.Name] = variable;
 		}
 
+		public virtual void DeclareRuleset(Ruleset ruleset) {
+			rulesets.Add(ruleset);
+		}
+
 		public virtual IEnumerable<MixinEvaluationResult> ResolveMatchingMixins(MixinCall call) {
 			var resolvedMixins = ResolveMixinsCore(call);
 			if (!resolvedMixins.Any()) {
@@ -91,6 +97,15 @@ namespace LessonNet.Parser
 			}
 
 			return resolvedMixins;
+		}
+
+		public virtual IEnumerable<RulesetEvaluationResult> ResolveMatchingRulesets(RulesetCall call) {
+			var resolvedRulesets = ResolveRulesetsCore(call);
+			if (!resolvedRulesets.Any()) {
+				throw new EvaluationException($"No matching ruleset found: {call} ");
+			}
+
+			return resolvedRulesets;
 		}
 
 		private IList<MixinEvaluationResult> ResolveMixinsCore(MixinCall call) {
@@ -105,6 +120,19 @@ namespace LessonNet.Parser
 
 			return Parent.ResolveMatchingMixins(call).Concat(matchingMixins).ToList();
 		}
+		private IList<RulesetEvaluationResult> ResolveRulesetsCore(RulesetCall call) {
+			// No namespace support or result caching yet
+			var matchingRulesets = rulesets
+				.Where(call.Matches)
+				.Select(m => new RulesetEvaluationResult(m, call, this));
+
+			if (Parent == null) {
+				return matchingRulesets.ToList();
+			}
+
+			return Parent.ResolveMatchingRulesets(call).Concat(matchingRulesets).ToList();
+		}
+
 
 		public virtual VariableDeclaration ResolveVariable(string name, bool throwOnError = true) {
 			if (variables.TryGetValue(name, out var variableDeclaration)) {

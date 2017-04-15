@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace LessonNet.Parser.ParseTree {
+namespace LessonNet.Parser.ParseTree.Mixins {
 	public class MixinCall : Statement {
 		private readonly SelectorList selectors;
 		private readonly List<MixinCallArgument> arguments;
@@ -28,28 +28,6 @@ namespace LessonNet.Parser.ParseTree {
 
 		protected override string GetStringRepresentation() {
 			return $"{selectors}({string.Join(", ", arguments)})";
-		}
-	}
-
-	public class MixinCallArgument : LessNode {
-		private readonly ListOfExpressionLists value;
-
-		public MixinCallArgument(ExpressionList expressionList) {
-			value = new ListOfExpressionLists(new []{expressionList});
-		}
-
-		public MixinCallArgument(ListOfExpressionLists value) {
-			this.value = value;
-		}
-
-		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			foreach (var expressionList in value.Evaluate(context)) {
-				yield return expressionList;
-			}
-		}
-
-		protected override string GetStringRepresentation() {
-			return value.ToString();
 		}
 	}
 }

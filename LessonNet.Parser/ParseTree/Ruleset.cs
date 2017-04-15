@@ -8,7 +8,7 @@ using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser.ParseTree
 {
-	public class Ruleset : Statement
+	public class Ruleset : Declaration
 	{
 		public SelectorList Selectors { get; }
 		public RuleBlock Block { get; }
@@ -40,6 +40,10 @@ namespace LessonNet.Parser.ParseTree
 					yield return generatedMediaBlock.EvaluateSingle<MediaBlock>(context);
 				}
 			}
+		}
+
+		public override void DeclareIn(EvaluationContext context) {
+			context.CurrentScope.DeclareRuleset(new Ruleset(Selectors.EvaluateSingle<SelectorList>(context), Block));
 		}
 
 		public override void WriteOutput(OutputContext context) {
