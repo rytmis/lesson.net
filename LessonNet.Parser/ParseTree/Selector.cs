@@ -171,4 +171,35 @@ namespace LessonNet.Parser.ParseTree {
 			return attributeReference.GetHashCode() + HasTrailingWhitespace.GetHashCode();
 		}
 	}
+
+	public class CombinatorSelectorElement : SelectorElement {
+		private readonly string combinator;
+
+		public CombinatorSelectorElement(string combinator) {
+			this.combinator = combinator;
+		}
+
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
+			yield return this;
+		}
+
+		protected override string GetStringRepresentation() {
+			return combinator;
+		}
+
+		protected bool Equals(CombinatorSelectorElement other) {
+			return string.Equals(combinator, other.combinator);
+		}
+
+		public override bool Equals(object obj) {
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((CombinatorSelectorElement) obj);
+		}
+
+		public override int GetHashCode() {
+			return (combinator != null ? combinator.GetHashCode() : 0);
+		}
+	}
 }

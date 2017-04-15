@@ -123,9 +123,13 @@ namespace LessonNet.Parser {
 				};
 			}
 
-			return new AttributeSelectorElement(context.attrib().GetText()) {
-				HasTrailingWhitespace = hasTrailingWhitespace
-			};
+			if (context.attrib() != null) {
+				return new AttributeSelectorElement(context.attrib().GetText()) {
+					HasTrailingWhitespace = hasTrailingWhitespace
+				};
+			}
+
+			return new CombinatorSelectorElement(context.combinator().GetText());
 		}
 
 		public override LessNode VisitIdentifier(LessParser.IdentifierContext context) {
@@ -309,19 +313,22 @@ namespace LessonNet.Parser {
 
 		public override LessNode VisitMixinCall(LessParser.MixinCallContext context) {
 			IEnumerable<MixinCallArgument> GetArguments() {
-				var expressionLists = context.commaSeparatedExpressionList();
-				if (expressionLists.Length == 1) {
-					// Single comma-separated list of expressions (e.g. 10px 10px, 20px 20px)
-					// --> each comma-separated list is an argument
-					foreach (var list in expressionLists[0].expressionList()) {
-						yield return new MixinCallArgument((ExpressionList) list.Accept(this));
+				bool semicolonSeparated = context.SEMI().Any();
+						
+				foreach (var arg in context.mixinCallArgument()) {
+					var namedArg = arg.variableDeclaration();
+					if (namedArg != null) {
+						yield return new NamedArgument(namedArg.variableName().Identifier().GetText(), GetExpressionLists(namedArg.valueList()));
+					} else {
+						var expressionLists = GetExpressionLists(arg.valueList());
+						if (semicolonSeparated) {
+							yield return new PositionalArgument(expressionLists);
+						} else {
+							foreach (var expressionList in expressionLists) {
+								yield return new PositionalArgument(expressionList);
+							}
+						}
 					}
-					yield break;
-				}
-
-				// Semicolon-separated list of potentially comma-separated lists
-				foreach (var expressionList in expressionLists) {
-					yield return new MixinCallArgument((ListOfExpressionLists) expressionList.Accept(this));
 				}
 			}
 
@@ -332,16 +339,6 @@ namespace LessonNet.Parser {
 			}
 
 			return new RulesetCall(selector);
-		}
-
-		public override LessNode VisitCommaSeparatedExpressionList(LessParser.CommaSeparatedExpressionListContext context) {
-			IEnumerable<ExpressionList> GetExpressionLists() {
-				foreach (var value in context.expressionList()) {
-					yield return (ExpressionList) value.Accept(this);
-				}
-			}
-
-			return new ListOfExpressionLists(GetExpressionLists());
 		}
 
 		public override LessNode VisitMediaBlock(LessParser.MediaBlockContext context) {

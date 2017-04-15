@@ -122,8 +122,14 @@ mixinDefinition
   : selectors LPAREN (mixinDefinitionParam ((';'|',') mixinDefinitionParam)*)? Ellipsis? RPAREN mixinGuard? block
   ;
 
+mixinCallArgument
+  : variableDeclaration
+  | valueList
+  ;
+
 mixinCall
-  : selectors (LPAREN (commaSeparatedExpressionList (';' commaSeparatedExpressionList)*)? RPAREN)?
+  : selectors (LPAREN (mixinCallArgument (SEMI mixinCallArgument)*)? RPAREN)?
+  | selectors (LPAREN (mixinCallArgument (COMMA mixinCallArgument)*)? RPAREN)?
   ;
 
 mixinGuard
@@ -195,7 +201,7 @@ valueList
   ;
 
 commaSeparatedExpressionList
-  : expressionList (COMMA expressionList)*
+  : expressionList (COMMA expressionList)*?
   ;
 
 measurementList

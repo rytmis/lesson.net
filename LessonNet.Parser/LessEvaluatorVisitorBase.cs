@@ -132,6 +132,10 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
+		public virtual LessNode VisitMixinCallArgument(LessParser.MixinCallArgumentContext context) {
+			throw new System.NotImplementedException();
+		}
+
 		public virtual LessNode VisitMixinCall(LessParser.MixinCallContext context) {
 			throw new System.NotImplementedException();
 		}

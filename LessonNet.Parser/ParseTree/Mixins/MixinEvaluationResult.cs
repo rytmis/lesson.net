@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser.ParseTree.Mixins {
 	public class MixinEvaluationResult : InvocationResult {
@@ -21,9 +22,14 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 					mixinParameter.DeclareIn(context);
 				}
 
+				(var namedArgs, var positionalArgs) = call.Arguments.Split<NamedArgument, PositionalArgument>();
+
+				foreach (var namedArgument in namedArgs) {
+					namedArgument.DeclareIn(context);
+				}
+
 				var arguments = mixin.Parameters
-					.Zip(call.Arguments, 
-						(param, argument) => new VariableDeclaration(param.Name, argument.Evaluate(context).Cast<ExpressionList>()));
+					.Zip(positionalArgs, (param, argument) => new VariableDeclaration(param.Name, argument.EvaluateSingle<PositionalArgument>(context).Value));
 
 				foreach (var argument in arguments) {
 					context.CurrentScope.DeclareVariable(argument);

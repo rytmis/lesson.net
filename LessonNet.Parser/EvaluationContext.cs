@@ -128,7 +128,7 @@ namespace LessonNet.Parser
 
 			var matchingMixins = mixins
 				.Where(call.Matches)
-				.Select(m => new MixinEvaluationResult(m, new MixinCall(Selectors, Enumerable.Empty<MixinCallArgument>()), this));
+				.Select(m => new MixinEvaluationResult(m, new MixinCall(Selectors, Enumerable.Empty<PositionalArgument>()), this));
 
 			if (Parent == null) {
 				return matchingRulesets.Concat<InvocationResult>(matchingMixins).ToList();
