@@ -99,7 +99,7 @@ namespace LessonNet.Parser
 			return resolvedMixins;
 		}
 
-		public virtual IEnumerable<RulesetEvaluationResult> ResolveMatchingRulesets(RulesetCall call) {
+		public virtual IEnumerable<InvocationResult> ResolveMatchingRulesets(RulesetCall call) {
 			var resolvedRulesets = ResolveRulesetsCore(call);
 			if (!resolvedRulesets.Any()) {
 				throw new EvaluationException($"No matching ruleset found: {call} ");
@@ -120,14 +120,18 @@ namespace LessonNet.Parser
 
 			return Parent.ResolveMatchingMixins(call).Concat(matchingMixins).ToList();
 		}
-		private IList<RulesetEvaluationResult> ResolveRulesetsCore(RulesetCall call) {
+		private IList<InvocationResult> ResolveRulesetsCore(RulesetCall call) {
 			// No namespace support or result caching yet
 			var matchingRulesets = rulesets
 				.Where(call.Matches)
 				.Select(m => new RulesetEvaluationResult(m, call, this));
 
+			var matchingMixins = mixins
+				.Where(call.Matches)
+				.Select(m => new MixinEvaluationResult(m, new MixinCall(Selectors, Enumerable.Empty<MixinCallArgument>()), this));
+
 			if (Parent == null) {
-				return matchingRulesets.ToList();
+				return matchingRulesets.Concat<InvocationResult>(matchingMixins).ToList();
 			}
 
 			return Parent.ResolveMatchingRulesets(call).Concat(matchingRulesets).ToList();

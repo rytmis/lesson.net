@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace LessonNet.Parser.ParseTree.Mixins {
-	public class RulesetEvaluationResult : LessNode {
+	public class RulesetEvaluationResult : InvocationResult {
 		private readonly Ruleset ruleset;
 		private readonly RulesetCall call;
 		private readonly Scope closure;

@@ -42,11 +42,11 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 
 	public class MixinParameter : Declaration {
 		public string Name { get; }
-		private readonly IList<ExpressionList> defaultValue;
+		public IList<ExpressionList> DefaultValue { get; }
 
 		public MixinParameter(string name, IEnumerable<ExpressionList> defaultValue) {
 			this.Name = name;
-			this.defaultValue = defaultValue?.ToList();
+			this.DefaultValue = defaultValue?.ToList();
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
@@ -54,9 +54,11 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		}
 
 		public override void DeclareIn(EvaluationContext context) {
-			if (defaultValue != null) {
-				context.CurrentScope.DeclareVariable(new VariableDeclaration(Name, defaultValue));
+			if (DefaultValue != null) {
+				context.CurrentScope.DeclareVariable(new VariableDeclaration(Name, DefaultValue));
 			}
 		}
+
+		public bool HasDefaultValue => DefaultValue?.Count > 0;
 	}
 }

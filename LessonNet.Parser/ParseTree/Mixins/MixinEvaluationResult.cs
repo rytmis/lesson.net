@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace LessonNet.Parser.ParseTree.Mixins {
-	public class MixinEvaluationResult : LessNode {
+	public class MixinEvaluationResult : InvocationResult {
 		private readonly MixinDefinition mixin;
 		private readonly MixinCall call;
 		private readonly Scope closure;
@@ -17,6 +17,10 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			using (context.EnterClosureScope(closure)) {
+				foreach (var mixinParameter in mixin.Parameters) {
+					mixinParameter.DeclareIn(context);
+				}
+
 				var arguments = mixin.Parameters
 					.Zip(call.Arguments, 
 						(param, argument) => new VariableDeclaration(param.Name, argument.Evaluate(context).Cast<ExpressionList>()));

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using LessonNet.Grammar;
 
 namespace LessonNet.Parser.ParseTree.Mixins {
@@ -21,6 +22,11 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 
 		public bool Matches(Ruleset ruleset) {
 			return ruleset.Selectors.MatchesAny(selectors);
+		}
+
+		public bool Matches(MixinDefinition mixinDefinition) {
+			return mixinDefinition.Arity == 0
+				|| mixinDefinition.Parameters.All(p => p.HasDefaultValue);
 		}
 
 		protected override string GetStringRepresentation() {
