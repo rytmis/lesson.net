@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using LessonNet.Parser;
 
@@ -8,7 +9,14 @@ namespace LessonNet.Commandline
 	{
 		static void Main(string[] args)
 		{
-			new LessCompiler().Compile(args[0]);
+			var watch = Stopwatch.StartNew();
+			try {
+				new LessCompiler().Compile(args[0]);
+			} catch (Exception ex) {
+				Console.WriteLine($"/* Error: {ex} */");
+			} finally {
+				Console.WriteLine($"/* Generated in {watch.Elapsed} */");
+			}
 		}
 	}
 }
