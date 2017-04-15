@@ -5,7 +5,7 @@ using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
 	public class Identifier : Expression {
-		private IList<IdentifierPart> parts;
+		private readonly IList<IdentifierPart> parts;
 
 		public Identifier(IdentifierPart part) : this((IEnumerable<IdentifierPart>) new[] {part}) {
 			
@@ -31,7 +31,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		public override int GetHashCode() {
-			return (parts != null ? parts.GetHashCode() : 0);
+			return parts.Aggregate(37, (s, p) => s * p.GetHashCode());
 		}
 
 		protected override string GetStringRepresentation() {

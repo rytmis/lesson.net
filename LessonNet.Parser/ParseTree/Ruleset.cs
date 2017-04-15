@@ -20,9 +20,9 @@ namespace LessonNet.Parser.ParseTree
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			using (context.EnterScope(Selectors)) {
-				(var rules, var rulesets, var mediaBlocks) = Block.Evaluate(context).Split<Rule, Ruleset, MediaBlock>();
+				(var mediaBlocks, var rulesets, var statements) = Block.Evaluate(context).Split<MediaBlock, Ruleset, Statement>();
 
-				var evaluatedBlock = new RuleBlock(rules, null) {
+				var evaluatedBlock = new RuleBlock(statements) {
 					IsEvaluated = true
 				};
 
@@ -32,7 +32,7 @@ namespace LessonNet.Parser.ParseTree
 				yield return evaluatedRuleset;
 
 				foreach (var generatedRuleset in rulesets) {
-					var combinedSelectors = generatedRuleset.Selectors.Inherit(Selectors);
+					var combinedSelectors = generatedRuleset.Selectors.Inherit(Selectors).EvaluateSingle<SelectorList>(context);
 					yield return new Ruleset(combinedSelectors, generatedRuleset.Block) {IsEvaluated = true};
 				}
 

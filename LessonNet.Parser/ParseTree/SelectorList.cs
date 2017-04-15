@@ -24,6 +24,10 @@ namespace LessonNet.Parser.ParseTree {
 				}
 			}
 
+			if (parent.IsEmpty()) {
+				return this;
+			}
+
 			return new SelectorList(InheritSelectors());
 		}
 
@@ -48,7 +52,26 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		public bool MatchesAny(SelectorList selectorList) {
-			return Selectors.Any(s => selectorList.Selectors.Any(s.Matches));
+			return Selectors.Any(s => selectorList.Selectors.Any(s.Equals));
+		}
+
+		protected bool Equals(SelectorList other) {
+			return selectors.SequenceEqual(other.selectors);
+		}
+
+		public override bool Equals(object obj) {
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((SelectorList) obj);
+		}
+
+		public override int GetHashCode() {
+			return selectors.Aggregate(37, (s, sel) => s * sel.GetHashCode());
+		}
+
+		public bool IsEmpty() {
+			return selectors.All(s => s.IsEmpty());
 		}
 
 		public static SelectorList Empty() {

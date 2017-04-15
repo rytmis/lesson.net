@@ -15,7 +15,21 @@ namespace LessonNet.Parser.ParseTree
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new Stylesheet(EvaluateStatements(context)) {
+			(var rulesets, var mediaBlocks) = EvaluateStatements(context).Split<Ruleset, MediaBlock>();
+
+			// Merge rulesets with identical selectors
+			var combinedRulesets = rulesets
+				.GroupBy(r => r.Selectors)
+				.Select(g => {
+					if (g.Count() == 1) {
+						return g.Single();
+					}
+
+					return new Ruleset(g.Key, RuleBlock.Combine(g.Select(r => r.Block)));
+				});
+
+
+			yield return new Stylesheet(combinedRulesets.Concat<Statement>(mediaBlocks)) {
 				IsEvaluated = true
 			};
 		}

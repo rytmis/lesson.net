@@ -20,18 +20,17 @@ namespace LessonNet.Parser.ParseTree
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			var evaluatedQueries = mediaQueries.Select(q => q.EvaluateSingle<MediaQuery>(context));
-			(var rules, var statements) = block.Evaluate(context).Split<Rule, Statement>();
+			var statements = block.Evaluate(context).Cast<Statement>();
 
 			if (context.CurrentScope.Selectors == null) {
 				// No bubbling: we are at the top level
-				yield return new MediaBlock(evaluatedQueries, new RuleBlock(rules, statements));
+				yield return new MediaBlock(evaluatedQueries, new RuleBlock(statements));
 			} else {
 				// Wrap the rules in a ruleset that inherits selectors from the enclosing scope
-				var bubbledRuleset = new Ruleset(context.CurrentScope.Selectors, new RuleBlock(rules, statements));
-				(var bubbledRules, var bubbledStatements) = bubbledRuleset.Evaluate(context).Split<Rule, Statement>();
+				var bubbledRuleset = new Ruleset(context.CurrentScope.Selectors, new RuleBlock(statements));
+				var bubbledStatements = bubbledRuleset.Evaluate(context).Cast<Statement>();
 
-
-				yield return new MediaBlock(evaluatedQueries, new RuleBlock(bubbledRules, bubbledStatements));
+				yield return new MediaBlock(evaluatedQueries, new RuleBlock(bubbledStatements));
 			}
 		}
 

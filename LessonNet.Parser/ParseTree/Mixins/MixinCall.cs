@@ -14,7 +14,9 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			foreach (var mixinResult in context.CurrentScope.ResolveMatchingMixins(this)) {
+			var call = new MixinCall(selectors.EvaluateSingle<SelectorList>(context), arguments);
+
+			foreach (var mixinResult in context.CurrentScope.ResolveMatchingMixins(call)) {
 				foreach (var evaluationResult in mixinResult.Evaluate(context)) {
 					yield return evaluationResult;
 				}

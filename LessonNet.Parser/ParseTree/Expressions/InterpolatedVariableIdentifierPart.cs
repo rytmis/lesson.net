@@ -23,5 +23,20 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		protected override string GetStringRepresentation() {
 			return $"@{{{variableName}}}";
 		}
+
+		protected bool Equals(InterpolatedVariableIdentifierPart other) {
+			return string.Equals(variableName, other.variableName);
+		}
+
+		public override bool Equals(object obj) {
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((InterpolatedVariableIdentifierPart) obj);
+		}
+
+		public override int GetHashCode() {
+			return (variableName != null ? variableName.GetHashCode() : 0);
+		}
 	}
 }

@@ -3,7 +3,7 @@ using System.Linq;
 using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree {
-	public class Rule : LessNode {
+	public class Rule : Statement {
 		private readonly string property;
 		private List<ExpressionList> values;
 

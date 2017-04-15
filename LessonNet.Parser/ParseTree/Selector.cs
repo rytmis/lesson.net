@@ -7,7 +7,7 @@ using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser.ParseTree {
 	public class Selector : LessNode {
-		private List<SelectorElement> elements;
+		private readonly List<SelectorElement> elements;
 
 		public Selector(IEnumerable<SelectorElement> elements) {
 			this.elements = elements.ToList();
@@ -70,18 +70,23 @@ namespace LessonNet.Parser.ParseTree {
 			return SubstituteParentReferences(elements, true);
 		}
 
-		public bool Matches(Selector s2) {
-			if (s2.elements.Count != elements.Count) {
-				return false;
-			}
+		protected bool Equals(Selector other) {
+			return elements.SequenceEqual(other.elements);
+		}
 
-			for (var i = 0; i < elements.Count; i++) {
-				if (!Equals(elements[i], s2.elements[i])) {
-					return false;
-				}
-			}
+		public override bool Equals(object obj) {
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((Selector) obj);
+		}
 
-			return true;
+		public override int GetHashCode() {
+			return elements.Aggregate(37, (s, e) => s * e.GetHashCode());
+		}
+
+		public bool IsEmpty() {
+			return elements.Count == 0;
 		}
 	}
 
@@ -98,7 +103,9 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new IdentifierSelectorElement(Identifier.EvaluateSingle<Identifier>(context));
+			yield return new IdentifierSelectorElement(Identifier.EvaluateSingle<Identifier>(context)) {
+				HasTrailingWhitespace = HasTrailingWhitespace
+			};
 		}
 
 		protected override string GetStringRepresentation() {
@@ -157,7 +164,11 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override string GetStringRepresentation() {
-			return attributeReference;
+			return attributeReference + (HasTrailingWhitespace ? " " : "");
+		}
+
+		public override int GetHashCode() {
+			return attributeReference.GetHashCode() + HasTrailingWhitespace.GetHashCode();
 		}
 	}
 }

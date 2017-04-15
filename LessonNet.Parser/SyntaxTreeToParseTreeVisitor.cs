@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using LessonNet.Grammar;
@@ -290,13 +291,14 @@ namespace LessonNet.Parser {
 		public override LessNode VisitBlock(LessParser.BlockContext context) {
 			IEnumerable<T> GetChildren<T>(IEnumerable<IParseTree> nodes) where T : LessNode {
 				foreach (var child in nodes) {
-					yield return (T) child.Accept(this);
+					if (child is LessParser.PropertyContext || child is LessParser.StatementContext) {
+						yield return (T) child.Accept(this);
+					}
 				}
 			}
 
-			return new RuleBlock(
-				GetChildren<Rule>(context.property()), 
-				GetChildren<Statement>(context.statement()));
+
+			return new RuleBlock(GetChildren<Statement>(context.children));
 		}
 
 		public override LessNode VisitProperty(LessParser.PropertyContext context) {
