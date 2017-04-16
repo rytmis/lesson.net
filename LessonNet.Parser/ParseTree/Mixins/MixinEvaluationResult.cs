@@ -18,7 +18,8 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			using (context.EnterClosureScope(closure)) {
-				foreach (var mixinParameter in mixin.Parameters) {
+				var namedParameters = mixin.Parameters.OfType<MixinParameter>().ToList();
+				foreach (var mixinParameter in namedParameters) {
 					mixinParameter.DeclareIn(context);
 				}
 
@@ -28,10 +29,16 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 					namedArgument.DeclareIn(context);
 				}
 
-				var arguments = mixin.Parameters
-					.Zip(positionalArgs, (param, argument) => new VariableDeclaration(param.Name, argument.EvaluateSingle<PositionalArgument>(context).Value));
+				var parameterArgumentPairs = mixin.Parameters
+					.Zip(positionalArgs, (param, argument) => new { Parameter = param, Argument = argument })
+					.Where(pair => !(pair.Parameter is PatternMatchParameter))
+					.Select(pair => {
+						var param = (MixinParameter) pair.Parameter;
 
-				foreach (var argument in arguments) {
+						return new VariableDeclaration(param.Name, pair.Argument.EvaluateSingle<PositionalArgument>(context).Value);
+					});
+
+				foreach (var argument in parameterArgumentPairs) {
 					context.CurrentScope.DeclareVariable(argument);
 				}
 

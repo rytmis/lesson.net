@@ -7,20 +7,20 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 	public class Identifier : Expression {
 		private readonly IList<IdentifierPart> parts;
 
-		public Identifier(IdentifierPart part) : this((IEnumerable<IdentifierPart>) new[] {part}) {
+		public Identifier(IdentifierPart part) : this(new[] {part}) {
 			
 		}
 		public Identifier(IEnumerable<IdentifierPart> parts) {
 			this.parts = parts.ToList();
 		}
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			string identifier = string.Join("", Enumerable.Select(parts, p => p.EvaluateSingle<ConstantIdentifierPart>(context)));
+			string identifier = string.Join("", parts.Select(p => p.EvaluateSingle<ConstantIdentifierPart>(context)));
 
 			yield return new Identifier(new ConstantIdentifierPart(identifier));
 		}
 
 		protected bool Equals(Identifier other) {
-			return Enumerable.SequenceEqual(parts, other.parts);
+			return parts.SequenceEqual(other.parts);
 		}
 
 		public override bool Equals(object obj) {
@@ -39,10 +39,10 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			context.Append(""); // Indentation
+			context.Indent();
 
 			foreach (var identifierPart in parts) {
-				context.Append((LessNode) identifierPart);
+				context.Append(identifierPart);
 			}
 		}
 	}

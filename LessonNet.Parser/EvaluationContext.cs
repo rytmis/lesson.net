@@ -24,7 +24,7 @@ namespace LessonNet.Parser
 			Parser = parser;
 			FileResolver = fileResolver;
 
-			scopeStack.Push(new Scope());
+			scopeStack.Push(new Scope(this));
 		}
 
 		public EvaluationContext GetImportContext(string importedLessFileName) {
@@ -44,7 +44,7 @@ namespace LessonNet.Parser
 		}
 
 		public IDisposable EnterClosureScope(Scope closure) {
-			scopeStack.Push(new ClosureScope(closure, CurrentScope));
+			scopeStack.Push(new ClosureScope(this, closure, CurrentScope));
 
 			return new ScopeGuard(scopeStack);
 		}
@@ -63,6 +63,7 @@ namespace LessonNet.Parser
 	}
 
 	public class Scope {
+		private readonly EvaluationContext context;
 		public SelectorList Selectors { get; }
 
 		private IList<Scope> children = new List<Scope>();
@@ -71,7 +72,8 @@ namespace LessonNet.Parser
 		private IList<MixinDefinition> mixins = new List<MixinDefinition>();
 		private IList<Ruleset> rulesets = new List<Ruleset>();
 
-		public Scope(SelectorList selectors = null, Scope parent = null) {
+		public Scope(EvaluationContext context, SelectorList selectors = null, Scope parent = null) {
+			this.context = context;
 			this.Selectors = selectors;
 			Parent = parent;
 		}
@@ -111,7 +113,7 @@ namespace LessonNet.Parser
 		private IList<MixinEvaluationResult> ResolveMixinsCore(MixinCall call) {
 			// No namespace support or result caching yet
 			var matchingMixins = mixins
-				.Where(call.Matches)
+				.Where(mixin => call.Matches(mixin, context))
 				.Select(m => new MixinEvaluationResult(m, call, this));
 
 			if (Parent == null) {
@@ -156,7 +158,7 @@ namespace LessonNet.Parser
 		}
 
 		public Scope CreateChildScope(SelectorList scopeSelectors) {
-			var childScope = new Scope(scopeSelectors, this);
+			var childScope = new Scope(context, scopeSelectors, this);
 			children.Add(childScope);
 			return childScope;
 		}
@@ -173,7 +175,7 @@ namespace LessonNet.Parser
 	public class ClosureScope : Scope {
 		private readonly Scope closure;
 
-		public ClosureScope(Scope closure, Scope overlay) {
+		public ClosureScope(EvaluationContext context, Scope closure, Scope overlay) : base(context) {
 			this.closure = closure;
 
 			Parent = overlay;

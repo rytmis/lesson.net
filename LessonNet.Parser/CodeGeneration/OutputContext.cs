@@ -33,6 +33,10 @@ namespace LessonNet.Parser.CodeGeneration
 			node.WriteOutput(this);
 		}
 
+		public void Indent() {
+			AppendInternal("", indent: true);
+		}
+
 		public void IncreaseIndentLevel() {
 			indentLevel++;
 		}

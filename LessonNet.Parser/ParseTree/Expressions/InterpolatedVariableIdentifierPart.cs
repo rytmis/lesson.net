@@ -11,7 +11,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			IEnumerable<Expression> EvaluateVariable() {
 				var variable = context.CurrentScope.ResolveVariable(variableName);
 				foreach (var expressionList in variable.Values) {
-					foreach (var expression in expressionList) {
+					foreach (var expression in expressionList.Values) {
 						yield return expression.EvaluateSingle<Expression>(context);
 					}
 				}

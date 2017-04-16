@@ -238,16 +238,18 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitMixinDefinition(LessParser.MixinDefinitionContext context) {
-			IEnumerable<MixinParameter> GetParameters() {
+			IEnumerable<MixinParameterBase> GetParameters() {
 				if (context.mixinDefinitionParam() == null) {
 					yield break;
 				}
 				foreach (var param in context.mixinDefinitionParam()) {
 					if (param.variableName() != null) {
 						yield return new MixinParameter(param.variableName().GetText().TrimStart('@'), null);
-					} else {
+					} else if (param.variableDeclaration() != null) {
 						var decl = (VariableDeclaration) param.variableDeclaration().Accept(this);
 						yield return new MixinParameter(decl.Name, decl.Values);
+					} else {
+						yield return new PatternMatchParameter((Identifier) param.identifier().Accept(this));
 					}
 				}
 			}

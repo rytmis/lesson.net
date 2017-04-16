@@ -25,11 +25,11 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			}
 
 			if (evaluatedExpression is ExpressionList list) {
-				if (list.Count() != 1) {
+				if (list.Values.Count != 1) {
 					throw new EvaluationException($"{expr} did not evaluate to a single value");
 				}
 
-				var singleValue = list.Single();
+				var singleValue = list.Values.Single();
 				if (singleValue is Measurement m) {
 					return m;
 				}

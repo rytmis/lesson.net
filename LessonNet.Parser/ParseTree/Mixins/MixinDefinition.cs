@@ -4,14 +4,14 @@ using LessonNet.Parser.ParseTree.Expressions;
 
 namespace LessonNet.Parser.ParseTree.Mixins {
 	public class MixinDefinition : Declaration {
-		private readonly List<MixinParameter> parameters;
+		private readonly List<MixinParameterBase> parameters;
 		private readonly RuleBlock block;
 		private readonly MixinGuard guard;
 		public SelectorList Selectors { get; }
 		public int Arity => parameters.Count;
-		public IReadOnlyCollection<MixinParameter> Parameters => parameters.AsReadOnly();
+		public IReadOnlyList<MixinParameterBase> Parameters => parameters.AsReadOnly();
 
-		public MixinDefinition(SelectorList selectors, IEnumerable<MixinParameter> parameters, RuleBlock block, MixinGuard guard) {
+		public MixinDefinition(SelectorList selectors, IEnumerable<MixinParameterBase> parameters, RuleBlock block, MixinGuard guard) {
 			this.Selectors = selectors;
 			this.parameters = parameters.ToList();
 			this.block = block;
@@ -38,9 +38,18 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 
 			return guard.SatisfiedBy(context);
 		}
+
+		protected override string GetStringRepresentation() {
+			return $"{Selectors} ({string.Join(",", Parameters)})";
+		}
 	}
 
-	public class MixinParameter : Declaration {
+
+	public abstract class MixinParameterBase : LessNode {
+		public virtual bool HasDefaultValue => false;
+	}
+
+	public class MixinParameter : MixinParameterBase {
 		public string Name { get; }
 		public IList<ExpressionList> DefaultValue { get; }
 
@@ -53,12 +62,36 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 			throw new System.NotImplementedException();
 		}
 
-		public override void DeclareIn(EvaluationContext context) {
+		public void DeclareIn(EvaluationContext context) {
 			if (DefaultValue != null) {
 				context.CurrentScope.DeclareVariable(new VariableDeclaration(Name, DefaultValue));
 			}
 		}
 
-		public bool HasDefaultValue => DefaultValue?.Count > 0;
+		public override bool HasDefaultValue => DefaultValue?.Count > 0;
+
+		protected override string GetStringRepresentation() {
+			if (HasDefaultValue) {
+				return $"@{Name}: {string.Join(",", DefaultValue)}";
+			}
+
+			return $"@{Name}";
+		}
+	}
+
+	public class PatternMatchParameter : MixinParameterBase {
+		public Identifier Identifier { get; }
+
+		public PatternMatchParameter(Identifier identifier) {
+			this.Identifier = identifier;
+		}
+
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
+			yield return  new PatternMatchParameter(Identifier.EvaluateSingle<Identifier>(context));
+		}
+
+		protected override string GetStringRepresentation() {
+			return Identifier.ToString();
+		}
 	}
 }

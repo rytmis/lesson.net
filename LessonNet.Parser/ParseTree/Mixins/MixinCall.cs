@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LessonNet.Parser.ParseTree.Expressions;
 
 namespace LessonNet.Parser.ParseTree.Mixins {
 	public class MixinCall : Statement {
@@ -36,7 +37,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 			}
 		}
 
-		public bool Matches(MixinDefinition mixinDefinition) {
+		public bool Matches(MixinDefinition mixinDefinition, EvaluationContext context) {
 			if (!mixinDefinition.Selectors.MatchesAny(selectors)) {
 				// Selectors don't match
 				return false;
@@ -47,11 +48,15 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 				return false;
 			}
 
-			var positionalArgumentCount = arguments.OfType<PositionalArgument>().Count();
+			var positionalArguments = arguments.OfType<PositionalArgument>().ToList();
+
+			if (!PatternMatch(context, positionalArguments, mixinDefinition.Parameters)) {
+				return false;
+			}
 
 			var namedArguments = arguments.OfType<NamedArgument>().ToList();
 
-			var remainingParameters = mixinDefinition.Parameters.Skip(positionalArgumentCount).ToList();
+			var remainingParameters = mixinDefinition.Parameters.Skip(positionalArguments.Count).Cast<MixinParameter>().ToList();
 
 			var matchedParams = remainingParameters
 				.Where(p => namedArguments.Any(arg => string.Equals(p.Name, arg.ParameterName, StringComparison.OrdinalIgnoreCase)))
@@ -64,6 +69,29 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 
 			// True if any remaining parameters have a default value
 			return remainingParameters.Except(matchedParams).All(p => p.HasDefaultValue);
+		}
+
+		private bool PatternMatch(EvaluationContext context, List<PositionalArgument> positionalArguments, IReadOnlyList<MixinParameterBase> mixinDefinitionParameters) {
+			for (var i = 0; i < mixinDefinitionParameters.Count; i++) {
+				var param = mixinDefinitionParameters[i];
+
+				if (!(param is PatternMatchParameter ip)) {
+					continue;
+				}
+
+				// We don't have a positional argument that matches this position,
+				// so it's an automatic fail
+				if (positionalArguments.Count <= i) {
+					return false;
+				}
+
+				// See if the argument evalutes to an Identifier that matches the pattern match identifier
+				var identifierArgumentValue = positionalArguments[i].EvaluateSingleValue<Identifier>(context);
+				if (!ip.Identifier.Equals(identifierArgumentValue)) {
+					return false;
+				}
+			}
+			return true;
 		}
 
 		protected override string GetStringRepresentation() {

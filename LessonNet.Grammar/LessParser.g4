@@ -139,6 +139,7 @@ mixinGuard
 mixinDefinitionParam
   : variableName
   | variableDeclaration
+  | identifier
   ;
 
 selectors

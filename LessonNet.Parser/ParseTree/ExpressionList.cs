@@ -5,19 +5,19 @@ using LessonNet.Parser.CodeGeneration;
 using LessonNet.Parser.ParseTree.Expressions;
 
 namespace LessonNet.Parser.ParseTree {
-	public class ExpressionList : LessNode, IEnumerable<Expression> {
-		private readonly IList<Expression> values;
+	public class ExpressionList : LessNode {
+		public IList<Expression> Values { get; }
 
 		public ExpressionList(IEnumerable<Expression> values) {
-			this.values = values.ToList();
+			this.Values = values.ToList();
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			IEnumerable<Expression> EvaluateExpressions() {
-				foreach (var expression in values) {
+				foreach (var expression in Values) {
 					foreach (var evaluatedExpression in expression.Evaluate(context)) {
 						if (evaluatedExpression is ExpressionList list) {
-							foreach (var evaluatedValue in list.values) {
+							foreach (var evaluatedValue in list.Values) {
 								yield return evaluatedValue;
 							}
 						} else if (evaluatedExpression is Expression expr) {
@@ -32,20 +32,12 @@ namespace LessonNet.Parser.ParseTree {
 			yield return new ExpressionList(EvaluateExpressions());
 		}
 
-		public IEnumerator<Expression> GetEnumerator() {
-			return values.GetEnumerator();
-		}
-
-		IEnumerator IEnumerable.GetEnumerator() {
-			return GetEnumerator();
-		}
-
 		public override void WriteOutput(OutputContext context) {
-			context.Append(string.Join(" ", values.Select(v => v.ToCss())));
+			context.Append(string.Join(" ", Values.Select(v => v.ToCss())));
 		}
 
 		protected override string GetStringRepresentation() {
-			return string.Join(", ", values);
+			return string.Join(", ", Values);
 		}
 	}
 }
