@@ -184,7 +184,7 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override string GetStringRepresentation() {
-			return combinator;
+			return combinator + (HasTrailingWhitespace ? " " : "");
 		}
 
 		protected bool Equals(CombinatorSelectorElement other) {

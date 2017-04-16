@@ -164,6 +164,7 @@ combinator
 
 selectorElement
   : parentSelectorReference
+  | Color
   | ( HASH identifier
     | DOT identifier 
     | (COLON|COLONCOLON) Identifier

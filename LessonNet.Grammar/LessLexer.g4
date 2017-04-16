@@ -109,8 +109,13 @@ Number
   :  '-'? (('0'..'9')* '.')? ('0'..'9')+ -> pushMode(NUMBER_STARTED)
   ;
 
+fragment HEXDIGIT
+  : ('0'..'9'|'a'..'f'|'A'..'F')
+  ;
+
 Color
-  :  '#' ('0'..'9'|'a'..'f'|'A'..'F')+
+  :  '#' HEXDIGIT HEXDIGIT HEXDIGIT
+  |  '#' HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT
   ;
 
 

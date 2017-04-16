@@ -129,6 +129,13 @@ namespace LessonNet.Parser {
 				};
 			}
 
+			// The lexer rules might match an ID selector as a color, so we account for that here
+			if (context.Color() != null) {
+				return new IdentifierSelectorElement(new Identifier(new ConstantIdentifierPart(context.Color().GetText()))) {
+					HasTrailingWhitespace = hasTrailingWhitespace
+				};
+			}
+
 			return new CombinatorSelectorElement(context.combinator().GetText());
 		}
 
