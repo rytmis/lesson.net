@@ -22,14 +22,16 @@ namespace LessonNet.Parser.ParseTree
 			using (context.EnterScope(Selectors)) {
 				(var mediaBlocks, var rulesets, var statements) = Block.Evaluate(context).Split<MediaBlock, Ruleset, Statement>();
 
-				var evaluatedBlock = new RuleBlock(statements) {
-					IsEvaluated = true
-				};
+				if (statements.Count > 0) {
+					var evaluatedBlock = new RuleBlock(statements) {
+						IsEvaluated = true
+					};
 
-				var evaluatedRuleset =
-					new Ruleset(Selectors.EvaluateSingle<SelectorList>(context), evaluatedBlock) {IsEvaluated = true};
+					var evaluatedRuleset =
+						new Ruleset(Selectors.EvaluateSingle<SelectorList>(context), evaluatedBlock) {IsEvaluated = true};
 
-				yield return evaluatedRuleset;
+					yield return evaluatedRuleset;
+				}
 
 				foreach (var generatedRuleset in rulesets) {
 					var combinedSelectors = generatedRuleset.Selectors.Inherit(Selectors).EvaluateSingle<SelectorList>(context);
@@ -37,13 +39,12 @@ namespace LessonNet.Parser.ParseTree
 				}
 
 				foreach (var generatedMediaBlock in mediaBlocks) {
-					foreach (var result in generatedMediaBlock.Evaluate(context)) {
-						yield return result;
+					foreach (var result in generatedMediaBlock.Evaluate(context).Cast<MediaBlock>()) {
+						yield return result.Bubble(context);
 					}
 				}
 			}
 		}
-
 		public override void DeclareIn(EvaluationContext context) {
 			context.CurrentScope.DeclareRuleset(new Ruleset(Selectors.EvaluateSingle<SelectorList>(context), Block));
 		}

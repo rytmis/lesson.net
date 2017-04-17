@@ -11,61 +11,59 @@ namespace LessonNet.Parser.ParseTree
 	public class MediaBlock : Statement
 	{
 		private readonly IList<MediaQuery> mediaQueries;
-		private readonly RuleBlock block;
+		public RuleBlock Block { get; }
 
 		public MediaBlock(IEnumerable<MediaQuery> mediaQueries, RuleBlock block) {
 			this.mediaQueries = mediaQueries.ToList();
-			this.block = block;
+			this.Block = block;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			IEnumerable<MediaQuery> CombineQueries(IEnumerable<MediaQuery> outer, IEnumerable<MediaQuery> inner) {
-				foreach (var outerQuery in outer) {
-					foreach (var innerQuery in inner) {
+				foreach (var innerQuery in inner) {
+					foreach (var outerQuery in outer) {
 						yield return new MediaQuery(outerQuery.FeatureQueries.Concat(innerQuery.FeatureQueries));
 					}
 				}
 			}
 
-			var evaluatedQueries = mediaQueries.Select(q => q.EvaluateSingle<MediaQuery>(context));
-			(var mediaBlocks, var statements) = block.Evaluate(context).Split<MediaBlock, Statement>();
+			var evaluatedQueries = mediaQueries.Select(q => q.EvaluateSingle<MediaQuery>(context)).ToArray();
+			(var mediaBlocks, var statements) = Block.Evaluate(context).Split<MediaBlock, Statement>();
 
-			if (context.CurrentScope.Selectors == null) {
-				// No bubbling: we are at the top level
-				yield return new MediaBlock(evaluatedQueries, new RuleBlock(statements));
+			yield return new MediaBlock(evaluatedQueries, new RuleBlock(statements)) {
+				IsEvaluated = true
+			};
 
-				foreach (var mediaBlock in mediaBlocks) {
-					yield return new MediaBlock(CombineQueries(this.mediaQueries, mediaBlock.mediaQueries), mediaBlock.block);
-				}
-			} else {
-				// Wrap the rules in a ruleset that inherits selectors from the enclosing scope
-				yield return Bubble(context, statements, evaluatedQueries);
-
-				foreach (var mediaBlock in mediaBlocks) {
-					yield return Bubble(context, mediaBlock.block.Statements, CombineQueries(mediaQueries, mediaBlock.mediaQueries));
-				}
+			foreach (var mediaBlock in mediaBlocks) {
+				yield return new MediaBlock(CombineQueries(evaluatedQueries, mediaBlock.mediaQueries), mediaBlock.Block) {
+					IsEvaluated = true
+				};
 			}
 		}
 
-		private static MediaBlock Bubble(EvaluationContext context, IList<Statement> statements, IEnumerable<MediaQuery> evaluatedQueries) {
-			var bubbledRuleset = new Ruleset(context.CurrentScope.Selectors, new RuleBlock(statements));
+		public MediaBlock Bubble(EvaluationContext context) {
+			// Wrap the rules in a ruleset that inherits selectors from the enclosing scope
+			var bubbledRuleset = new Ruleset(context.CurrentScope.Selectors, new RuleBlock(Block.Statements));
 			var bubbledStatements = bubbledRuleset.Evaluate(context).Cast<Statement>();
 
-			return new MediaBlock(evaluatedQueries, new RuleBlock(bubbledStatements));
+			return new MediaBlock(mediaQueries, new RuleBlock(bubbledStatements) { IsEvaluated = true }) {
+				IsEvaluated = true
+			};
 		}
 
+
 		public override void WriteOutput(OutputContext context) {
-			if (block.Statements.Count == 0) {
+			if (Block.Statements.Count == 0) {
 				return;
 			}
 
 			context.AppendLine($"@media {string.Join(", ", mediaQueries)} {{");
-			context.Append(block);
+			context.Append(Block);
 			context.AppendLine("}");
 		}
 
 		protected override string GetStringRepresentation() {
-			return $"@media {string.Join(", ", mediaQueries)} {{ {block.RuleCount} }}";
+			return $"@media {string.Join(", ", mediaQueries)} {{ {Block.RuleCount} }}";
 		}
 	}
 

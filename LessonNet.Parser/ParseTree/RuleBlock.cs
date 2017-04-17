@@ -28,7 +28,9 @@ namespace LessonNet.Parser.ParseTree {
 			var mixinDefinitions = declarations.OfType<MixinDefinition>();
 
 			foreach (var mediaBlock in mediaBlocks) {
-				yield return mediaBlock;
+				foreach (var generatedBlock in mediaBlock.Evaluate(context)) {
+					yield return generatedBlock;
+				}
 			}
 
 			foreach (var statement in Statements.Except(mediaBlocks).Except(mixinDefinitions)) {

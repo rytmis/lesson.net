@@ -63,8 +63,11 @@ namespace LessonNet.Parser
 	}
 
 	public class Scope {
-		private readonly EvaluationContext context;
 		public SelectorList Selectors { get; }
+		public Scope Parent { get; protected set; }
+		public bool IsRoot => Parent == null;
+
+		private readonly EvaluationContext context;
 
 		private IList<Scope> children = new List<Scope>();
 		private IDictionary<string, VariableDeclaration> variables = new Dictionary<string, VariableDeclaration>();
@@ -72,13 +75,12 @@ namespace LessonNet.Parser
 		private IList<MixinDefinition> mixins = new List<MixinDefinition>();
 		private IList<Ruleset> rulesets = new List<Ruleset>();
 
+
 		public Scope(EvaluationContext context, SelectorList selectors = null, Scope parent = null) {
 			this.context = context;
 			this.Selectors = selectors?.DropCombinators();
 			Parent = parent;
 		}
-
-		public Scope Parent { get; protected set; }
 
 		public virtual void DeclareMixin(MixinDefinition mixin) {
 			mixins.Add(mixin);
