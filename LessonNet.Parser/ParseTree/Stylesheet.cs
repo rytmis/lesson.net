@@ -47,7 +47,9 @@ namespace LessonNet.Parser.ParseTree
 			var rulesets = declarations.OfType<Ruleset>();
 
 			foreach (var mediaBlock in mediaBlocks) {
-				yield return mediaBlock;
+				foreach (var resultMediaBlock in mediaBlock.Evaluate(context).Cast<MediaBlock>()) {
+					yield return resultMediaBlock;
+				}
 			}
 
 			foreach (var statement in rulesets.Concat(otherStatements)) {

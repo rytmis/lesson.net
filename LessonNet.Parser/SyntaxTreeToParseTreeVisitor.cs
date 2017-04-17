@@ -362,19 +362,19 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitMediaQuery(LessParser.MediaQueryContext context) {
-			var modifier = (MediaQueryModifier) Enum.Parse(typeof(MediaQueryModifier), context.MediaQueryModifier()?.GetText() ?? "None", ignoreCase: true);
 			var featureQueries = context.featureQuery().Select(f => (MediaFeatureQuery) f.Accept(this));
 
-			return new MediaQuery(modifier, featureQueries);
+			return new MediaQuery(featureQueries);
 		}
 
 		public override LessNode VisitFeatureQuery(LessParser.FeatureQueryContext context) {
+			var modifier = (MediaQueryModifier) Enum.Parse(typeof(MediaQueryModifier), context.MediaQueryModifier()?.GetText() ?? "None", ignoreCase: true);
 			var property = context.property();
 			if (property != null) {
-				return new MediaPropertyQuery((Rule) property.Accept(this));
+				return new MediaPropertyQuery(modifier, (Rule) property.Accept(this));
 			}
 
-			return new MediaIdentifierQuery(context.identifier().GetText());
+			return new MediaIdentifierQuery(modifier, context.identifier().GetText());
 		}
 
 		public override LessNode VisitMeasurementList(LessParser.MeasurementListContext context) {

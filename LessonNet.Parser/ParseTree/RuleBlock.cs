@@ -9,7 +9,7 @@ using LessonNet.Parser.Util;
 namespace LessonNet.Parser.ParseTree {
 
 	public class RuleBlock : LessNode {
-		public IEnumerable<Statement> Statements { get; }
+		public IList<Statement> Statements { get; }
 		public int RuleCount => Statements.OfType<Rule>().Count();
 
 		public RuleBlock(IEnumerable<Statement> statements) {

@@ -224,12 +224,12 @@ measurement
   ;
 
 featureQuery
-  : LPAREN property RPAREN
-  | identifier
+  : MediaQueryModifier? LPAREN property RPAREN
+  | MediaQueryModifier? identifier
   ;
 
 mediaQuery
-  : MediaQueryModifier? featureQuery (AND featureQuery)*
+  : featureQuery (AND featureQuery)*
   ;
 
 mediaBlock

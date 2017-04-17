@@ -19,8 +19,16 @@ namespace LessonNet.Parser.ParseTree
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
+			IEnumerable<MediaQuery> CombineQueries(IEnumerable<MediaQuery> outer, IEnumerable<MediaQuery> inner) {
+				foreach (var outerQuery in outer) {
+					foreach (var innerQuery in inner) {
+						yield return new MediaQuery(outerQuery.FeatureQueries.Concat(innerQuery.FeatureQueries));
+					}
+				}
+			}
+
 			var evaluatedQueries = mediaQueries.Select(q => q.EvaluateSingle<MediaQuery>(context));
-			var statements = block.Evaluate(context).Cast<Statement>();
+			(var mediaBlocks, var statements) = block.Evaluate(context).Split<MediaBlock, Statement>();
 
 			if (context.CurrentScope.Selectors == null) {
 				// No bubbling: we are at the top level
@@ -32,9 +40,17 @@ namespace LessonNet.Parser.ParseTree
 
 				yield return new MediaBlock(evaluatedQueries, new RuleBlock(bubbledStatements));
 			}
+
+			foreach (var mediaBlock in mediaBlocks) {
+				yield return new MediaBlock(CombineQueries(this.mediaQueries, mediaBlock.mediaQueries), mediaBlock.block);
+			}
 		}
 
 		public override void WriteOutput(OutputContext context) {
+			if (block.Statements.Count == 0) {
+				return;
+			}
+
 			context.AppendLine($"@media {string.Join(", ", mediaQueries)} {{");
 			context.Append(block);
 			context.AppendLine("}");
@@ -46,21 +62,19 @@ namespace LessonNet.Parser.ParseTree
 	}
 
 	public class MediaQuery : LessNode {
-		private readonly MediaQueryModifier modifier;
-		private readonly IList<MediaFeatureQuery> featureQueries;
+		public IList<MediaFeatureQuery> FeatureQueries { get; }
 
-		public MediaQuery(MediaQueryModifier modifier, IEnumerable<MediaFeatureQuery> featureQueries) {
-			this.modifier = modifier;
-			this.featureQueries = featureQueries.ToList();
+		public MediaQuery(IEnumerable<MediaFeatureQuery> featureQueries) {
+			this.FeatureQueries = featureQueries.ToList();
 		}
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new MediaQuery(modifier, featureQueries.Select(q => q.EvaluateSingle<MediaFeatureQuery>(context))) {
+			yield return new MediaQuery(FeatureQueries.Select(q => q.EvaluateSingle<MediaFeatureQuery>(context))) {
 				IsEvaluated = true
 			};
 		}
 
 		protected override string GetStringRepresentation() {
-			return $"{string.Join(" and ", featureQueries)}";
+			return $"{string.Join(" and ", FeatureQueries)}";
 		}
 	}
 
@@ -71,13 +85,17 @@ namespace LessonNet.Parser.ParseTree
 	}
 
 	public abstract class MediaFeatureQuery : LessNode {
+		public MediaQueryModifier Modifier { get; }
 
+		protected MediaFeatureQuery(MediaQueryModifier modifier) {
+			this.Modifier = modifier;
+		}
 	}
 
 	public class MediaIdentifierQuery : MediaFeatureQuery {
 		private readonly string identifier;
 
-		public MediaIdentifierQuery(string identifier) {
+		public MediaIdentifierQuery(MediaQueryModifier modifier, string identifier) : base(modifier) {
 			this.identifier = identifier;
 		}
 
@@ -93,11 +111,11 @@ namespace LessonNet.Parser.ParseTree
 	public class MediaPropertyQuery : MediaFeatureQuery {
 		private readonly Rule rule;
 
-		public MediaPropertyQuery(Rule rule) {
+		public MediaPropertyQuery(MediaQueryModifier modifier, Rule rule) : base(modifier) {
 			this.rule = rule;
 		}
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new MediaPropertyQuery(rule.EvaluateSingle<Rule>(context));
+			yield return new MediaPropertyQuery(Modifier, rule.EvaluateSingle<Rule>(context));
 		}
 
 		protected override string GetStringRepresentation() {
