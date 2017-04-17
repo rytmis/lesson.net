@@ -18,12 +18,15 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			using (context.EnterClosureScope(closure)) {
+				// Evaluate all arguments prior to declaring default values and such in the scope
+				var evaluatedArgs = call.Arguments.Select(arg => arg.EvaluateSingle<MixinCallArgument>(context)).ToList();
+
 				var namedParameters = mixin.Parameters.OfType<MixinParameter>().ToList();
 				foreach (var mixinParameter in namedParameters) {
 					mixinParameter.DeclareIn(context);
 				}
 
-				(var namedArgs, var positionalArgs) = call.Arguments.Split<NamedArgument, PositionalArgument>();
+				(var namedArgs, var positionalArgs) = evaluatedArgs.Split<NamedArgument, PositionalArgument>();
 
 				foreach (var namedArgument in namedArgs) {
 					namedArgument.DeclareIn(context);
