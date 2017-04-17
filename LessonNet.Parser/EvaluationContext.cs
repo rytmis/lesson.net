@@ -173,7 +173,7 @@ namespace LessonNet.Parser
 				return variableDeclaration;
 			}
 
-			var variableInParentScope = Parent?.ResolveVariable(name);
+			var variableInParentScope = Parent?.ResolveVariable(name, throwOnError);
 			if (variableInParentScope != null) {
 				return variableInParentScope;
 			}
