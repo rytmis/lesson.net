@@ -10,15 +10,14 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		public bool Matched { get; private set; }
 
 		public RulesetEvaluationResult(Ruleset ruleset, RulesetCall call, Scope closure) {
-			// Drop selectors from the invoked ruleset
-			this.ruleset = new Ruleset(SelectorList.Empty(), ruleset.Block);
+			this.ruleset = ruleset;
 			this.call = call;
 			this.closure = closure;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			using (context.EnterClosureScope(closure)) {
-				foreach (var evaluationResult in ruleset.Evaluate(context)) {
+				foreach (var evaluationResult in ruleset.Block.Evaluate(context)) {
 					yield return evaluationResult;
 				}
 
