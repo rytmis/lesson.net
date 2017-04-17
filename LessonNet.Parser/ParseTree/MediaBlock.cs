@@ -33,17 +33,25 @@ namespace LessonNet.Parser.ParseTree
 			if (context.CurrentScope.Selectors == null) {
 				// No bubbling: we are at the top level
 				yield return new MediaBlock(evaluatedQueries, new RuleBlock(statements));
+
+				foreach (var mediaBlock in mediaBlocks) {
+					yield return new MediaBlock(CombineQueries(this.mediaQueries, mediaBlock.mediaQueries), mediaBlock.block);
+				}
 			} else {
 				// Wrap the rules in a ruleset that inherits selectors from the enclosing scope
-				var bubbledRuleset = new Ruleset(context.CurrentScope.Selectors, new RuleBlock(statements));
-				var bubbledStatements = bubbledRuleset.Evaluate(context).Cast<Statement>();
+				yield return Bubble(context, statements, evaluatedQueries);
 
-				yield return new MediaBlock(evaluatedQueries, new RuleBlock(bubbledStatements));
+				foreach (var mediaBlock in mediaBlocks) {
+					yield return Bubble(context, mediaBlock.block.Statements, CombineQueries(mediaQueries, mediaBlock.mediaQueries));
+				}
 			}
+		}
 
-			foreach (var mediaBlock in mediaBlocks) {
-				yield return new MediaBlock(CombineQueries(this.mediaQueries, mediaBlock.mediaQueries), mediaBlock.block);
-			}
+		private static MediaBlock Bubble(EvaluationContext context, IList<Statement> statements, IEnumerable<MediaQuery> evaluatedQueries) {
+			var bubbledRuleset = new Ruleset(context.CurrentScope.Selectors, new RuleBlock(statements));
+			var bubbledStatements = bubbledRuleset.Evaluate(context).Cast<Statement>();
+
+			return new MediaBlock(evaluatedQueries, new RuleBlock(bubbledStatements));
 		}
 
 		public override void WriteOutput(OutputContext context) {

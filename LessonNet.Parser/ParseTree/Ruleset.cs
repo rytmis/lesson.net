@@ -37,7 +37,9 @@ namespace LessonNet.Parser.ParseTree
 				}
 
 				foreach (var generatedMediaBlock in mediaBlocks) {
-					yield return generatedMediaBlock.EvaluateSingle<MediaBlock>(context);
+					foreach (var result in generatedMediaBlock.Evaluate(context)) {
+						yield return result;
+					}
 				}
 			}
 		}
