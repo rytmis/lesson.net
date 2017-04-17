@@ -59,6 +59,10 @@ namespace LessonNet.Parser {
 				yield return new ConstantIdentifierPart(prefix + idContext.Identifier().GetText());
 			}
 
+			if (idContext.KnownColor() != null) {
+				yield return new ConstantIdentifierPart(prefix + idContext.KnownColor().GetText());
+			}
+
 			if (idContext.identifierVariableName() != null) {
 				yield return new InterpolatedVariableIdentifierPart(idContext.identifierVariableName().GetText());
 			}
@@ -116,8 +120,8 @@ namespace LessonNet.Parser {
 				}
 
 				// The lexer rules might match an ID selector as a color, so we account for that here
-				if (context.Color() != null) {
-					return new IdentifierSelectorElement(new Identifier(new ConstantIdentifierPart(context.Color().GetText())));
+				if (context.HexColor() != null) {
+					return new IdentifierSelectorElement(new Identifier(new ConstantIdentifierPart(context.HexColor().GetText())));
 				}
 
 				return new CombinatorSelectorElement(context.combinator().GetText());
@@ -201,11 +205,17 @@ namespace LessonNet.Parser {
 			}
 
 			Expression GetColor() {
-				if (context.Color() == null) {
+				var color = context.color();
+				if (color == null) {
 					return null;
 				}
 
-				return new Color(context.Color().GetText());
+				var hexColor = color.HexColor();
+				if (hexColor != null) {
+					return Color.FromHexString(hexColor.GetText());
+				}
+
+				return Color.FromKeyword(color.KnownColor().GetText());
 			}
 
 			Expression GetStringLiteral() {

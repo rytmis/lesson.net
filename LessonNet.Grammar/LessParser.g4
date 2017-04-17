@@ -38,14 +38,19 @@ expressionList
   : expression+
   ;
 
+color
+  : HexColor
+  | KnownColor
+  ;
+
 expression
   : quotedExpression
   | parenthesizedExpression
   | expression mathCharacter expression
   | measurementList
   | measurement
+  | color
   | function
-  | Color
   | StringLiteral
   | url
   | variableName
@@ -164,7 +169,7 @@ combinator
 
 selectorElement
   : parentSelectorReference
-  | Color
+  | HexColor
   | ( HASH identifier
     | DOT identifier 
     | (COLON|COLONCOLON) Identifier
@@ -180,7 +185,7 @@ attribRelate
   ;
 
 identifier
-  : Identifier identifierPart*
+  : (KnownColor | Identifier) identifierPart*
   | InterpolationStart identifierVariableName BlockEnd identifierPart*
   ;
 

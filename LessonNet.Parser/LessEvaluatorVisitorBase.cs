@@ -55,6 +55,10 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
+		public virtual LessNode VisitColor(LessParser.ColorContext context) {
+			throw new System.NotImplementedException();
+		}
+
 		public virtual LessNode VisitExpression(LessParser.ExpressionContext context)
 		{
 			throw new System.NotImplementedException();
