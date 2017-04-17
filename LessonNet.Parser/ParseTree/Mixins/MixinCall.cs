@@ -5,12 +5,14 @@ using LessonNet.Parser.ParseTree.Expressions;
 
 namespace LessonNet.Parser.ParseTree.Mixins {
 	public class MixinCall : Statement {
-		private readonly SelectorList selectors;
+		public SelectorList Selectors { get; }
 		private readonly List<MixinCallArgument> arguments;
 		public IReadOnlyCollection<MixinCallArgument> Arguments => arguments.AsReadOnly();
 
 		public MixinCall(SelectorList selectors, IEnumerable<MixinCallArgument> arguments) {
-			this.selectors = selectors;
+			// Combinators (descendant selectors etc.) do not count in mixin calls.
+			// E.g. #id > .class is equivalent to #id .class
+			this.Selectors = selectors.DropCombinators();
 			this.arguments = arguments.ToList();
 
 			VerifyArgumentOrder();
@@ -28,7 +30,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			var call = new MixinCall(selectors.EvaluateSingle<SelectorList>(context), arguments);
+			var call = new MixinCall(Selectors.EvaluateSingle<SelectorList>(context), arguments);
 
 			foreach (var mixinResult in context.CurrentScope.ResolveMatchingMixins(call)) {
 				foreach (var evaluationResult in mixinResult.Evaluate(context)) {
@@ -38,7 +40,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		}
 
 		public bool Matches(MixinDefinition mixinDefinition, EvaluationContext context) {
-			if (!mixinDefinition.Selectors.MatchesAny(selectors)) {
+			if (!mixinDefinition.Selectors.MatchesAny(Selectors)) {
 				// Selectors don't match
 				return false;
 			}
@@ -95,7 +97,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		}
 
 		protected override string GetStringRepresentation() {
-			return $"{selectors}({string.Join(", ", arguments)})";
+			return $"{Selectors}({string.Join(", ", arguments)})";
 		}
 	}
 }

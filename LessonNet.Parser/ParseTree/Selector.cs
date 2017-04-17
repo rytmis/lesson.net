@@ -7,18 +7,18 @@ using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser.ParseTree {
 	public class Selector : LessNode {
-		private readonly List<SelectorElement> elements;
+		public List<SelectorElement> Elements { get; }
 
 		public Selector(IEnumerable<SelectorElement> elements) {
-			this.elements = elements.ToList();
+			this.Elements = elements.ToList();
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new Selector(elements.Select(e => e.EvaluateSingle<SelectorElement>(context)));
+			yield return new Selector(Elements.Select(e => e.EvaluateSingle<SelectorElement>(context)));
 		}
 
 		protected override string GetStringRepresentation() {
-			return string.Join("", elements.Select(e => e.ToString())).Trim();
+			return string.Join("", Elements.Select(e => e.ToString())).Trim();
 		}
 
 		public override void WriteOutput(OutputContext context) {
@@ -32,11 +32,11 @@ namespace LessonNet.Parser.ParseTree {
 
 					if (!substituted && selectorElement is ParentReferenceSelectorElement parentRef) {
 						// Add all parent selector elements except the last one
-						for (int i = 0; i < parentSelector.elements.Count - 1; i++) {
-							yield return parentSelector.elements[i];
+						for (int i = 0; i < parentSelector.Elements.Count - 1; i++) {
+							yield return parentSelector.Elements[i];
 						}
 
-						var lastParentElement = parentSelector.elements.LastOrDefault();
+						var lastParentElement = parentSelector.Elements.LastOrDefault();
 						if (lastParentElement is IdentifierSelectorElement ise) {
 							yield return new IdentifierSelectorElement(ise.Identifier) {
 								HasTrailingWhitespace = parentRef.HasTrailingWhitespace
@@ -60,18 +60,18 @@ namespace LessonNet.Parser.ParseTree {
 					}
 				} else if (isRoot) {
 					foreach (var parentSelector in parentSelectors.Selectors) {
-						yield return new Selector(parentSelector.elements.Concat(currentElements));
+						yield return new Selector(parentSelector.Elements.Concat(currentElements));
 					}
 				} else {
 					yield return new Selector(currentElements);
 				}
 			}
 
-			return SubstituteParentReferences(elements, true);
+			return SubstituteParentReferences(Elements, true);
 		}
 
 		protected bool Equals(Selector other) {
-			return elements.SequenceEqual(other.elements);
+			return Elements.SequenceEqual(other.Elements);
 		}
 
 		public override bool Equals(object obj) {
@@ -82,11 +82,49 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		public override int GetHashCode() {
-			return elements.Aggregate(37, (s, e) => s * e.GetHashCode());
+			return Elements.Aggregate(37, (s, e) => s * e.GetHashCode());
 		}
 
 		public bool IsEmpty() {
-			return elements.Count == 0;
+			return Elements.Count == 0;
+		}
+
+		public Selector DropCombinators() {
+			return new Selector(Elements.Where(e => !(e is CombinatorSelectorElement)));
+		}
+
+		public bool IsPrefixOf(Selector other) {
+			if (Elements.Count == 0) {
+				return false;
+			}
+
+			if (Elements.Count >= other.Elements.Count) {
+				return false;
+			}
+
+			for (var index = 0; index < Elements.Count; index++) {
+				var element = Elements[index];
+				var otherElement = other.Elements[index];
+				if (!Equals(element, otherElement)) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		public Selector RemovePrefix(Selector maybePrefix) {
+			IEnumerable<SelectorElement> GetRemainingElements() {
+				for (var i = maybePrefix.Elements.Count; i < Elements.Count; i++) {
+					yield return Elements[i];
+				}
+			}
+
+			if (!maybePrefix.IsPrefixOf(this)) {
+				return null;
+			}
+
+			return new Selector(GetRemainingElements());
 		}
 	}
 

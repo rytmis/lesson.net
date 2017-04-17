@@ -4,14 +4,14 @@ using LessonNet.Grammar;
 
 namespace LessonNet.Parser.ParseTree.Mixins {
 	public class RulesetCall : Statement {
-		private readonly SelectorList selectors;
+		public SelectorList Selectors { get; }
 
 		public RulesetCall(SelectorList selectors) {
-			this.selectors = selectors;
+			this.Selectors = selectors.DropCombinators();
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			var call = new RulesetCall(selectors.EvaluateSingle<SelectorList>(context));
+			var call = new RulesetCall(Selectors.EvaluateSingle<SelectorList>(context));
 
 			foreach (var rulesetResult in context.CurrentScope.ResolveMatchingRulesets(call)) {
 				foreach (var evaluationResult in rulesetResult.Evaluate(context)) {
@@ -21,7 +21,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		}
 
 		public bool Matches(Ruleset ruleset) {
-			return ruleset.Selectors.MatchesAny(selectors);
+			return ruleset.Selectors.MatchesAny(Selectors);
 		}
 
 		public bool Matches(MixinDefinition mixinDefinition) {
@@ -30,7 +30,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		}
 
 		protected override string GetStringRepresentation() {
-			return selectors.ToString();
+			return Selectors.ToString();
 		}
 	}
 }

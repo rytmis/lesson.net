@@ -12,7 +12,9 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		public IReadOnlyList<MixinParameterBase> Parameters => parameters.AsReadOnly();
 
 		public MixinDefinition(SelectorList selectors, IEnumerable<MixinParameterBase> parameters, RuleBlock block, MixinGuard guard) {
-			this.Selectors = selectors;
+			// Combinators (descendant selectors etc.) do not count in mixin calls.
+			// E.g. #id > .class is equivalent to #id .class
+			this.Selectors = selectors.DropCombinators();
 			this.parameters = parameters.ToList();
 			this.block = block;
 			this.guard = guard;

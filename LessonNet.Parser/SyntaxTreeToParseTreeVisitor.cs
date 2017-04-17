@@ -54,9 +54,9 @@ namespace LessonNet.Parser {
 			return new Ruleset(selectors, (RuleBlock) context.block().Accept(this));
 		}
 
-		private IEnumerable<IdentifierPart> GetIdentifierParts(LessParser.IdentifierContext idContext) {
+		private IEnumerable<IdentifierPart> GetIdentifierParts(string prefix, LessParser.IdentifierContext idContext) {
 			if (idContext.Identifier() != null) {
-				yield return new ConstantIdentifierPart(idContext.Identifier().GetText());
+				yield return new ConstantIdentifierPart(prefix + idContext.Identifier().GetText());
 			}
 
 			if (idContext.identifierVariableName() != null) {
@@ -80,11 +80,7 @@ namespace LessonNet.Parser {
 				string prefix = context.HASH()?.GetText()
 					?? context.DOT()?.GetText();
 
-				if (!string.IsNullOrEmpty(prefix)) {
-					yield return new ConstantIdentifierPart(prefix);
-				}
-
-				foreach (var identifierPart in this.GetIdentifierParts(context.identifier())) {
+				foreach (var identifierPart in this.GetIdentifierParts(prefix, context.identifier())) {
 					yield return identifierPart;
 				}
 			}
@@ -105,42 +101,40 @@ namespace LessonNet.Parser {
 				return new Identifier(GetIdentifierParts());
 			}
 
+			SelectorElement GetElement() {
+				var parentSelector = context.parentSelectorReference();
+				if (parentSelector != null) {
+					return new ParentReferenceSelectorElement();
+				}
+
+				if (context.identifier() != null || context.Identifier() != null) {
+					return new IdentifierSelectorElement(GetIdentifier());
+				}
+
+				if (context.attrib() != null) {
+					return new AttributeSelectorElement(context.attrib().GetText());
+				}
+
+				// The lexer rules might match an ID selector as a color, so we account for that here
+				if (context.Color() != null) {
+					return new IdentifierSelectorElement(new Identifier(new ConstantIdentifierPart(context.Color().GetText())));
+				}
+
+				return new CombinatorSelectorElement(context.combinator().GetText());
+			}
+
 			int possibleWhitespaceIndex = context.Stop.TokenIndex + 1;
 
 			bool hasTrailingWhitespace = possibleWhitespaceIndex < tokenStream.Size
 				&& tokenStream.Get(possibleWhitespaceIndex).Type == LessLexer.WS;
 
-			var parentSelector = context.parentSelectorReference();
-			if (parentSelector != null) {
-				return new ParentReferenceSelectorElement() {
-					HasTrailingWhitespace = hasTrailingWhitespace
-				};
-			}
-
-			if (context.identifier() != null || context.Identifier() != null) {
-				return new IdentifierSelectorElement(GetIdentifier()) {
-					HasTrailingWhitespace = hasTrailingWhitespace
-				};
-			}
-
-			if (context.attrib() != null) {
-				return new AttributeSelectorElement(context.attrib().GetText()) {
-					HasTrailingWhitespace = hasTrailingWhitespace
-				};
-			}
-
-			// The lexer rules might match an ID selector as a color, so we account for that here
-			if (context.Color() != null) {
-				return new IdentifierSelectorElement(new Identifier(new ConstantIdentifierPart(context.Color().GetText()))) {
-					HasTrailingWhitespace = hasTrailingWhitespace
-				};
-			}
-
-			return new CombinatorSelectorElement(context.combinator().GetText());
+			var element = GetElement();
+			element.HasTrailingWhitespace = hasTrailingWhitespace;
+			return element;
 		}
 
 		public override LessNode VisitIdentifier(LessParser.IdentifierContext context) {
-			return new Identifier(GetIdentifierParts(context));
+			return new Identifier(GetIdentifierParts(null, context));
 		}
 
 		public override LessNode VisitSelector(LessParser.SelectorContext context) {

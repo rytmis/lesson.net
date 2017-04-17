@@ -74,7 +74,7 @@ namespace LessonNet.Parser
 
 		public Scope(EvaluationContext context, SelectorList selectors = null, Scope parent = null) {
 			this.context = context;
-			this.Selectors = selectors;
+			this.Selectors = selectors?.DropCombinators();
 			Parent = parent;
 		}
 
@@ -114,14 +114,27 @@ namespace LessonNet.Parser
 			// No namespace support or result caching yet
 			var matchingMixins = mixins
 				.Where(mixin => call.Matches(mixin, context))
-				.Select(m => new MixinEvaluationResult(m, call, this));
+				.Select(m => new MixinEvaluationResult(m, call, this))
+				.Concat(ResolveInChildContexts(call));
 
 			if (Parent == null) {
 				return matchingMixins.ToList();
 			}
 
-			return Parent.ResolveMatchingMixins(call).Concat(matchingMixins).ToList();
+			return Parent.ResolveMixinsCore(call).Concat(matchingMixins).ToList();
 		}
+
+		private IEnumerable<MixinEvaluationResult> ResolveInChildContexts(MixinCall call) {
+			foreach (var child in children) {
+				var remainingSelectors = call.Selectors.RemovePrefixes(child.Selectors);
+				if (!remainingSelectors.IsEmpty()) {
+					foreach (var result in child.ResolveMixinsCore(new MixinCall(remainingSelectors, call.Arguments))) {
+						yield return result;
+					}
+				}
+			}
+		}
+
 		private IList<InvocationResult> ResolveRulesetsCore(RulesetCall call) {
 			// No namespace support or result caching yet
 			var matchingRulesets = rulesets
@@ -130,13 +143,28 @@ namespace LessonNet.Parser
 
 			var matchingMixins = mixins
 				.Where(call.Matches)
-				.Select(m => new MixinEvaluationResult(m, new MixinCall(Selectors, Enumerable.Empty<PositionalArgument>()), this));
+				.Select(m => new MixinEvaluationResult(m, new MixinCall(call.Selectors, Enumerable.Empty<PositionalArgument>()), this));
+
+			var localResults = matchingRulesets
+				.Concat<InvocationResult>(matchingMixins)
+				.Concat(ResolveInChildContexts(call));
 
 			if (Parent == null) {
-				return matchingRulesets.Concat<InvocationResult>(matchingMixins).ToList();
+				return localResults.ToList();
 			}
 
-			return Parent.ResolveMatchingRulesets(call).Concat(matchingRulesets).ToList();
+			return Parent.ResolveRulesetsCore(call).Concat(localResults).ToList();
+		}
+
+		private IEnumerable<InvocationResult> ResolveInChildContexts(RulesetCall call) {
+			foreach (var child in children) {
+				var remainingSelectors = call.Selectors.RemovePrefixes(child.Selectors);
+				if (!remainingSelectors.IsEmpty()) {
+					foreach (var result in child.ResolveRulesetsCore(new RulesetCall(remainingSelectors))) {
+						yield return result;
+					}
+				}
+			}
 		}
 
 

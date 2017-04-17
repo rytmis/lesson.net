@@ -74,6 +74,25 @@ namespace LessonNet.Parser.ParseTree {
 			return selectors.All(s => s.IsEmpty());
 		}
 
+		public SelectorList DropCombinators() {
+			return new SelectorList(Selectors.Select(s => s.DropCombinators()));
+		}
+
+		public SelectorList RemovePrefixes(SelectorList other) {
+			IEnumerable<Selector> GetResultingSelectors() {
+				foreach (var selector in Selectors) {
+					foreach (var otherSelector in other.Selectors) {
+						var resultingPrefix = selector.RemovePrefix(otherSelector);
+						if (resultingPrefix != null) {
+							yield return resultingPrefix;
+						}
+					}
+				}
+			}
+
+			return new SelectorList(GetResultingSelectors());
+		}
+
 		public static SelectorList Empty() {
 			return new SelectorList(new[] {new Selector(Enumerable.Empty<SelectorElement>())});
 		}
