@@ -321,7 +321,7 @@ namespace LessonNet.Parser {
 		public override LessNode VisitProperty(LessParser.PropertyContext context) {
 			string name = context.identifier().GetText();
 
-			return new Rule(name, GetExpressionLists(context.valueList()));
+			return new Rule(name, GetExpressionLists(context.valueList()), context.IMPORTANT() != null);
 		}
 
 		public override LessNode VisitMixinCall(LessParser.MixinCallContext context) {

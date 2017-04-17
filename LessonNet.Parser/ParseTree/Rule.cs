@@ -5,10 +5,12 @@ using LessonNet.Parser.CodeGeneration;
 namespace LessonNet.Parser.ParseTree {
 	public class Rule : Statement {
 		private readonly string property;
+		private readonly bool important;
 		private List<ExpressionList> values;
 
-		public Rule(string property, IEnumerable<ExpressionList> values) {
+		public Rule(string property, IEnumerable<ExpressionList> values, bool important) {
 			this.property = property;
+			this.important = important;
 			this.values = values.ToList();
 		}
 
@@ -19,17 +21,22 @@ namespace LessonNet.Parser.ParseTree {
 				}
 			}
 
-			yield return new Rule(property, EvaluateValues()) {IsEvaluated = true};
+			yield return new Rule(property, EvaluateValues(), important) {IsEvaluated = true};
 		}
 
 		public override void WriteOutput(OutputContext context) {
 			string cssValues = string.Join(", ", this.values.Select(v => v.ToCss()));
 
-			context.AppendLine($"{property}: {cssValues};");
+			context.Append($"{property}: {cssValues}");
+			if (important) {
+				context.Append(" !important", indent: false);
+			}
+
+			context.AppendLine(";", indent: false);
 		}
 
 		protected override string GetStringRepresentation() {
-			return $"{property}: {string.Join(", ", values)}";
+			return $"{property}: {string.Join(", ", values)}{(important ? " !important" : "")}";
 		}
 	}
 }
