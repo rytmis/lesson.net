@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using LessonNet.Parser.CodeGeneration;
+using LessonNet.Parser.ParseTree.Mixins;
 using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser.ParseTree {
@@ -24,14 +25,13 @@ namespace LessonNet.Parser.ParseTree {
 				declaration.DeclareIn(context);
 			}
 
-			// Rulesets are both declarations and general statements (invokable but also output-producing).
-			var rulesets = declarations.OfType<Ruleset>();
+			var mixinDefinitions = declarations.OfType<MixinDefinition>();
 
 			foreach (var mediaBlock in mediaBlocks) {
 				yield return mediaBlock;
 			}
 
-			foreach (var statement in Statements.Except(mediaBlocks)) {
+			foreach (var statement in Statements.Except(mediaBlocks).Except(mixinDefinitions)) {
 				foreach (var generatedNode in statement.Evaluate(context)) {
 					yield return generatedNode;
 				}
