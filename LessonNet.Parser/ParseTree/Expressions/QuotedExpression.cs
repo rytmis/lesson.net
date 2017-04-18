@@ -14,7 +14,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			context.Append(literal, indent: false);
+			context.Append(literal);
 		}
 	}
 }

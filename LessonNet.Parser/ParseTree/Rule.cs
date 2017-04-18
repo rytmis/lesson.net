@@ -29,10 +29,8 @@ namespace LessonNet.Parser.ParseTree {
 
 			context.Append($"{property}: {cssValues}");
 			if (important) {
-				context.Append(" !important", indent: false);
+				context.Append(" !important");
 			}
-
-			context.AppendLine(";", indent: false);
 		}
 
 		protected override string GetStringRepresentation() {

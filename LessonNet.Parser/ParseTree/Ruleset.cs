@@ -55,8 +55,9 @@ namespace LessonNet.Parser.ParseTree
 			}
 
 			context.Append(Selectors);
-			context.AppendLine(" {", indent: false);
+			context.AppendLine(" {");
 			context.Append(Block);
+			context.Indent();
 			context.AppendLine("}");
 		}
 

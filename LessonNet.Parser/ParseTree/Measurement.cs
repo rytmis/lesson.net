@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
 using LessonNet.Parser.CodeGeneration;
@@ -21,7 +22,7 @@ namespace LessonNet.Parser.ParseTree
 		}
 
 		protected override string GetStringRepresentation() {
-			return $"{Number}{Unit}";
+			return $"{Number.ToString(CultureInfo.InvariantCulture)}{Unit}";
 		}
 
 		public override void WriteOutput(OutputContext context) {

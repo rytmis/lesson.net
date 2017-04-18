@@ -290,4 +290,9 @@ NUMBER_WS : WS -> popMode, channel(HIDDEN);
 NUMBER_SEMI : SEMI -> popMode, type(SEMI);
 NUMBER_RPAREN : RPAREN -> popMode, type(RPAREN);
 NUMBER_COMMA : COMMA -> popMode, type(COMMA);
+NUMBER_TIMES : TIMES -> popMode, type(TIMES);
+NUMBER_PLUS : PLUS -> popMode, type(PLUS);
+NUMBER_DIV : DIV -> popMode, type(DIV);
+NUMBER_MINUS : MINUS -> popMode, type(MINUS);
+NUMBER_PERC : PERC -> popMode, type(PERC);
 

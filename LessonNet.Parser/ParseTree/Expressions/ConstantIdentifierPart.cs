@@ -33,7 +33,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			context.Append(part, indent: false);
+			context.Append(part);
 		}
 	}
 }

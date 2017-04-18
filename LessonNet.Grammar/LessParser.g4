@@ -46,6 +46,7 @@ color
 expression
   : quotedExpression
   | parenthesizedExpression
+  | fraction
   | expression mathCharacter expression
   | measurementList
   | measurement
@@ -217,6 +218,10 @@ measurementList
 
 url
   : UrlStart Url UrlEnd
+  ;
+
+fraction
+  : Number DIV Number Unit?
   ;
 
 measurement

@@ -20,13 +20,13 @@ namespace LessonNet.Parser.CodeGeneration
 			this.indentCount = indentCount;
 		}
 
-		public void Append(string input, bool indent = true) {
-			AppendInternal(input, indent);
+		public void Append(string input) {
+			outputBuffer.Append(input);
 		}
 
-		public void AppendLine(string input, bool indent = true) {
-			AppendInternal(input, indent);
-			AppendInternal(Environment.NewLine, indent: false);
+		public void AppendLine(string input) {
+			outputBuffer.Append(input);
+			outputBuffer.Append(Environment.NewLine);
 		}
 
 		public void Append(LessNode node) {
@@ -34,7 +34,10 @@ namespace LessonNet.Parser.CodeGeneration
 		}
 
 		public void Indent() {
-			AppendInternal("", indent: true);
+			int indentCharCount = indentLevel * indentCount;
+			for (int i = 0; i < indentCharCount; i++) {
+				outputBuffer.Append(indentChar);
+			}
 		}
 
 		public void IncreaseIndentLevel() {
@@ -46,16 +49,5 @@ namespace LessonNet.Parser.CodeGeneration
 		}
 
 		public string GetCss() => outputBuffer.ToString();
-
-		private void AppendInternal(string input, bool indent = true) {
-			if (indent) {
-				int indentCharCount = indentLevel * indentCount;
-				for (int i = 0; i < indentCharCount; i++) {
-					outputBuffer.Append(indentChar);
-				}
-			}
-
-			outputBuffer.Append(input);
-		}
 	}
 }

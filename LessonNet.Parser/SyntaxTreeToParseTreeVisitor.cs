@@ -226,6 +226,17 @@ namespace LessonNet.Parser {
 				return new StringLiteral(context.StringLiteral().GetText());
 			}
 
+			Expression GetFraction() {
+				var fraction = context.fraction();
+				if (fraction == null) {
+					return null;
+				}
+
+				var numbers = fraction.Number().Select(n => decimal.Parse(n.GetText())).ToArray();
+
+				return new Fraction(numbers[0], numbers[1], fraction.Unit()?.GetText());
+			}
+
 			return context.variableName()?.Accept(this)
 				?? GetColor()
 				?? context.measurement()?.Accept(this)
@@ -234,6 +245,7 @@ namespace LessonNet.Parser {
 				?? context.identifier()?.Accept(this)
 				?? context.parenthesizedExpression()?.Accept(this)
 				?? context.measurementList()?.Accept(this)
+				?? GetFraction()
 				?? GetMathOperation()
 				?? context.url()?.Accept(this)
 				?? context.quotedExpression()?.Accept(this)

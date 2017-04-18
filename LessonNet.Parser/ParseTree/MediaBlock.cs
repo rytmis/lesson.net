@@ -57,7 +57,16 @@ namespace LessonNet.Parser.ParseTree
 				return;
 			}
 
-			context.AppendLine($"@media {string.Join(", ", mediaQueries)} {{");
+			context.Append("@media ");
+			for (var index = 0; index < mediaQueries.Count; index++) {
+				if (index > 0) {
+					context.Append(", ");
+				}
+				var mediaQuery = mediaQueries[index];
+				context.Append(mediaQuery);
+			}
+
+			context.AppendLine(" {");
 			context.Append(Block);
 			context.AppendLine("}");
 		}
@@ -81,6 +90,17 @@ namespace LessonNet.Parser.ParseTree
 
 		protected override string GetStringRepresentation() {
 			return $"{string.Join(" and ", FeatureQueries)}";
+		}
+
+		public override void WriteOutput(OutputContext context) {
+			for (var i = 0; i < FeatureQueries.Count; i++) {
+				if (i > 0) {
+					context.Append(" and ");
+				}
+
+				var featureQuery = FeatureQueries[i];
+				context.Append(featureQuery);
+			}
 		}
 	}
 
@@ -112,6 +132,14 @@ namespace LessonNet.Parser.ParseTree
 		protected override string GetStringRepresentation() {
 			return identifier;
 		}
+
+		public override void WriteOutput(OutputContext context) {
+			if (Modifier != MediaQueryModifier.None) {
+				context.Append(Modifier.ToString().ToLowerInvariant() + " ");
+			}
+
+			context.Append(identifier);
+		}
 	}
 
 	public class MediaPropertyQuery : MediaFeatureQuery {
@@ -126,6 +154,16 @@ namespace LessonNet.Parser.ParseTree
 
 		protected override string GetStringRepresentation() {
 			return $"({rule})";
+		}
+
+		public override void WriteOutput(OutputContext context) {
+			if (Modifier != MediaQueryModifier.None) {
+				context.Append(Modifier.ToString().ToLowerInvariant() + " ");
+			}
+
+			context.Append("(");
+			context.Append(rule);
+			context.Append(")");
 		}
 	}
 }

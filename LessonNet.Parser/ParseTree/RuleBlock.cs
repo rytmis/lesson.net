@@ -44,7 +44,11 @@ namespace LessonNet.Parser.ParseTree {
 			context.IncreaseIndentLevel();
 
 			foreach (var statement in Statements) {
+				context.Indent();
 				context.Append(statement);
+				if (statement is Rule) {
+					context.AppendLine(";");
+				}
 			}
 
 			context.DecreaseIndentLevel();
