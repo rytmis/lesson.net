@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LessonNet.Parser.CodeGeneration;
+using LessonNet.Parser.ParseTree.Expressions;
 using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser.ParseTree
@@ -119,18 +120,18 @@ namespace LessonNet.Parser.ParseTree
 	}
 
 	public class MediaIdentifierQuery : MediaFeatureQuery {
-		private readonly string identifier;
+		private readonly ExpressionList identifier;
 
-		public MediaIdentifierQuery(MediaQueryModifier modifier, string identifier) : base(modifier) {
+		public MediaIdentifierQuery(MediaQueryModifier modifier, ExpressionList identifier) : base(modifier) {
 			this.identifier = identifier;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return this;
+			yield return new MediaIdentifierQuery(Modifier, identifier.EvaluateSingle<ExpressionList>(context));
 		}
 
 		protected override string GetStringRepresentation() {
-			return identifier;
+			return identifier.ToString();
 		}
 
 		public override void WriteOutput(OutputContext context) {

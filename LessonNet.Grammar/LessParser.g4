@@ -15,8 +15,8 @@ stylesheet
 statement
   : importDeclaration
   | ruleset
-  | variableDeclaration ';'
   | mixinDefinition
+  | variableDeclaration ';'
   | mediaBlock
   | mixinCall ';'
   ;
@@ -24,6 +24,7 @@ statement
 variableName
   : AT variableName
   | AT Identifier
+  | AT URL
   ;
 
 mathCharacter
@@ -230,7 +231,7 @@ measurement
 
 featureQuery
   : MediaQueryModifier? LPAREN property RPAREN
-  | MediaQueryModifier? identifier
+  | MediaQueryModifier? (identifier|variableName)
   ;
 
 mediaQuery

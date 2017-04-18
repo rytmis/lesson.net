@@ -40,6 +40,13 @@ namespace LessonNet.Parser {
 				?? throw new ParserException($"Unexpected statement type: [{context.GetText()}]");
 		}
 
+		public override LessNode VisitVariableName(LessParser.VariableNameContext context) {
+			var variableName = context.Identifier()
+				?? context.URL();
+
+			return new Variable(variableName.GetText());
+		}
+
 		public override LessNode VisitImportDeclaration(LessParser.ImportDeclarationContext context) {
 			var referenceUrlContext = context.referenceUrl();
 
@@ -386,7 +393,10 @@ namespace LessonNet.Parser {
 				return new MediaPropertyQuery(modifier, (Rule) property.Accept(this));
 			}
 
-			return new MediaIdentifierQuery(modifier, context.identifier().GetText());
+			var value = context.identifier()?.Accept(this)
+				?? context.variableName().Accept(this);
+
+			return new MediaIdentifierQuery(modifier, new ExpressionList((Expression) value));
 		}
 
 		public override LessNode VisitMeasurementList(LessParser.MeasurementListContext context) {

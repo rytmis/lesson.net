@@ -39,7 +39,7 @@ namespace LessonNet.Parser
 
 		public virtual LessNode VisitVariableName(LessParser.VariableNameContext context)
 		{
-			return new Variable(context.Identifier().GetText());
+			throw new System.NotImplementedException();
 		}
 
 		public virtual LessNode VisitMathCharacter(LessParser.MathCharacterContext context)

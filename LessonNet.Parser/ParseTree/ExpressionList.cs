@@ -8,6 +8,9 @@ namespace LessonNet.Parser.ParseTree {
 	public class ExpressionList : LessNode {
 		public IList<Expression> Values { get; }
 
+		public ExpressionList(Expression expr) {
+			Values = new List<Expression>() {expr};
+		}
 		public ExpressionList(IEnumerable<Expression> values) {
 			this.Values = values.ToList();
 		}
