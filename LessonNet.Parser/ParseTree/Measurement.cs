@@ -28,5 +28,25 @@ namespace LessonNet.Parser.ParseTree
 		public override void WriteOutput(OutputContext context) {
 			context.Append(GetStringRepresentation());
 		}
+
+		protected bool Equals(Measurement other) {
+			return Number == other.Number && string.Equals(Unit, other.Unit);
+		}
+
+		public override bool Equals(object obj) {
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((Measurement) obj);
+		}
+
+		public override int GetHashCode() {
+			unchecked {
+				int hashCode = 397;
+				hashCode = (hashCode * 397) ^ Number.GetHashCode();
+				hashCode = (hashCode * 397) ^ (Unit != null ? Unit.GetHashCode() : 0);
+				return hashCode;
+			}
+		}
 	}
 }

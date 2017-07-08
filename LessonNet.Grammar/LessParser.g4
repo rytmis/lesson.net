@@ -53,10 +53,17 @@ expression
   | measurement
   | color
   | function
-  | StringLiteral
+  | string
   | url
   | variableName
   | identifier
+  ;
+
+
+
+string
+  : SQUOT_STRING_START (variableInterpolation | SQUOT_STRING_FRAGMENT)* SQUOT_STRING_END
+  | DQUOT_STRING_START (variableInterpolation | DQUOT_STRING_FRAGMENT)* DQUOT_STRING_END
   ;
 
 quotedExpression
@@ -186,9 +193,109 @@ attribRelate
   | '|='
   ;
 
+keywordAsIdentifier
+  : NULL
+  | IN
+  | URL
+  | NOT
+  | ONLY
+  | REFERENCE
+  | INLINE
+  | LESS
+  | CSS
+  | ONCE
+  | MULTIPLE
+  | WHEN
+  | NOT
+  | AND
+  | COLOR
+  | CONVERT
+  | DATA_URI
+  | DEFAULT_FN
+  | UNIT
+  | GET_UNIT
+  | SVG_GRADIENT
+  | ESCAPE
+  | E_FN
+  | REPLACE
+  | LENGTH
+  | EXTRACT
+  | CEIL
+  | FLOOR
+  | PERCENTAGE
+  | ROUND
+  | SQRT
+  | ABS
+  | SIN
+  | ASIN
+  | COS
+  | ACOS
+  | TAN
+  | ATAN
+  | PI
+  | POW
+  | MOD
+  | MIN
+  | MAX
+  | ISNUMBER
+  | ISSTRING
+  | ISCOLOR
+  | ISKEYWORD
+  | ISURL
+  | ISPIXEL
+  | ISEM
+  | ISPERCENTAGE
+  | ISUNIT
+  | RGB
+  | RGBA
+  | ARGB
+  | HSL
+  | HSLA
+  | HSV
+  | HSVA
+  | HUE
+  | SATURATION
+  | LIGHTNESS
+  | HSVHUE
+  | HSVSATURATION
+  | HSVVALUE
+  | RED
+  | GREEN
+  | BLUE
+  | ALPHA
+  | LUMA
+  | LUMINANCE
+  | SATURATE
+  | DESATURATE
+  | LIGHTEN
+  | DARKEN
+  | FADEIN
+  | FADEOUT
+  | FADE
+  | SPIN
+  | MIX
+  | GREYSCALE
+  | CONTRAST
+  | MULTIPLY
+  | SCREEN
+  | OVERLAY
+  | SOFTLIGHT
+  | HARDLIGHT
+  | DIFFERENCE
+  | EXCLUSION
+  | AVERAGE
+  | NEGATION
+  | CHAR_UNIT
+  | KnownColor
+  ;
+
+variableInterpolation
+  : InterpolationStart identifierVariableName BlockEnd 
+  ;
+
 identifier
-  : (KnownColor | Identifier) identifierPart*
-  | InterpolationStart identifierVariableName BlockEnd identifierPart*
+  : (keywordAsIdentifier | Identifier) identifierPart*
+  | variableInterpolation identifierPart*
   ;
 
 identifierPart
@@ -237,6 +344,7 @@ featureQuery
 mediaQuery
   : featureQuery (AND featureQuery)*
   ;
+
 
 mediaBlock
   : MEDIA mediaQuery (COMMA mediaQuery)* block

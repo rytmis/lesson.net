@@ -17,5 +17,21 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		protected override string GetStringRepresentation() {
 			return $"@{name}";
 		}
+
+
+		protected bool Equals(Variable other) {
+			return string.Equals(name, other.name);
+		}
+
+		public override bool Equals(object obj) {
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((Variable) obj);
+		}
+
+		public override int GetHashCode() {
+			return 397 ^ (name != null ? name.GetHashCode() : 0);
+		}
 	}
 }

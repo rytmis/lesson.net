@@ -70,6 +70,33 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 				}
 			}
 		}
+
+		protected bool Equals(Color other) {
+			return r == other.r
+				&& g == other.g
+				&& b == other.b
+				&& alpha.Equals(other.alpha)
+				&& string.Equals(keyword, other.keyword);
+		}
+
+		public override bool Equals(object obj) {
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((Color) obj);
+		}
+
+		public override int GetHashCode() {
+			unchecked {
+				int hashCode = 397;
+				hashCode = (hashCode * 397) ^ (int) r;
+				hashCode = (hashCode * 397) ^ (int) g;
+				hashCode = (hashCode * 397) ^ (int) b;
+				hashCode = (hashCode * 397) ^ alpha.GetHashCode();
+				hashCode = (hashCode * 397) ^ (keyword != null ? keyword.GetHashCode() : 0);
+				return hashCode;
+			}
+		}
 	}
 
 	public static class KnownColors {

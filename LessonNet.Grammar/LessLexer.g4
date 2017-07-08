@@ -96,7 +96,7 @@ KnownColor
     | 'darkorchid' | 'darkred' | 'darksalmon' | 'darkseagreen' | 'darkslateblue' | 'darkslategray' | 'darkslategrey' 
     | 'darkturquoise' | 'darkviolet' | 'deeppink' | 'deepskyblue' | 'dimgray' | 'dimgrey' | 'dodgerblue' | 'firebrick' 
     | 'floralwhite' | 'forestgreen' | 'fuchsia' | 'gainsboro' | 'ghostwhite' | 'gold' | 'goldenrod' | 'gray' | 'grey' 
-    | 'green' | 'greenyellow' | 'honeydew' | 'hotpink' | 'indianred ' | 'indigo ' | 'ivory' | 'khaki' | 'lavender' 
+    | 'green' | 'greenyellow' | 'honeydew' | 'hotpink' | 'indianredï¿½' | 'indigoï¿½' | 'ivory' | 'khaki' | 'lavender' 
     | 'lavenderblush' | 'lawngreen' | 'lemonchiffon' | 'lightblue' | 'lightcoral' | 'lightcyan' | 'lightgoldenrodyellow' 
     | 'lightgray' | 'lightgrey' | 'lightgreen' | 'lightpink' | 'lightsalmon' | 'lightseagreen' | 'lightskyblue' 
     | 'lightslategray' | 'lightslategrey' | 'lightsteelblue' | 'lightyellow' | 'lime' | 'limegreen' | 'linen' | 'magenta' 
@@ -117,15 +117,8 @@ Identifier
     ('_' | '-' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' | '0'..'9')*) -> pushMode(IDENTIFY)
   ;
 
-fragment STRING
-  :  '"' (~('"'|'\n'|'\r'))* '"'
-  |  '\'' (~('\''|'\n'|'\r'))* '\''
-  ;
-
-/* string literals */
-StringLiteral
-  :  STRING
-  ;
+DQUOT_STRING_START : '"' -> pushMode(DQ_STRING);
+SQUOT_STRING_START : '\'' -> pushMode(SQ_STRING);
 
 Number
   :  '-'? (('0'..'9')* '.')? ('0'..'9')+ -> pushMode(NUMBER_STARTED)
@@ -252,11 +245,14 @@ EXCLUSION: 'exclusion';
 AVERAGE: 'average';
 NEGATION: 'negation';
 
-Unit : ('%'|'px'|'cm'|'mm'|'in'|'pt'|'pc'|'em'|'ex'|'deg'|'rad'|'grad'|'ms'|'s'|'hz'|'khz'|'dpi'|'dpcm');
+fragment CHAR_UNIT
+  : ('px'|'cm'|'mm'|'in'|'pt'|'pc'|'em'|'ex'|'deg'|'rad'|'grad'|'ms'|'s'|'hz'|'khz'|'dpi'|'dpcm');
+
+Unit : ('%'| CHAR_UNIT);
 
 mode URL_STARTED;
 UrlEnd                 : RPAREN -> popMode;
-Url                    :  STRING | (~(')' | '\n' | '\r' | ';'))+;
+Url                    :  DQUOT_STRING_START | SQUOT_STRING_START | (~(')' | '\n' | '\r' | ';'))+;
 
 mode IDENTIFY;
 BlockStart_ID             : BlockStart -> popMode, type(BlockStart);
@@ -265,7 +261,7 @@ SPACE                  : WS -> popMode, type(WS), channel(HIDDEN);
 DOLLAR_ID              : DOLLAR -> type(DOLLAR);
 
 InterpolationStartAfter  : InterpolationStart;
-InterpolationEnd_ID    : BlockEnd -> type(BlockEnd);
+InterpolationEnd_ID    : BlockEnd -> popMode, type(BlockEnd);
 
 IdentifierAfter        : Identifier;
 Ellipsis_ID            : Ellipsis -> popMode, type(Ellipsis);
@@ -295,4 +291,14 @@ NUMBER_PLUS : PLUS -> popMode, type(PLUS);
 NUMBER_DIV : DIV -> popMode, type(DIV);
 NUMBER_MINUS : MINUS -> popMode, type(MINUS);
 NUMBER_PERC : PERC -> popMode, type(PERC);
+
+mode SQ_STRING;
+SQ_INTERPOLATION_START: InterpolationStart -> type(InterpolationStart), pushMode(IDENTIFY);
+SQUOT_STRING_FRAGMENT : (~('\''|'\n'|'\r'|'@'))+;
+SQUOT_STRING_END : ('\''|'\n'|'\r') -> popMode;
+
+mode DQ_STRING;
+DQ_INTERPOLATION_START: InterpolationStart -> type(InterpolationStart), pushMode(IDENTIFY);
+DQUOT_STRING_FRAGMENT : (~('"'|'\n'|'\r'|'@'))+;
+DQUOT_STRING_END : ('"'|'\n'|'\r') -> popMode;
 

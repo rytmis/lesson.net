@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.6</TargetFramework>
+    <TargetFramework>netstandard1.5</TargetFramework>
     <AssemblyName>LessonNet.Grammar</AssemblyName>
     <RootNamespace>LessonNet.Grammar</RootNamespace>
   </PropertyGroup>
@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Antlr4" Version="4.6.1-beta002" />
+    <PackageReference Include="Antlr4" Version="4.6.2" />
   </ItemGroup>
 
   <ItemGroup>

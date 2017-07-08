@@ -37,5 +37,28 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 
 			throw new EvaluationException($"{expr} is not a numeric expression");
 		}
+
+		protected bool Equals(MathOperation other) {
+			return Equals(lhs, other.lhs)
+				&& string.Equals(op, other.op)
+				&& Equals(rhs, other.rhs);
+		}
+
+		public override bool Equals(object obj) {
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((MathOperation) obj);
+		}
+
+		public override int GetHashCode() {
+			unchecked {
+				int hashCode = 397;
+				hashCode = (hashCode * 397) ^ (lhs != null ? lhs.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (op != null ? op.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (rhs != null ? rhs.GetHashCode() : 0);
+				return hashCode;
+			}
+		}
 	}
 }

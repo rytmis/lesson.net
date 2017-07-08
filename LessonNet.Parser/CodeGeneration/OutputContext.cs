@@ -20,6 +20,10 @@ namespace LessonNet.Parser.CodeGeneration
 			this.indentCount = indentCount;
 		}
 
+		public void Append(char input) {
+			outputBuffer.Append(input);
+		}
+
 		public void Append(string input) {
 			outputBuffer.Append(input);
 		}

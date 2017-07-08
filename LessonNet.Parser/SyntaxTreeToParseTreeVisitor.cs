@@ -66,12 +66,13 @@ namespace LessonNet.Parser {
 				yield return new ConstantIdentifierPart(prefix + idContext.Identifier().GetText());
 			}
 
-			if (idContext.KnownColor() != null) {
-				yield return new ConstantIdentifierPart(prefix + idContext.KnownColor().GetText());
+			if (idContext.keywordAsIdentifier() != null) {
+				yield return new ConstantIdentifierPart(prefix + idContext.keywordAsIdentifier().GetText());
 			}
 
-			if (idContext.identifierVariableName() != null) {
-				yield return new InterpolatedVariableIdentifierPart(idContext.identifierVariableName().GetText());
+			var variableInterpolation = idContext.variableInterpolation();
+			if (variableInterpolation != null) {
+				yield return new InterpolatedVariableIdentifierPart(variableInterpolation.identifierVariableName().GetText());
 			}
 
 			foreach (var partContext in idContext.identifierPart()) {
@@ -226,11 +227,24 @@ namespace LessonNet.Parser {
 			}
 
 			Expression GetStringLiteral() {
-				if (context.StringLiteral() == null) {
+				var str = context.@string();
+				if (str == null) {
 					return null;
 				}
 
-				return new StringLiteral(context.StringLiteral().GetText());
+				char quote = str.SQUOT_STRING_START() != null  ? '\'' : '"';
+
+				return new LessString(quote, GetFragments());
+
+				IEnumerable<LessStringFragment> GetFragments() {
+					foreach (var strChild in str.children) {
+						if (strChild is LessParser.VariableInterpolationContext interpolation) {
+							yield return new InterpolatedVariable(new Variable(interpolation.identifierVariableName().GetText()));
+						} else {
+							yield return new LessStringLiteral(strChild.GetText());
+						}
+					}
+				}
 			}
 
 			Expression GetFraction() {

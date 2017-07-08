@@ -6,7 +6,7 @@ namespace LessonNet.Parser.ParseTree {
 	public class Rule : Statement {
 		private readonly string property;
 		private readonly bool important;
-		private List<ExpressionList> values;
+		private readonly List<ExpressionList> values;
 
 		public Rule(string property, IEnumerable<ExpressionList> values, bool important) {
 			this.property = property;
@@ -35,6 +35,26 @@ namespace LessonNet.Parser.ParseTree {
 
 		protected override string GetStringRepresentation() {
 			return $"{property}: {string.Join(", ", values)}{(important ? " !important" : "")}";
+		}
+
+		protected bool Equals(Rule other) {
+			return string.Equals(property, other.property) && important == other.important && values.SequenceEqual(other.values);
+		}
+
+		public override bool Equals(object obj) {
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((Rule) obj);
+		}
+
+		public override int GetHashCode() {
+			unchecked {
+				var hashCode = (property != null ? property.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ important.GetHashCode();
+				hashCode = (hashCode * 397) ^ (values != null ? values.Aggregate(hashCode, (h, e) => (h * 397) ^ e.GetHashCode()) : 0);
+				return hashCode;
+			}
 		}
 	}
 }

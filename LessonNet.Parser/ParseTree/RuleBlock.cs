@@ -33,9 +33,17 @@ namespace LessonNet.Parser.ParseTree {
 				}
 			}
 
+			var ruleLookup = new HashSet<Rule>();
 			foreach (var statement in Statements.Except(mediaBlocks).Except(mixinDefinitions)) {
 				foreach (var generatedNode in statement.Evaluate(context)) {
-					yield return generatedNode;
+					if (generatedNode is Rule r) {
+						if (!ruleLookup.Contains(r)) {
+							ruleLookup.Add(r);
+							yield return generatedNode;
+						}
+					} else {
+						yield return generatedNode;
+					}
 				}
 			}
 		}
@@ -46,9 +54,10 @@ namespace LessonNet.Parser.ParseTree {
 			foreach (var statement in Statements) {
 				context.Indent();
 				context.Append(statement);
+
 				if (statement is Rule) {
 					context.AppendLine(";");
-				}
+				} 
 			}
 
 			context.DecreaseIndentLevel();

@@ -64,6 +64,10 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
+		public virtual LessNode VisitString(LessParser.StringContext context) {
+			throw new System.NotImplementedException();
+		}
+
 		public virtual LessNode VisitQuotedExpression(LessParser.QuotedExpressionContext context) {
 			throw new System.NotImplementedException();
 		}
@@ -183,6 +187,14 @@ namespace LessonNet.Parser
 
 		public virtual LessNode VisitAttribRelate(LessParser.AttribRelateContext context)
 		{
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitKeywordAsIdentifier(LessParser.KeywordAsIdentifierContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitVariableInterpolation(LessParser.VariableInterpolationContext context) {
 			throw new System.NotImplementedException();
 		}
 

@@ -42,5 +42,20 @@ namespace LessonNet.Parser.ParseTree {
 		protected override string GetStringRepresentation() {
 			return string.Join(", ", Values);
 		}
+
+		protected bool Equals(ExpressionList other) {
+			return Values.SequenceEqual(other.Values);
+		}
+
+		public override bool Equals(object obj) {
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((ExpressionList) obj);
+		}
+
+		public override int GetHashCode() {
+			return (Values != null ? Values.Aggregate(1, (h, e) => (h * 397) ^ e.GetHashCode()) : 0);
+		}
 	}
 }
