@@ -37,7 +37,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		public static Color FromHexString(string hex) {
-			return FromHexStringCore(hex, null);
+			return FromHexStringCore(hex, hex);
 		}
 
 		private static Color FromHexStringCore(string hex, string keyword) {

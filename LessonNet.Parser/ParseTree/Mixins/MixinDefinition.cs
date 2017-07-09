@@ -53,11 +53,11 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 
 	public class MixinParameter : MixinParameterBase {
 		public string Name { get; }
-		public IList<ExpressionList> DefaultValue { get; }
+		public ListOfExpressionLists DefaultValue { get; }
 
-		public MixinParameter(string name, IEnumerable<ExpressionList> defaultValue) {
+		public MixinParameter(string name, ListOfExpressionLists defaultValue) {
 			this.Name = name;
-			this.DefaultValue = defaultValue?.ToList();
+			this.DefaultValue = defaultValue;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
@@ -70,7 +70,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 			}
 		}
 
-		public override bool HasDefaultValue => DefaultValue?.Count > 0;
+		public override bool HasDefaultValue => DefaultValue != null;
 
 		protected override string GetStringRepresentation() {
 			if (HasDefaultValue) {

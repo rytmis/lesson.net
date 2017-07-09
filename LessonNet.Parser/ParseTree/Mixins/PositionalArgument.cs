@@ -10,16 +10,11 @@ namespace LessonNet.Parser.ParseTree.Mixins
 {
 	public abstract class MixinCallArgument : LessNode
 	{
-		public IList<ExpressionList> Value { get; }
+		public ListOfExpressionLists Value { get; }
 
-		protected MixinCallArgument(ExpressionList expressionList)
+		protected MixinCallArgument(ListOfExpressionLists value)
 		{
-			Value = new List<ExpressionList> { expressionList };
-		}
-
-		protected MixinCallArgument(IEnumerable<ExpressionList> value)
-		{
-			Value = value.ToList();
+			Value = value;
 		}
 
 		public TExpr EvaluateSingleValue<TExpr>(EvaluationContext context) where TExpr : Expression {
@@ -51,15 +46,11 @@ namespace LessonNet.Parser.ParseTree.Mixins
 
 	public class PositionalArgument : MixinCallArgument
 	{
-		public PositionalArgument(ExpressionList expressionList) : base(expressionList)
-		{
-		}
-
-		public PositionalArgument(IEnumerable<ExpressionList> value) : base(value) { }
+		public PositionalArgument(ListOfExpressionLists value) : base(value) { }
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context)
 		{
-			yield return new PositionalArgument(Value.Select(l => l.EvaluateSingle<ExpressionList>(context)));
+			yield return new PositionalArgument(Value.EvaluateSingle<ListOfExpressionLists>(context));
 		}
 
 		protected override string GetStringRepresentation()
@@ -72,14 +63,14 @@ namespace LessonNet.Parser.ParseTree.Mixins
 	{
 		public string ParameterName { get; }
 
-		public NamedArgument(string parameterName, IEnumerable<ExpressionList> value) : base(value)
+		public NamedArgument(string parameterName, ListOfExpressionLists value) : base(value)
 		{
 			this.ParameterName = parameterName;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context)
 		{
-			yield return new NamedArgument(ParameterName, Value.Select(el => el.EvaluateSingle<ExpressionList>(context)));
+			yield return new NamedArgument(ParameterName, Value.EvaluateSingle<ListOfExpressionLists>(context));
 		}
 
 		protected override string GetStringRepresentation()
@@ -97,7 +88,7 @@ namespace LessonNet.Parser.ParseTree.Mixins
 	{
 		public Identifier Identifier { get; }
 
-		public IdentifierArgument(Identifier identifier) : base(new ExpressionList(new[] { identifier }))
+		public IdentifierArgument(Identifier identifier) : base(new ListOfExpressionLists(new ExpressionList(new[] { identifier }), ' '))
 		{
 			this.Identifier = identifier;
 		}

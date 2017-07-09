@@ -6,28 +6,22 @@ namespace LessonNet.Parser.ParseTree {
 	public class Rule : Statement {
 		private readonly string property;
 		private readonly bool important;
-		private readonly List<ExpressionList> values;
+		private readonly ListOfExpressionLists values;
 
-		public Rule(string property, IEnumerable<ExpressionList> values, bool important) {
+		public Rule(string property, ListOfExpressionLists values, bool important) {
 			this.property = property;
 			this.important = important;
-			this.values = values.ToList();
+			this.values = values;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			IEnumerable<ExpressionList> EvaluateValues() {
-				foreach (var value in values) {
-					yield return value.EvaluateSingle<ExpressionList>(context);
-				}
-			}
-
-			yield return new Rule(property, EvaluateValues(), important) {IsEvaluated = true};
+			yield return new Rule(property, values.EvaluateSingle<ListOfExpressionLists>(context), important) {
+				IsEvaluated = true
+			};
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			string cssValues = string.Join(", ", this.values.Select(v => v.ToCss()));
-
-			context.Append($"{property}: {cssValues}");
+			context.Append($"{property}: {values.ToCss()}");
 			if (important) {
 				context.Append(" !important");
 			}
@@ -38,7 +32,7 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected bool Equals(Rule other) {
-			return string.Equals(property, other.property) && important == other.important && values.SequenceEqual(other.values);
+			return string.Equals(property, other.property) && important == other.important && values.Equals(other.values);
 		}
 
 		public override bool Equals(object obj) {
@@ -52,7 +46,7 @@ namespace LessonNet.Parser.ParseTree {
 			unchecked {
 				var hashCode = (property != null ? property.GetHashCode() : 0);
 				hashCode = (hashCode * 397) ^ important.GetHashCode();
-				hashCode = (hashCode * 397) ^ (values != null ? values.Aggregate(hashCode, (h, e) => (h * 397) ^ e.GetHashCode()) : 0);
+				hashCode = (hashCode * 397) ^ (values != null ? values.GetHashCode() : 0);
 				return hashCode;
 			}
 		}

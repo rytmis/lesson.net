@@ -24,12 +24,18 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 				return measurement;
 			}
 
-			if (evaluatedExpression is ExpressionList list) {
-				if (list.Values.Count != 1) {
+			if (evaluatedExpression is ListOfExpressionLists list) {
+				if (list.Count != 1) {
 					throw new EvaluationException($"{expr} did not evaluate to a single value");
 				}
 
-				var singleValue = list.Values.Single();
+				var singleList = list.Single();
+
+				if (singleList.Values.Count != 1) {
+					throw new EvaluationException($"{expr} did not evaluate to a single value");
+				}
+
+				var singleValue = singleList.Values.Single();
 				if (singleValue is Measurement m) {
 					return m;
 				}

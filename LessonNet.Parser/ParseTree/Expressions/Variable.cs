@@ -9,9 +9,9 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			foreach (var expressionList in context.CurrentScope.ResolveVariable(name).Values) {
-				yield return expressionList.EvaluateSingle<ExpressionList>(context);
-			}
+			var variable = context.CurrentScope.ResolveVariable(name);
+
+			yield return variable.Values.EvaluateSingle<ListOfExpressionLists>(context);
 		}
 
 		protected override string GetStringRepresentation() {

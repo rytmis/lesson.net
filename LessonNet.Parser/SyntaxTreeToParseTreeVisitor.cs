@@ -62,12 +62,16 @@ namespace LessonNet.Parser {
 		}
 
 		private IEnumerable<IdentifierPart> GetIdentifierParts(string prefix, LessParser.IdentifierContext idContext) {
+			if (!string.IsNullOrEmpty(prefix)) {
+				yield return new ConstantIdentifierPart(prefix);
+			}
+
 			if (idContext.Identifier() != null) {
-				yield return new ConstantIdentifierPart(prefix + idContext.Identifier().GetText());
+				yield return new ConstantIdentifierPart(idContext.Identifier().GetText());
 			}
 
 			if (idContext.keywordAsIdentifier() != null) {
-				yield return new ConstantIdentifierPart(prefix + idContext.keywordAsIdentifier().GetText());
+				yield return new ConstantIdentifierPart(idContext.keywordAsIdentifier().GetText());
 			}
 
 			var variableInterpolation = idContext.variableInterpolation();
@@ -237,7 +241,10 @@ namespace LessonNet.Parser {
 				return new LessString(quote, GetFragments());
 
 				IEnumerable<LessStringFragment> GetFragments() {
-					foreach (var strChild in str.children) {
+					// First and last character are quotes, don't include them
+					var nonQuoteParts = str.children.Skip(1).Take(str.children.Count - 2);
+
+					foreach (var strChild in nonQuoteParts) {
 						if (strChild is LessParser.VariableInterpolationContext interpolation) {
 							yield return new InterpolatedVariable(new Variable(interpolation.identifierVariableName().GetText()));
 						} else {
@@ -371,7 +378,7 @@ namespace LessonNet.Parser {
 							yield return new PositionalArgument(expressionLists);
 						} else {
 							foreach (var expressionList in expressionLists) {
-								yield return new PositionalArgument(expressionList);
+								yield return new PositionalArgument(new ListOfExpressionLists(expressionList, ' '));
 							}
 						}
 					}
@@ -426,19 +433,18 @@ namespace LessonNet.Parser {
 			return new Function(context.functionName().GetText(), GetExpressionLists(context.valueList()));
 		}
 
-		private IEnumerable<ExpressionList> GetExpressionLists(LessParser.ValueListContext valueList) {
+		private ListOfExpressionLists GetExpressionLists(LessParser.ValueListContext valueList) {
 			if (valueList == null) {
-				yield break;
+				return null;
 			}
 
 			var commaSeparatedExpressionListContext = valueList.commaSeparatedExpressionList();
 
 			if (commaSeparatedExpressionListContext != null) {
-				foreach (var value in commaSeparatedExpressionListContext.expressionList()) {
-					yield return (ExpressionList) value.Accept(this);
-				}
+				var lists = commaSeparatedExpressionListContext.expressionList().Select(l => (ExpressionList) l.Accept(this));
+				return new ListOfExpressionLists(lists, ',');
 			} else {
-				yield return (ExpressionList) valueList.expressionList().Accept(this);
+				return new ListOfExpressionLists(new[] {(ExpressionList) valueList.expressionList().Accept(this)}, ' ');
 			}
 		}
 

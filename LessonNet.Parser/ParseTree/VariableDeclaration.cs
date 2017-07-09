@@ -4,17 +4,11 @@ using System.Linq;
 
 namespace LessonNet.Parser.ParseTree {
 	public class VariableDeclaration : Declaration {
-		private readonly List<ExpressionList> expressionLists;
-
 		public string Name { get; }
-		public IEnumerable<ExpressionList> Values => expressionLists.AsReadOnly();
+		public ListOfExpressionLists Values { get; }
 
-		public VariableDeclaration(string name, ExpressionList values) {
-			this.expressionLists = new List<ExpressionList> {values};
-			Name = name;
-		}
-		public VariableDeclaration(string name, IEnumerable<ExpressionList> expressionLists) {
-			this.expressionLists = expressionLists.ToList();
+		public VariableDeclaration(string name, ListOfExpressionLists expressionLists) {
+			Values = expressionLists;
 			Name = name;
 		}
 

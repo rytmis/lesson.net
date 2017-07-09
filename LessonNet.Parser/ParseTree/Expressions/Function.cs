@@ -4,11 +4,11 @@ using System.Linq;
 namespace LessonNet.Parser.ParseTree.Expressions {
 	public class Function : Expression {
 		private readonly string functionName;
-		private readonly List<ExpressionList> arguments;
+		private readonly ListOfExpressionLists arguments;
 
-		public Function(string functionName, IEnumerable<ExpressionList> arguments) {
+		public Function(string functionName, ListOfExpressionLists arguments) {
 			this.functionName = functionName;
-			this.arguments = arguments.ToList();
+			this.arguments = arguments;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
@@ -17,7 +17,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 
 		protected bool Equals(Function other) {
 			return string.Equals(functionName, other.functionName) 
-				&& arguments.SequenceEqual(other.arguments);
+				&& arguments.Equals(other.arguments);
 		}
 
 		public override bool Equals(object obj) {
@@ -31,7 +31,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			unchecked {
 				int hashCode = 397;
 				hashCode = (hashCode * 397) ^ (functionName != null ? functionName.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (arguments != null ? arguments.Aggregate(hashCode, (h, a) => (h * 397) ^ a.GetHashCode()) : 0);
+				hashCode = (hashCode * 397) ^ (arguments != null ? arguments.GetHashCode() : 0);
 				return hashCode;
 			}
 		}
