@@ -1,38 +1,36 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using LessonNet.Parser.CodeGeneration;
+using LessonNet.Parser.ParseTree.Expressions;
 
 namespace LessonNet.Parser.ParseTree {
 	public class Rule : Statement {
 		private readonly string property;
-		private readonly bool important;
 		private readonly ListOfExpressionLists values;
 
-		public Rule(string property, ListOfExpressionLists values, bool important) {
+		public Rule(string property, ListOfExpressionLists values) {
 			this.property = property;
-			this.important = important;
 			this.values = values;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new Rule(property, values.EvaluateSingle<ListOfExpressionLists>(context), important) {
+			var evaluatedValues = this.values.EvaluateSingle<ListOfExpressionLists>(context);
+
+			yield return new Rule(property, evaluatedValues) {
 				IsEvaluated = true
 			};
 		}
 
 		public override void WriteOutput(OutputContext context) {
 			context.Append($"{property}: {values.ToCss()}");
-			if (important) {
-				context.Append(" !important");
-			}
 		}
 
 		protected override string GetStringRepresentation() {
-			return $"{property}: {string.Join(", ", values)}{(important ? " !important" : "")}";
+			return $"{property}: {string.Join(", ", values)}";
 		}
 
 		protected bool Equals(Rule other) {
-			return string.Equals(property, other.property) && important == other.important && values.Equals(other.values);
+			return string.Equals(property, other.property) && values.Equals(other.values);
 		}
 
 		public override bool Equals(object obj) {
@@ -45,7 +43,6 @@ namespace LessonNet.Parser.ParseTree {
 		public override int GetHashCode() {
 			unchecked {
 				var hashCode = (property != null ? property.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ important.GetHashCode();
 				hashCode = (hashCode * 397) ^ (values != null ? values.GetHashCode() : 0);
 				return hashCode;
 			}

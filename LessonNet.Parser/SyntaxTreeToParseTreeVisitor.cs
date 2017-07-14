@@ -40,11 +40,20 @@ namespace LessonNet.Parser {
 				?? throw new ParserException($"Unexpected statement type: [{context.GetText()}]");
 		}
 
-		public override LessNode VisitVariableName(LessParser.VariableNameContext context) {
-			var variableName = context.Identifier()
-				?? context.URL();
+		public override LessNode VisitVariableName(LessParser.VariableNameContext variable) {
+			string GetVariableName(LessParser.VariableNameContext variableName) {
+				var id = variableName.Identifier()
+					?? variableName.URL();
 
-			return new Variable(variableName.GetText());
+				return id.ToString();
+			}
+
+			var variableVariable = variable.variableName();
+			if (variableVariable != null) {
+				return new Variable(new Variable(GetVariableName(variableVariable)));
+			}
+
+			return new Variable(GetVariableName(variable));
 		}
 
 		public override LessNode VisitImportDeclaration(LessParser.ImportDeclarationContext context) {
@@ -281,6 +290,16 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitUrl(LessParser.UrlContext context) {
+			var variableContent = (Variable) context.variableName()?.Accept(this);
+			if (variableContent != null) {
+				return new Url(variableContent);
+			}
+
+			var stringContent = (LessString) context.@string()?.Accept(this);
+			if (stringContent != null) {
+				return new Url(stringContent);
+			}
+
 			return new Url(context.Url().GetText());
 		}
 
@@ -361,7 +380,7 @@ namespace LessonNet.Parser {
 		public override LessNode VisitProperty(LessParser.PropertyContext context) {
 			string name = context.identifier().GetText();
 
-			return new Rule(name, GetExpressionLists(context.valueList()), context.IMPORTANT() != null);
+			return new Rule(name, GetExpressionLists(context.valueList()));
 		}
 
 		public override LessNode VisitMixinCall(LessParser.MixinCallContext context) {
@@ -438,13 +457,14 @@ namespace LessonNet.Parser {
 				return null;
 			}
 
+			bool important = valueList.IMPORTANT() != null;
 			var commaSeparatedExpressionListContext = valueList.commaSeparatedExpressionList();
 
 			if (commaSeparatedExpressionListContext != null) {
 				var lists = commaSeparatedExpressionListContext.expressionList().Select(l => (ExpressionList) l.Accept(this));
-				return new ListOfExpressionLists(lists, ',');
+				return new ListOfExpressionLists(lists, ',', important);
 			} else {
-				return new ListOfExpressionLists(new[] {(ExpressionList) valueList.expressionList().Accept(this)}, ' ');
+				return new ListOfExpressionLists(new[] {(ExpressionList) valueList.expressionList().Accept(this)}, ' ', important);
 			}
 		}
 

@@ -57,7 +57,7 @@ TILD_EQ         : '~=';
 URL : 'url';
 
 UrlStart
-  : URL LPAREN -> pushMode(URL_STARTED)
+  : URL LPAREN
   ;
 
 MEDIA           : '@media';
@@ -251,8 +251,10 @@ fragment CHAR_UNIT
 Unit : ('%'| CHAR_UNIT);
 
 mode URL_STARTED;
-UrlEnd                 : RPAREN -> popMode;
-Url                    :  DQUOT_STRING_START | SQUOT_STRING_START | (~(')' | '\n' | '\r' | ';'))+;
+DQUOT_STRING_START_URL : '"' -> type(DQUOT_STRING_START), pushMode(DQ_STRING);
+SQUOT_STRING_START_URL : '\'' -> type(SQUOT_STRING_START), pushMode(SQ_STRING);
+UrlEnd                 : RPAREN -> type(RPAREN), popMode;
+Url                    : (~(')' | '\n' | '\r' | ';'))+;
 
 mode IDENTIFY;
 BlockStart_ID             : BlockStart -> popMode, type(BlockStart);

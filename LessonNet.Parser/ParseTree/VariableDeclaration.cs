@@ -8,8 +8,8 @@ namespace LessonNet.Parser.ParseTree {
 		public ListOfExpressionLists Values { get; }
 
 		public VariableDeclaration(string name, ListOfExpressionLists expressionLists) {
-			Values = expressionLists;
 			Name = name;
+			Values = expressionLists;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {

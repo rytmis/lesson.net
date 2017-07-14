@@ -21,6 +21,8 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			context.Append(value);
 		}
 
+		protected override string GetStringRepresentation() => value;
+
 		protected bool Equals(LessStringLiteral other) {
 			return string.Equals(value, other.value);
 		}
@@ -86,6 +88,14 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 				context.Append(lessStringFragment);
 			}
 			context.Append(quoteChar);
+		}
+
+		protected override string GetStringRepresentation() {
+			return $"{quoteChar}{GetUnquotedValue()}{quoteChar}";
+		}
+
+		public string GetUnquotedValue() {
+			return string.Join("", parts);
 		}
 
 		protected bool Equals(LessString other) {

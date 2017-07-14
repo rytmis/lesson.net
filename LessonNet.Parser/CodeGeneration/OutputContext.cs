@@ -37,6 +37,18 @@ namespace LessonNet.Parser.CodeGeneration
 			node.WriteOutput(this);
 		}
 
+		public void Append(IEnumerable<LessNode> nodes, string separator) {
+			bool first = true;
+			foreach (var node in nodes) {
+				if (!first) {
+					Append(separator);
+				}
+				node.WriteOutput(this);
+
+				first = false;
+			}
+		}
+
 		public void Indent() {
 			int indentCharCount = indentLevel * indentCount;
 			for (int i = 0; i < indentCharCount; i++) {

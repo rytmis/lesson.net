@@ -3,18 +3,42 @@ using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
 	public class Url : Expression {
+		private readonly LessString str;
+		private readonly Variable var;
 		private readonly string url;
+
+		public Url(LessString str) {
+			this.str = str;
+		}
+
+		public Url(Variable var) {
+			this.var = var;
+		}
 
 		public Url(string url) {
 			this.url = url;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return this;
+			if (var != null) {
+				yield return new Url(var.EvaluateSingle<ListOfExpressionLists>(context).Single<LessString>());
+			} else if (str != null) {
+				yield return new Url(str.EvaluateSingle<LessString>(context));
+			} else {
+				yield return this;
+			}
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			context.Append($"url({url})");
+			context.Append("url(");
+
+			if (str != null) {
+				context.Append(str);
+			} else {
+				context.Append(url);
+			}
+
+			context.Append(")");
 		}
 
 		protected bool Equals(Url other) {

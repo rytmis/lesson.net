@@ -116,7 +116,7 @@ importDeclaration
 
 referenceUrl
     : StringLiteral
-    | UrlStart Url UrlEnd
+    | UrlStart Url RPAREN
     ;
 
 importMediaTypes
@@ -308,12 +308,12 @@ identifierVariableName
   ;
 
 property
-  : identifier COLON valueList IMPORTANT?
+  : identifier COLON valueList
   ;
 
 valueList
-  : commaSeparatedExpressionList
-  | expressionList
+  : commaSeparatedExpressionList IMPORTANT?
+  | expressionList IMPORTANT?
   ;
 
 commaSeparatedExpressionList
@@ -325,7 +325,7 @@ measurementList
   ;
 
 url
-  : UrlStart Url UrlEnd
+  : UrlStart (string|variableName|Url) RPAREN
   ;
 
 fraction
