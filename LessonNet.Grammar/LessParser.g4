@@ -107,7 +107,7 @@ conditionStatement
   ;
 
 variableDeclaration
-  : variableName COLON valueList
+  : variableName COLON valueList IMPORTANT?
   ;
 
 /* Imports */
@@ -166,7 +166,12 @@ selector
   ;
 
 attrib
-  : LBRACK Identifier (attribRelate (StringLiteral | Identifier))? RBRACK
+  : LBRACK identifier (attribRelate attribValue)? RBRACK
+  ;
+
+attribValue
+  : string 
+  | identifier
   ;
 
 parentSelectorReference
@@ -189,9 +194,12 @@ selectorElement
   ;
 
 attribRelate
-  : '='
-  | '~='
-  | '|='
+  : EQ 
+  | TILD_EQ
+  | PIPE_EQ
+  | CIRC_EQ
+  | DOLLAR_EQ
+  | STAR_EQ
   ;
 
 keywordAsIdentifier
@@ -309,12 +317,12 @@ identifierVariableName
   ;
 
 property
-  : identifier COLON valueList
+  : identifier COLON valueList IMPORTANT?
   ;
 
 valueList
-  : commaSeparatedExpressionList IMPORTANT?
-  | expressionList IMPORTANT?
+  : commaSeparatedExpressionList
+  | expressionList
   ;
 
 commaSeparatedExpressionList

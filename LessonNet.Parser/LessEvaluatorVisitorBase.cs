@@ -173,6 +173,10 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
+		public virtual LessNode VisitAttribValue(LessParser.AttribValueContext context) {
+			throw new System.NotImplementedException();
+		}
+
 		public virtual LessNode VisitParentSelectorReference(LessParser.ParentSelectorReferenceContext context) {
 			throw new System.NotImplementedException();
 		}

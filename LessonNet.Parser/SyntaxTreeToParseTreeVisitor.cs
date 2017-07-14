@@ -136,8 +136,15 @@ namespace LessonNet.Parser {
 					return new IdentifierSelectorElement(GetIdentifier());
 				}
 
-				if (context.attrib() != null) {
-					return new AttributeSelectorElement(context.attrib().GetText());
+				var attrib = context.attrib();
+				if (attrib != null) {
+					var identifier = (Identifier) attrib.identifier().Accept(this);
+
+					var op = attrib.attribRelate();
+					if (op != null) {
+						return new AttributeSelectorElement(identifier, op.GetText(), (Expression) attrib.attribValue().Accept(this));
+					}
+					return new AttributeSelectorElement(identifier);
 				}
 
 				// The lexer rules might match an ID selector as a color, so we account for that here
@@ -156,6 +163,11 @@ namespace LessonNet.Parser {
 			var element = GetElement();
 			element.HasTrailingWhitespace = hasTrailingWhitespace;
 			return element;
+		}
+
+		public override LessNode VisitAttribValue(LessParser.AttribValueContext context) {
+			return context.identifier()?.Accept(this)
+				?? context.@string().Accept(this);
 		}
 
 		public override LessNode VisitIdentifier(LessParser.IdentifierContext context) {
@@ -192,7 +204,7 @@ namespace LessonNet.Parser {
 
 			string name = context.variableName().Identifier().GetText();
 
-			return new VariableDeclaration(name, GetExpressionLists(context.valueList()));
+			return new VariableDeclaration(name, GetExpressionLists(context.valueList(), context.IMPORTANT() != null));
 		}
 		public override LessNode VisitValueList(LessParser.ValueListContext context) {
 			return context.commaSeparatedExpressionList()?.Accept(this)
@@ -240,27 +252,7 @@ namespace LessonNet.Parser {
 			}
 
 			Expression GetStringLiteral() {
-				var str = context.@string();
-				if (str == null) {
-					return null;
-				}
-
-				char quote = str.SQUOT_STRING_START() != null  ? '\'' : '"';
-
-				return new LessString(quote, GetFragments());
-
-				IEnumerable<LessStringFragment> GetFragments() {
-					// First and last character are quotes, don't include them
-					var nonQuoteParts = str.children.Skip(1).Take(str.children.Count - 2);
-
-					foreach (var strChild in nonQuoteParts) {
-						if (strChild is LessParser.VariableInterpolationContext interpolation) {
-							yield return new InterpolatedVariable(new Variable(interpolation.identifierVariableName().GetText()));
-						} else {
-							yield return new LessStringLiteral(strChild.GetText());
-						}
-					}
-				}
+				return (LessString) context.@string()?.Accept(this);
 			}
 
 			Expression GetFraction() {
@@ -288,6 +280,25 @@ namespace LessonNet.Parser {
 				?? context.quotedExpression()?.Accept(this)
 				?? context.selector()?.Accept(this)
 				?? throw new ParserException($"Unexpected expression {context.GetText()}");
+		}
+
+		public override LessNode VisitString(LessParser.StringContext context) {
+			char quote = context.SQUOT_STRING_START() != null ? '\'' : '"';
+
+			return new LessString(quote, GetFragments());
+
+			IEnumerable<LessStringFragment> GetFragments() {
+				// First and last character are quotes, don't include them
+				var nonQuoteParts = context.children.Skip(1).Take(context.children.Count - 2);
+
+				foreach (var strChild in nonQuoteParts) {
+					if (strChild is LessParser.VariableInterpolationContext interpolation) {
+						yield return new InterpolatedVariable(new Variable(interpolation.identifierVariableName().GetText()));
+					} else {
+						yield return new LessStringLiteral(strChild.GetText());
+					}
+				}
+			}
 		}
 
 		public override LessNode VisitUrl(LessParser.UrlContext context) {
@@ -381,7 +392,7 @@ namespace LessonNet.Parser {
 		public override LessNode VisitProperty(LessParser.PropertyContext context) {
 			string name = context.identifier().GetText();
 
-			return new Rule(name, GetExpressionLists(context.valueList()));
+			return new Rule(name, GetExpressionLists(context.valueList(), context.IMPORTANT() != null));
 		}
 
 		public override LessNode VisitMixinCall(LessParser.MixinCallContext context) {
@@ -453,12 +464,11 @@ namespace LessonNet.Parser {
 			return new Function(context.functionName().GetText(), GetExpressionLists(context.valueList()));
 		}
 
-		private ListOfExpressionLists GetExpressionLists(LessParser.ValueListContext valueList) {
+		private ListOfExpressionLists GetExpressionLists(LessParser.ValueListContext valueList, bool important = false) {
 			if (valueList == null) {
 				return null;
 			}
 
-			bool important = valueList.IMPORTANT() != null;
 			var commaSeparatedExpressionListContext = valueList.commaSeparatedExpressionList();
 
 			if (commaSeparatedExpressionListContext != null) {

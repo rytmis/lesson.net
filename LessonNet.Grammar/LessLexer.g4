@@ -51,6 +51,9 @@ NOTEQ           : '!=';
 EQ              : '=';
 PIPE_EQ         : '|=';
 TILD_EQ         : '~=';
+CIRC_EQ         : '^=';
+DOLLAR_EQ       : '$=';
+STAR_EQ         : '*=';
 
 /* URLs */
 /* http://lesscss.org/features/#variables-feature-urls */

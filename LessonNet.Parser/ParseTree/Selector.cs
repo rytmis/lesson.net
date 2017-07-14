@@ -192,21 +192,51 @@ namespace LessonNet.Parser.ParseTree {
 	}
 
 	public class AttributeSelectorElement : SelectorElement {
-		private readonly string attributeReference;
+		private readonly Identifier attributeName;
+		private readonly string op;
+		private readonly Expression value;
 
-		public AttributeSelectorElement(string attributeReference) {
-			this.attributeReference = attributeReference;
+		public AttributeSelectorElement(Identifier attributeName) {
 		}
+
+		public AttributeSelectorElement(Identifier attributeName, string op, Expression value) {
+			this.attributeName = attributeName;
+			this.op = op;
+			this.value = value;
+		}
+
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return this;
+			yield return new AttributeSelectorElement(attributeName.EvaluateSingle<Identifier>(context), op, value?.EvaluateSingle<Expression>(context));
 		}
 
 		protected override string GetStringRepresentation() {
-			return attributeReference + (HasTrailingWhitespace ? " " : "");
+			var attr = string.IsNullOrWhiteSpace(op) 
+				? attributeName.ToString() 
+				: attributeName + op + value;
+
+			return $"[{attr}]{(HasTrailingWhitespace ? " " : "")}";
+		}
+
+		protected bool Equals(AttributeSelectorElement other) {
+			return Equals(attributeName, other.attributeName) 
+				&& string.Equals(op, other.op) 
+				&& Equals(value, other.value);
+		}
+
+		public override bool Equals(object obj) {
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((AttributeSelectorElement) obj);
 		}
 
 		public override int GetHashCode() {
-			return attributeReference.GetHashCode() + HasTrailingWhitespace.GetHashCode();
+			unchecked {
+				var hashCode = (attributeName != null ? attributeName.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (op != null ? op.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (value != null ? value.GetHashCode() : 0);
+				return hashCode;
+			}
 		}
 	}
 
