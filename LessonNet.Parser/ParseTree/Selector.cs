@@ -6,7 +6,7 @@ using LessonNet.Parser.ParseTree.Expressions;
 using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser.ParseTree {
-	public class Selector : LessNode {
+	public class Selector : Expression {
 		public List<SelectorElement> Elements { get; }
 
 		public Selector(IEnumerable<SelectorElement> elements) {

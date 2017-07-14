@@ -57,6 +57,7 @@ expression
   | url
   | variableName
   | identifier
+  | selector
   ;
 
 

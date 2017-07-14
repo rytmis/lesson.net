@@ -286,6 +286,7 @@ namespace LessonNet.Parser {
 				?? GetMathOperation()
 				?? context.url()?.Accept(this)
 				?? context.quotedExpression()?.Accept(this)
+				?? context.selector()?.Accept(this)
 				?? throw new ParserException($"Unexpected expression {context.GetText()}");
 		}
 
