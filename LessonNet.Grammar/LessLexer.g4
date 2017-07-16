@@ -281,12 +281,13 @@ COMMA_ID                  : COMMA -> popMode, type(COMMA);
 SEMI_ID                  : SEMI -> popMode, type(SEMI);
 LBRACK_ID              : LBRACK -> popMode, pushMode(ATTRIB), type(LBRACK);
 RBRACK_ID              : RBRACK -> popMode, type(RBRACK);
-ATTRIB_RELATE_EQ       : EQ -> popMode, type(EQ);
-ATTRIB_RELATE_PIPE_EQ  : PIPE_EQ -> popMode, type(PIPE_EQ);
-ATTRIB_RELATE_TILD_EQ  : TILD_EQ -> popMode, type(TILD_EQ);
-ATTRIB_RELATE_CIRC_EQ  : CIRC_EQ -> popMode, type(CIRC_EQ);
-ATTRIB_RELATE_DOLLAR_EQ: DOLLAR_EQ -> popMode, type(DOLLAR_EQ);
-ATTRIB_RELATE_STAR_EQ  : STAR_EQ -> popMode, type(STAR_EQ);
+EQ_ID       : EQ -> popMode, type(EQ);
+PIPE_EQ_ID  : PIPE_EQ -> popMode, type(PIPE_EQ);
+TILD_EQ_ID  : TILD_EQ -> popMode, type(TILD_EQ);
+CIRC_EQ_ID  : CIRC_EQ -> popMode, type(CIRC_EQ);
+DOLLAR_EQ_ID: DOLLAR_EQ -> popMode, type(DOLLAR_EQ);
+STAR_EQ_ID  : STAR_EQ -> popMode, type(STAR_EQ);
+
 
 mode ATTRIB;
 AttribIdentifier		: Identifier -> type(Identifier), pushMode(IDENTIFY);
@@ -299,6 +300,8 @@ ATTRIB_CIRC_EQUAL	: CIRC_EQ -> type(CIRC_EQ);
 ATTRIB_DOLLAR_EQUAL	: DOLLAR_EQ -> type(DOLLAR_EQ);
 ATTRIB_STAR_EQUAL	: STAR_EQ -> type(STAR_EQ);
 ATTRIB_RBRACK		: RBRACK -> popMode, type(RBRACK);
+ATTRIB_WS			: WS -> popMode, type(WS), channel(HIDDEN);
+ATTRIB_BlockStart	: BlockStart -> popMode, type(BlockStart);
 
 mode NUMBER_STARTED;
 NUMBER_UNIT: Unit -> popMode, type(Unit);
