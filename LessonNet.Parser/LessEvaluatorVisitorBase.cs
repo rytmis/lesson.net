@@ -189,6 +189,22 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
+		public LessNode VisitExtend(LessParser.ExtendContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public LessNode VisitExtenderList(LessParser.ExtenderListContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public LessNode VisitExtender(LessParser.ExtenderContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public LessNode VisitPseudoClass(LessParser.PseudoClassContext context) {
+			throw new System.NotImplementedException();
+		}
+
 		public virtual LessNode VisitAttribRelate(LessParser.AttribRelateContext context)
 		{
 			throw new System.NotImplementedException();

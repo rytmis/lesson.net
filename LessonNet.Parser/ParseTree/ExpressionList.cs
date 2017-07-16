@@ -31,6 +31,10 @@ namespace LessonNet.Parser.ParseTree {
 			yield return new ListOfExpressionLists(expressionLists.Select(l => l.EvaluateSingle<ExpressionList>(context)), Separator, Important);
 		}
 
+		protected override string GetStringRepresentation() {
+			return string.Join(Separator.ToString(), expressionLists.Select(l => l.ToString()));
+		}
+
 		public override void WriteOutput(OutputContext context) {
 			string sep = this.Separator != ' ' ? this.Separator + " " : this.Separator.ToString();
 

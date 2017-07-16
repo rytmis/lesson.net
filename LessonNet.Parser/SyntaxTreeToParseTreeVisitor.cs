@@ -111,18 +111,19 @@ namespace LessonNet.Parser {
 			}
 
 			Identifier GetPseudoclassIdentifier() {
-				string prefix = context.COLON()?.GetText()
-					?? context.COLONCOLON()?.GetText()
+				var pseudo = context.pseudoClass();
+				if (pseudo == null) {
+					return null;
+				}
+
+				string prefix = pseudo.COLON()?.GetText()
+					?? pseudo.COLONCOLON()?.GetText()
 					?? "";
 
-				return new Identifier(new ConstantIdentifierPart(prefix + context.Identifier().GetText()));
+				return new Identifier(new PseudoclassIdentifierPart(prefix, pseudo.Identifier().GetText(), (Expression) pseudo.expression()?.Accept(this)));
 			}
 
 			Identifier GetIdentifier() {
-				if (context.Identifier() != null) {
-					return GetPseudoclassIdentifier();
-				}
-
 				return new Identifier(GetIdentifierParts());
 			}
 
@@ -132,7 +133,11 @@ namespace LessonNet.Parser {
 					return new ParentReferenceSelectorElement();
 				}
 
-				if (context.identifier() != null || context.Identifier() != null) {
+				if (context.pseudoClass() != null) {
+					return new IdentifierSelectorElement(GetPseudoclassIdentifier());
+				}
+
+				if (context.identifier() != null) {
 					return new IdentifierSelectorElement(GetIdentifier());
 				}
 

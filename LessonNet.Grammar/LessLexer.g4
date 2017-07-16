@@ -69,6 +69,7 @@ EXTEND          : ':extend';
 IMPORTANT       : '!important';
 ARGUMENTS       : '@arguments';
 REST            : '@rest';
+ALL             : 'all';
 
 MediaQueryModifier
   : (NOT|ONLY)

@@ -187,11 +187,27 @@ selectorElement
   | HexColor
   | ( HASH identifier
     | DOT identifier 
-    | (COLON|COLONCOLON) Identifier
+	| extend
+    | pseudoClass
     | attrib
     | identifier
 	| combinator )
   ;
+
+extend
+  : EXTEND LPAREN extenderList RPAREN
+  ;
+
+extenderList
+  : extender (COMMA extender)*;
+
+extender
+  : selector ALL?
+  ;
+
+
+pseudoClass
+  : (COLON|COLONCOLON) Identifier (LPAREN expression RPAREN)?;
 
 attribRelate
   : EQ 
@@ -296,6 +312,8 @@ keywordAsIdentifier
   | NEGATION
   | CHAR_UNIT
   | KnownColor
+  | EXTEND
+  | ALL
   ;
 
 variableInterpolation
