@@ -275,6 +275,7 @@ DOT_ID                 : DOT -> popMode, type(DOT);
 LPAREN_ID                 : LPAREN -> popMode, type(LPAREN);
 RPAREN_ID                 : RPAREN -> popMode, type(RPAREN);
 
+COLONCOLON_ID             : COLONCOLON -> popMode, type(COLONCOLON);
 COLON_ID                  : COLON -> popMode, type(COLON);
 COMMA_ID                  : COMMA -> popMode, type(COMMA);
 SEMI_ID                  : SEMI -> popMode, type(SEMI);
