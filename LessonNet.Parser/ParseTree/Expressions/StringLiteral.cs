@@ -47,7 +47,13 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new LessStringLiteral(variable.EvaluateSingle<Expression>(context).ToString());
+			var expression = variable.EvaluateSingle<ListOfExpressionLists>(context).Single<Expression>();
+
+			if (expression is LessString str) {
+				yield return new LessStringLiteral(str.GetUnquotedValue());
+			} else {
+				yield return new LessStringLiteral(expression.ToString());
+			}
 		}
 
 		protected bool Equals(InterpolatedVariable other) {

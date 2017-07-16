@@ -206,7 +206,12 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new AttributeSelectorElement(attributeName.EvaluateSingle<Identifier>(context), op, value?.EvaluateSingle<Expression>(context));
+			var expression = value?.EvaluateSingle<Expression>(context);
+			var exprValue = expression is ListOfExpressionLists list
+				? list.Single<Expression>()
+				: expression;
+
+			yield return new AttributeSelectorElement(attributeName.EvaluateSingle<Identifier>(context), op, exprValue);
 		}
 
 		protected override string GetStringRepresentation() {

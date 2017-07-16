@@ -42,8 +42,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 
 			var values = declaration.Values.EvaluateSingle<ListOfExpressionLists>(context);
 
-			var list = new ListOfExpressionLists(values, values.Separator, Important || values.Important);
-			return list;
+			return new ListOfExpressionLists(values, values.Separator, Important || values.Important);
 		}
 
 		protected override string GetStringRepresentation() {
