@@ -196,7 +196,7 @@ namespace LessonNet.Parser.ParseTree {
 		private readonly string op;
 		private readonly Expression value;
 
-		public AttributeSelectorElement(Identifier attributeName) {
+		public AttributeSelectorElement(Identifier attributeName) : this(attributeName, null, null) {
 		}
 
 		public AttributeSelectorElement(Identifier attributeName, string op, Expression value) {
