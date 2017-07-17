@@ -128,10 +128,12 @@ namespace LessonNet.Parser
 
 		private IEnumerable<MixinEvaluationResult> ResolveInChildContexts(MixinCall call) {
 			foreach (var child in children) {
-				var remainingSelectors = call.Selectors.RemovePrefixes(child.Selectors);
-				if (!remainingSelectors.IsEmpty()) {
-					foreach (var result in child.ResolveMixinsCore(new MixinCall(remainingSelectors, call.Arguments))) {
-						yield return result;
+				foreach (var childSelector in child.Selectors.Selectors) {
+					var remainingSelectors = call.Selector.RemovePrefix(childSelector);
+					if (remainingSelectors != null && !remainingSelectors.IsEmpty()) {
+						foreach (var result in child.ResolveMixinsCore(new MixinCall(remainingSelectors, call.Arguments))) {
+							yield return result;
+						}
 					}
 				}
 			}
@@ -145,7 +147,7 @@ namespace LessonNet.Parser
 
 			var matchingMixins = mixins
 				.Where(call.Matches)
-				.Select(m => new MixinEvaluationResult(m, new MixinCall(call.Selectors, Enumerable.Empty<PositionalArgument>()), this));
+				.Select(m => new MixinEvaluationResult(m, new MixinCall(call.Selector, Enumerable.Empty<PositionalArgument>()), this));
 
 			var localResults = matchingRulesets
 				.Concat<InvocationResult>(matchingMixins)
@@ -160,10 +162,12 @@ namespace LessonNet.Parser
 
 		private IEnumerable<InvocationResult> ResolveInChildContexts(RulesetCall call) {
 			foreach (var child in children) {
-				var remainingSelectors = call.Selectors.RemovePrefixes(child.Selectors);
-				if (!remainingSelectors.IsEmpty()) {
-					foreach (var result in child.ResolveRulesetsCore(new RulesetCall(remainingSelectors))) {
-						yield return result;
+				foreach (var childSelector in child.Selectors.Selectors) {
+					var remainingSelectors = call.Selector.RemovePrefix(childSelector);
+					if (remainingSelectors != null && !remainingSelectors.IsEmpty()) {
+						foreach (var result in child.ResolveRulesetsCore(new RulesetCall(remainingSelectors))) {
+							yield return result;
+						}
 					}
 				}
 			}

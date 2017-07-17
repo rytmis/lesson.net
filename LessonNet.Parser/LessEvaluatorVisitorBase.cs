@@ -163,6 +163,10 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
+		public virtual LessNode VisitSelectorListElement(LessParser.SelectorListElementContext context) {
+			throw new System.NotImplementedException();
+		}
+
 		public virtual LessNode VisitSelector(LessParser.SelectorContext context)
 		{
 			throw new System.NotImplementedException();

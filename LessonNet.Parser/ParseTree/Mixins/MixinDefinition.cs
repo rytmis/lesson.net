@@ -7,21 +7,21 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		private readonly List<MixinParameterBase> parameters;
 		private readonly RuleBlock block;
 		private readonly MixinGuard guard;
-		public SelectorList Selectors { get; }
+		public Selector Selector { get; }
 		public int Arity => parameters.Count;
 		public IReadOnlyList<MixinParameterBase> Parameters => parameters.AsReadOnly();
 
-		public MixinDefinition(SelectorList selectors, IEnumerable<MixinParameterBase> parameters, RuleBlock block, MixinGuard guard) {
+		public MixinDefinition(Selector selector, IEnumerable<MixinParameterBase> parameters, RuleBlock block, MixinGuard guard) {
 			// Combinators (descendant selectors etc.) do not count in mixin calls.
 			// E.g. #id > .class is equivalent to #id .class
-			this.Selectors = selectors.DropCombinators();
+			this.Selector = selector.DropCombinators();
 			this.parameters = parameters.ToList();
 			this.block = block;
 			this.guard = guard;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			using (context.EnterScope(Selectors)) {
+			using (context.EnterScope(new SelectorList(new []{Selector}))) {
 				foreach (var generatedNode in block.Evaluate(context)) {
 					yield return generatedNode;
 				}
@@ -30,7 +30,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 
 		public override void DeclareIn(EvaluationContext context) {
 			context.CurrentScope.DeclareMixin(
-				new MixinDefinition(Selectors.EvaluateSingle<SelectorList>(context), Parameters, block, guard));
+				new MixinDefinition(Selector.EvaluateSingle<Selector>(context), Parameters, block, guard));
 		}
 
 		public bool Guard(EvaluationContext context) {
@@ -42,7 +42,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		}
 
 		protected override string GetStringRepresentation() {
-			return $"{Selectors} ({string.Join(",", Parameters)})";
+			return $"{Selector} ({string.Join(",", Parameters)})";
 		}
 	}
 

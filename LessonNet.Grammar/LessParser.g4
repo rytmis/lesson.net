@@ -16,9 +16,10 @@ statement
   : importDeclaration
   | ruleset
   | mixinDefinition
-  | variableDeclaration ';'
+  | variableDeclaration SEMI
   | mediaBlock
-  | mixinCall ';'
+  | PARENTREF extend SEMI
+  | mixinCall SEMI
   ;
 
 variableName
@@ -134,7 +135,7 @@ block
   ;
 
 mixinDefinition
-  : selectors LPAREN (mixinDefinitionParam ((';'|',') mixinDefinitionParam)*)? Ellipsis? RPAREN mixinGuard? block
+  : selector LPAREN (mixinDefinitionParam ((';'|',') mixinDefinitionParam)*)? Ellipsis? RPAREN mixinGuard? block
   ;
 
 mixinCallArgument
@@ -143,8 +144,8 @@ mixinCallArgument
   ;
 
 mixinCall
-  : selectors (LPAREN (mixinCallArgument (SEMI mixinCallArgument)*)? RPAREN)?
-  | selectors (LPAREN (mixinCallArgument (COMMA mixinCallArgument)*)? RPAREN)?
+  : selector (LPAREN (mixinCallArgument (SEMI mixinCallArgument)*)? RPAREN)?
+  | selector (LPAREN (mixinCallArgument (COMMA mixinCallArgument)*)? RPAREN)?
   ;
 
 mixinGuard
@@ -158,7 +159,11 @@ mixinDefinitionParam
   ;
 
 selectors
-  : selector (COMMA selector)*
+  : selectorListElement (COMMA selectorListElement)*
+  ;
+
+selectorListElement
+  : selector extend?
   ;
 
 selector
@@ -187,7 +192,6 @@ selectorElement
   | HexColor
   | ( HASH identifier
     | DOT identifier 
-	| extend
     | pseudoClass
     | attrib
     | identifier
@@ -195,7 +199,7 @@ selectorElement
   ;
 
 extend
-  : EXTEND LPAREN extenderList RPAREN
+  : COLON EXTEND LPAREN extenderList RPAREN
   ;
 
 extenderList
@@ -321,7 +325,7 @@ variableInterpolation
   ;
 
 identifier
-  : (keywordAsIdentifier | Identifier) identifierPart*
+  : (keywordAsIdentifier | Identifier | IdentifierAfter) identifierPart*
   | variableInterpolation identifierPart*
   ;
 

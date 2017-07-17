@@ -75,8 +75,9 @@ namespace LessonNet.Parser {
 				yield return new ConstantIdentifierPart(prefix);
 			}
 
-			if (idContext.Identifier() != null) {
-				yield return new ConstantIdentifierPart(idContext.Identifier().GetText());
+			var identifier = idContext.Identifier() ?? idContext.IdentifierAfter();
+			if (identifier != null) {
+				yield return new ConstantIdentifierPart(identifier.GetText());
 			}
 
 			if (idContext.keywordAsIdentifier() != null) {
@@ -197,8 +198,8 @@ namespace LessonNet.Parser {
 
 		public override LessNode VisitSelectors(LessParser.SelectorsContext context) {
 			IEnumerable<Selector> GetSelectors() {
-				foreach (var selectorContext in context.selector()) {
-					yield return (Selector) selectorContext.Accept(this);
+				foreach (var selectorContext in context.selectorListElement()) {
+					yield return (Selector) selectorContext.selector().Accept(this);
 				}
 			}
 
@@ -341,12 +342,12 @@ namespace LessonNet.Parser {
 				}
 			}
 
-			var selectors = (SelectorList) context.selectors().Accept(this);
+			var selector = (Selector) context.selector().Accept(this);
 			var ruleBlock = (RuleBlock) context.block().Accept(this);
 
 			var guard = (MixinGuard) context.mixinGuard()?.Accept(this);
 
-			return new MixinDefinition(selectors, GetParameters(), ruleBlock, guard);
+			return new MixinDefinition(selector, GetParameters(), ruleBlock, guard);
 		}
 
 		public override LessNode VisitMixinGuard(LessParser.MixinGuardContext context) {
@@ -421,7 +422,7 @@ namespace LessonNet.Parser {
 				}
 			}
 
-			var selector = (SelectorList)context.selectors().Accept(this);
+			var selector = (Selector)context.selector().Accept(this);
 
 			if (context.LPAREN() != null) {
 				return new MixinCall(selector, GetArguments());

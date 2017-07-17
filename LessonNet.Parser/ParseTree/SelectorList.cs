@@ -55,6 +55,10 @@ namespace LessonNet.Parser.ParseTree {
 			return Selectors.Any(s => selectorList.Selectors.Any(s.Equals));
 		}
 
+		public bool Matches(Selector selector) {
+			return Selectors.Any(selector.Equals);
+		}
+
 		protected bool Equals(SelectorList other) {
 			return selectors.SequenceEqual(other.selectors);
 		}

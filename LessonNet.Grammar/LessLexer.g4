@@ -34,7 +34,7 @@ COMMA           : ',';
 DOT             : '.';
 DOLLAR          : '$';
 AT              : '@';
-PARENTREF       : '&';
+PARENTREF       : '&' -> pushMode(IDENTIFY);
 HASH            : '#';
 COLONCOLON      : '::';
 PLUS            : '+';
@@ -65,7 +65,7 @@ UrlStart
 
 MEDIA           : '@media';
 IMPORT          : '@import';
-EXTEND          : ':extend';
+EXTEND          : 'extend';
 IMPORTANT       : '!important';
 ARGUMENTS       : '@arguments';
 REST            : '@rest';
@@ -118,7 +118,7 @@ fragment ID_CHAR : ('_' | '-' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' | '0'..'
 
 Identifier
   : ( ('_' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' ) ID_CHAR*
-	|  '-' ('_' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' ) ID_CHAR*) -> pushMode(IDENTIFY);
+	|  '-' ('_' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' )* ID_CHAR*) -> pushMode(IDENTIFY);
 
 DQUOT_STRING_START : '"' -> pushMode(DQ_STRING);
 SQUOT_STRING_START : '\'' -> pushMode(SQ_STRING);
