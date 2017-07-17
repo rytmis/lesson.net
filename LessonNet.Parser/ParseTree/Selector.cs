@@ -14,19 +14,13 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new Selector(Elements.Select(e => e.EvaluateSingle<SelectorElement>(context)));
-		}
-
-		protected override string GetStringRepresentation() {
-			return string.Join("", Elements.Select(e => e.ToString())).Trim();
-		}
-
-		public override void WriteOutput(OutputContext context) {
-			context.Append(GetStringRepresentation());
+			yield return new Selector(
+				CombineSequentialConstantIdentifiers(Elements.Select(e => e.EvaluateSingle<SelectorElement>(context))));
 		}
 
 		public IEnumerable<Selector> Inherit(SelectorList parentSelectors) {
-			IEnumerable<SelectorElement> SubstituteFirstParentSelector(Selector parentSelector, IList<SelectorElement> currentElements) {
+			IEnumerable<SelectorElement> SubstituteFirstParentSelector(Selector parentSelector,
+				IList<SelectorElement> currentElements) {
 				bool substituted = false;
 				foreach (var selectorElement in currentElements) {
 
@@ -63,11 +57,57 @@ namespace LessonNet.Parser.ParseTree {
 						yield return new Selector(parentSelector.Elements.Concat(currentElements));
 					}
 				} else {
-					yield return new Selector(currentElements);
+					yield return new Selector(CombineSequentialConstantIdentifiers(currentElements));
 				}
 			}
 
 			return SubstituteParentReferences(Elements, true);
+		}
+
+		private static List<SelectorElement> CombineSequentialConstantIdentifiers(IEnumerable<SelectorElement> elements) {
+			var selectorElements = elements.ToList();
+
+			if (selectorElements.Count <= 1) {
+				return selectorElements;
+			}
+
+			for (var i = selectorElements.Count - 2; i >= 0; i--) {
+				var element = selectorElements[i];
+				var nextElement = selectorElements[i + 1];
+
+				if (element.HasTrailingWhitespace) {
+					continue;
+				}
+
+				if (element is IdentifierSelectorElement ise1 && nextElement is IdentifierSelectorElement ise2) {
+					var nextElementIdentifierValue = ((ConstantIdentifierPart) ise2.Identifier[0]).Value;
+
+					if (SelectorElementBreakingTokens.Any(t => nextElementIdentifierValue.StartsWith(t))) {
+						continue;
+					}
+
+					selectorElements.RemoveAt(i + 1);
+					selectorElements[i] = new IdentifierSelectorElement(ise1.Identifier.CombineConstantIdentifiers(ise2.Identifier));
+				}
+			}
+			return selectorElements;
+		}
+
+
+		private static readonly string[] SelectorElementBreakingTokens = { ".", ":", "#" };
+
+		protected override string GetStringRepresentation() {
+			return string.Join("", Elements.Where(e => !(e is ParentReferenceSelectorElement)).Select(e => e.ToString() + (e.HasTrailingWhitespace ? " " : ""))).Trim();
+		}
+
+		public override void WriteOutput(OutputContext context) {
+			foreach (var element in Elements) {
+				if (!(element is ParentReferenceSelectorElement)) {
+					context.Append(element);
+				}
+			}
+
+			context.TrimTrailingWhitespace();
 		}
 
 		protected bool Equals(Selector other) {
@@ -131,6 +171,14 @@ namespace LessonNet.Parser.ParseTree {
 	public abstract class SelectorElement : LessNode {
 		public bool HasTrailingWhitespace { get; set; }
 
+		public override void WriteOutput(OutputContext context) {
+			base.WriteOutput(context);
+			context.Append(ToString());
+
+			if (HasTrailingWhitespace) {
+				context.Append(' ');
+			}
+		}
 	}
 
 	public class IdentifierSelectorElement : SelectorElement {
@@ -147,7 +195,15 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override string GetStringRepresentation() {
-			return Identifier + (HasTrailingWhitespace ? " " : "");
+			return Identifier.ToString();
+		}
+
+		public override void WriteOutput(OutputContext context) {
+			context.Append(Identifier);
+
+			if (HasTrailingWhitespace) {
+				context.Append(' ');
+			}
 		}
 
 		public override bool Equals(object obj) {
@@ -172,7 +228,7 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override string GetStringRepresentation() {
-			return string.Empty;
+			return "&";
 		}
 
 		protected bool Equals(ParentReferenceSelectorElement other) {
@@ -219,7 +275,7 @@ namespace LessonNet.Parser.ParseTree {
 				? attributeName.ToString() 
 				: attributeName + op + value;
 
-			return $"[{attr}]{(HasTrailingWhitespace ? " " : "")}";
+			return $"[{attr}]";
 		}
 
 		protected bool Equals(AttributeSelectorElement other) {
@@ -257,7 +313,7 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override string GetStringRepresentation() {
-			return combinator + (HasTrailingWhitespace ? " " : "");
+			return combinator;
 		}
 
 		protected bool Equals(CombinatorSelectorElement other) {

@@ -31,14 +31,10 @@ namespace LessonNet.Parser.ParseTree
 			var evaluatedQueries = mediaQueries.Select(q => q.EvaluateSingle<MediaQuery>(context)).ToArray();
 			(var mediaBlocks, var statements) = Block.Evaluate(context).Split<MediaBlock, Statement>();
 
-			yield return new MediaBlock(evaluatedQueries, new RuleBlock(statements)) {
-				IsEvaluated = true
-			};
+			yield return new MediaBlock(evaluatedQueries, new RuleBlock(statements)) ;
 
 			foreach (var mediaBlock in mediaBlocks) {
-				yield return new MediaBlock(CombineQueries(evaluatedQueries, mediaBlock.mediaQueries), mediaBlock.Block) {
-					IsEvaluated = true
-				};
+				yield return new MediaBlock(CombineQueries(evaluatedQueries, mediaBlock.mediaQueries), mediaBlock.Block);
 			}
 		}
 
@@ -47,9 +43,7 @@ namespace LessonNet.Parser.ParseTree
 			var bubbledRuleset = new Ruleset(context.CurrentScope.Selectors, new RuleBlock(Block.Statements));
 			var bubbledStatements = bubbledRuleset.Evaluate(context).Cast<Statement>();
 
-			return new MediaBlock(mediaQueries, new RuleBlock(bubbledStatements) { IsEvaluated = true }) {
-				IsEvaluated = true
-			};
+			return new MediaBlock(mediaQueries, new RuleBlock(bubbledStatements));
 		}
 
 
@@ -84,9 +78,7 @@ namespace LessonNet.Parser.ParseTree
 			this.FeatureQueries = featureQueries.ToList();
 		}
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new MediaQuery(FeatureQueries.Select(q => q.EvaluateSingle<MediaFeatureQuery>(context))) {
-				IsEvaluated = true
-			};
+			yield return new MediaQuery(FeatureQueries.Select(q => q.EvaluateSingle<MediaFeatureQuery>(context))) ;
 		}
 
 		protected override string GetStringRepresentation() {

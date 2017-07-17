@@ -17,9 +17,7 @@ namespace LessonNet.Parser.ParseTree
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			(var rulesets, var mediaBlocks) = EvaluateStatements(context).Split<Ruleset, MediaBlock>();
 
-			yield return new Stylesheet(rulesets.Concat<Statement>(mediaBlocks)) {
-				IsEvaluated = true
-			};
+			yield return new Stylesheet(rulesets.Concat<Statement>(mediaBlocks));
 		}
 
 		private IEnumerable<Statement> EvaluateStatements(EvaluationContext context) {

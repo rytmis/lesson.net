@@ -83,9 +83,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			var evaluatedParts = parts.Select(p => p.EvaluateSingle<LessStringLiteral>(context));
 
-			yield return new LessString(quoteChar, evaluatedParts) {
-				IsEvaluated = true
-			};
+			yield return new LessString(quoteChar, evaluatedParts);
 		}
 
 		public override void WriteOutput(OutputContext context) {

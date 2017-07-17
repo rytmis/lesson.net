@@ -35,6 +35,13 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			yield return new ConstantIdentifierPart(prefix + identifier + expressionValue);
 		}
 
+		protected override string GetStringRepresentation() {
+			if (value == null) {
+				return $"{prefix}{identifier}";
+			}
+			return $"{prefix}{identifier}({value})";
+		}
+
 		public override void WriteOutput(OutputContext context) {
 			context.Append(prefix);
 			context.Append(identifier);

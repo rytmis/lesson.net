@@ -21,10 +21,8 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			using (context.EnterScope(new SelectorList(new []{Selector}))) {
-				foreach (var generatedNode in block.Evaluate(context)) {
-					yield return generatedNode;
-				}
+			foreach (var generatedNode in block.Evaluate(context)) {
+				yield return generatedNode;
 			}
 		}
 

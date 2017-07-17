@@ -19,23 +19,24 @@ namespace LessonNet.Parser.ParseTree
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			using (context.EnterScope(Selectors)) {
+			var evaluatedSelectors = Selectors.EvaluateSingle<SelectorList>(context).Inherit(context.CurrentScope.Selectors);
+
+			using (context.EnterScope(evaluatedSelectors)) {
 				(var mediaBlocks, var rulesets, var statements) = Block.Evaluate(context).Split<MediaBlock, Ruleset, Statement>();
 
 				if (statements.Count > 0) {
-					var evaluatedBlock = new RuleBlock(statements) {
-						IsEvaluated = true
-					};
+					var evaluatedBlock = new RuleBlock(statements);
 
 					var evaluatedRuleset =
-						new Ruleset(Selectors.EvaluateSingle<SelectorList>(context), evaluatedBlock) {IsEvaluated = true};
+						new Ruleset(evaluatedSelectors, evaluatedBlock);
 
 					yield return evaluatedRuleset;
 				}
 
 				foreach (var generatedRuleset in rulesets) {
-					var combinedSelectors = generatedRuleset.Selectors.Inherit(Selectors).EvaluateSingle<SelectorList>(context);
-					yield return new Ruleset(combinedSelectors, generatedRuleset.Block) {IsEvaluated = true};
+					context.CurrentScope.Parent.DeclareRuleset(generatedRuleset);
+
+					yield return generatedRuleset;
 				}
 
 				foreach (var generatedMediaBlock in mediaBlocks) {

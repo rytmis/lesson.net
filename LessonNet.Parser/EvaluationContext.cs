@@ -78,7 +78,7 @@ namespace LessonNet.Parser
 
 		public Scope(EvaluationContext context, SelectorList selectors = null, Scope parent = null) {
 			this.context = context;
-			this.Selectors = selectors?.DropCombinators();
+			this.Selectors = selectors?.DropCombinators() ?? SelectorList.Empty;
 			Parent = parent;
 		}
 
@@ -112,14 +112,14 @@ namespace LessonNet.Parser
 			return resolvedRulesets;
 		}
 
-		private IList<MixinEvaluationResult> ResolveMixinsCore(MixinCall call) {
+		private IList<MixinEvaluationResult> ResolveMixinsCore(MixinCall call, bool resolveFromParents = true) {
 			// No namespace support or result caching yet
 			var matchingMixins = mixins
 				.Where(mixin => call.Matches(mixin, context))
 				.Select(m => new MixinEvaluationResult(m, call, this))
 				.Concat(ResolveInChildContexts(call));
 
-			if (Parent == null) {
+			if (!resolveFromParents || Parent == null) {
 				return matchingMixins.ToList();
 			}
 
@@ -129,9 +129,8 @@ namespace LessonNet.Parser
 		private IEnumerable<MixinEvaluationResult> ResolveInChildContexts(MixinCall call) {
 			foreach (var child in children) {
 				foreach (var childSelector in child.Selectors.Selectors) {
-					var remainingSelectors = call.Selector.RemovePrefix(childSelector);
-					if (remainingSelectors != null && !remainingSelectors.IsEmpty()) {
-						foreach (var result in child.ResolveMixinsCore(new MixinCall(remainingSelectors, call.Arguments))) {
+					if(childSelector.IsPrefixOf(call.Selector)) { 
+						foreach (var result in child.ResolveMixinsCore(call, resolveFromParents: false)) {
 							yield return result;
 						}
 					}
@@ -209,7 +208,7 @@ namespace LessonNet.Parser
 	public class ClosureScope : Scope {
 		private readonly Scope closure;
 
-		public ClosureScope(EvaluationContext context, Scope closure, Scope overlay) : base(context) {
+		public ClosureScope(EvaluationContext context, Scope closure, Scope overlay) : base(context, overlay.Selectors) {
 			this.closure = closure;
 
 			Parent = overlay;

@@ -13,6 +13,9 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		public Identifier(IEnumerable<IdentifierPart> parts) {
 			this.parts = parts.ToList();
 		}
+
+		public IdentifierPart this[int index] => parts[index];
+
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			string identifier = string.Join("", parts.Select(p => p.EvaluateSingle<ConstantIdentifierPart>(context)));
 
@@ -44,6 +47,14 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			foreach (var identifierPart in parts) {
 				context.Append(identifierPart);
 			}
+		}
+
+		public Identifier CombineConstantIdentifiers(Identifier another) {
+			if (parts.Count == 1 && parts[0] is ConstantIdentifierPart cip1 && another.parts.Count == 1 && another.parts[0] is ConstantIdentifierPart cip2) {
+				return new Identifier(new ConstantIdentifierPart(cip1.Value + cip2.Value));
+			}
+
+			throw new InvalidOperationException("Combining is only implemented for single-part constant identifiers");
 		}
 	}
 }

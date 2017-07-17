@@ -16,9 +16,7 @@ namespace LessonNet.Parser.ParseTree {
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			var evaluatedValues = this.values.EvaluateSingle<ListOfExpressionLists>(context);
 
-			yield return new Rule(property, evaluatedValues) {
-				IsEvaluated = true
-			};
+			yield return new Rule(property, evaluatedValues);
 		}
 
 		public override void WriteOutput(OutputContext context) {

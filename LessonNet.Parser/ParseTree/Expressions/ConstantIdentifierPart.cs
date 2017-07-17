@@ -4,36 +4,36 @@ using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
 	public class ConstantIdentifierPart : IdentifierPart {
-		private readonly string part;
+		public string Value { get; }
 
-		public ConstantIdentifierPart(string part) {
-			this.part = part;
+		public ConstantIdentifierPart(string value) {
+			Value = value;
 		}
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			yield return this;
 		}
 
 		protected override string GetStringRepresentation() {
-			return part;
+			return Value;
 		}
 
 		protected bool Equals(ConstantIdentifierPart other) {
-			return string.Equals((string) part, (string) other.part);
+			return string.Equals(Value, other.Value);
 		}
 
 		public override bool Equals(object obj) {
-			if (Object.ReferenceEquals(null, obj)) return false;
-			if (Object.ReferenceEquals(this, obj)) return true;
-			if (obj.GetType() != this.GetType()) return false;
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != GetType()) return false;
 			return Equals((ConstantIdentifierPart) obj);
 		}
 
 		public override int GetHashCode() {
-			return (part != null ? part.GetHashCode() : 0);
+			return (Value != null ? Value.GetHashCode() : 0);
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			context.Append(part);
+			context.Append(Value);
 		}
 	}
 }

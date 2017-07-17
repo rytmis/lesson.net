@@ -21,13 +21,7 @@ namespace LessonNet.Parser.ParseTree {
 
 		public override string ToString() => GetStringRepresentation();
 
-		internal bool IsEvaluated { get; set; }
 		public IEnumerable<LessNode> Evaluate(EvaluationContext context) {
-			if (IsEvaluated) {
-				yield return this;
-				yield break;
-			}
-
 			foreach (var resultNode in EvaluateCore(context)) {
 				yield return resultNode;
 			}

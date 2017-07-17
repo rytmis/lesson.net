@@ -7,6 +7,8 @@ using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree {
 	public class SelectorList : LessNode {
+		public static readonly SelectorList Empty = new SelectorList(new Selector[] {new Selector(new SelectorElement[] { })});
+
 		private readonly List<Selector> selectors;
 
 		public SelectorList(IEnumerable<Selector> selectors) {
@@ -34,9 +36,7 @@ namespace LessonNet.Parser.ParseTree {
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			IEnumerable<Selector> EvaluateSelectors() {
 				foreach (var selector in selectors) {
-					foreach (var generatedSelector in selector.Evaluate(context)) {
-						yield return (Selector) generatedSelector;
-					}
+					yield return selector.EvaluateSingle<Selector>(context);
 				}
 			}
 
@@ -48,7 +48,13 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			context.Append(GetStringRepresentation());
+			for (var index = 0; index < Selectors.Count; index++) {
+				var selector = Selectors[index];
+				context.Append(selector);
+				if (index < Selectors.Count - 1) {
+					context.AppendLine(",");
+				}
+			}
 		}
 
 		public bool MatchesAny(SelectorList selectorList) {
@@ -95,10 +101,6 @@ namespace LessonNet.Parser.ParseTree {
 			}
 
 			return new SelectorList(GetResultingSelectors());
-		}
-
-		public static SelectorList Empty() {
-			return new SelectorList(new[] {new Selector(Enumerable.Empty<SelectorElement>())});
 		}
 	}
 }
