@@ -10,7 +10,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		}
 
 		public bool SatisfiedBy(EvaluationContext context) {
-			return Enumerable.Any<AndConditionList>(conditionLists, cl => cl.SatisfiedBy(context));
+			return conditionLists.Any(cl => cl.SatisfiedBy(context));
 		}
 	}
 }
