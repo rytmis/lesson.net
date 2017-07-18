@@ -25,20 +25,12 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			}
 
 			if (evaluatedExpression is ListOfExpressionLists list) {
-				if (list.Count != 1) {
+				var singleValue = list.Single<Measurement>();
+				if (singleValue == null) {
 					throw new EvaluationException($"{expr} did not evaluate to a single value");
 				}
 
-				var singleList = list.Single();
-
-				if (singleList.Values.Count != 1) {
-					throw new EvaluationException($"{expr} did not evaluate to a single value");
-				}
-
-				var singleValue = singleList.Values.Single();
-				if (singleValue is Measurement m) {
-					return m;
-				}
+				return singleValue;
 			}
 
 			throw new EvaluationException($"{expr} is not a numeric expression");

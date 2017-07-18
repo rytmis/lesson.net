@@ -45,7 +45,7 @@ namespace LessonNet.Parser.ParseTree {
 			}
 		}
 
-		public TNode Single<TNode>() where TNode : LessNode {
+		public TNode Single<TNode>() where TNode : Expression {
 			if (Count != 1) {
 				return null;
 			}
@@ -56,7 +56,11 @@ namespace LessonNet.Parser.ParseTree {
 				return null;
 			}
 
-			return values[0] as TNode;
+			switch (values[0]) {
+				case TNode node: return node;
+				case ListOfExpressionLists list: return list.Single<TNode>();
+				default: return null;
+			}
 		}
 
 		protected bool Equals(ListOfExpressionLists other) {

@@ -22,7 +22,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			if (variable != null) {
-				var result = variable.EvaluateSingle<ListOfExpressionLists>(context).Single<LessNode>();
+				var result = variable.EvaluateSingle<ListOfExpressionLists>(context).Single<Expression>();
 				if (result is Identifier id) {
 					yield return EvaluateVariable(context, id.ToString());
 				} else if (result is LessString str) {
