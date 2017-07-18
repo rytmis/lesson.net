@@ -218,5 +218,13 @@ namespace LessonNet.Parser
 			return base.ResolveVariable(name, throwOnError: false)
 				?? closure.ResolveVariable(name, throwOnError: throwOnError);
 		}
+
+		public override void DeclareMixin(MixinDefinition mixin) {
+			Parent.DeclareMixin(mixin);
+		}
+
+		public override void DeclareVariable(VariableDeclaration variable) {
+			Parent.DeclareVariable(variable);
+		}
 	}
 }

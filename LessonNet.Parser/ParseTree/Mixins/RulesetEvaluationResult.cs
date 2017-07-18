@@ -18,6 +18,10 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			using (context.EnterClosureScope(closure)) {
 				foreach (var evaluationResult in ruleset.Block.Evaluate(context)) {
+					if (evaluationResult is Declaration decl) {
+						decl.DeclareIn(context);
+					}
+
 					yield return evaluationResult;
 				}
 

@@ -25,6 +25,18 @@ namespace LessonNet.Parser.ParseTree
 				(var mediaBlocks, var rulesets, var statements) = Block.Evaluate(context).Split<MediaBlock, Ruleset, Statement>();
 
 				if (statements.Count > 0) {
+					var ruleLookup = new HashSet<string>();
+
+					for (var i = statements.Count - 1; i >= 0; i--) {
+						if (statements[i] is Rule r) {
+							if (ruleLookup.Contains(r.Property)) {
+								statements.RemoveAt(i);
+							} else {
+								ruleLookup.Add(r.Property);
+							}
+						}
+					}
+
 					var evaluatedBlock = new RuleBlock(statements);
 
 					var evaluatedRuleset =
