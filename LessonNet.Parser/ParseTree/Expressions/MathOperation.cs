@@ -14,26 +14,21 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return MathOperations.Operate(op, EvaluateMeasurement(lhs, context),  EvaluateMeasurement(rhs, context));
+			yield return MathOperations.Operate(op, EvaluateSingleValue(lhs, context),  EvaluateSingleValue(rhs, context));
 		}
 
-		private Measurement EvaluateMeasurement(Expression expr, EvaluationContext context) {
-			var evaluatedExpression = expr.EvaluateSingle<LessNode>(context);
+		private static Expression EvaluateSingleValue(Expression expr, EvaluationContext context) {
+			var evaluatedExpression = expr.EvaluateSingle<Expression>(context);
 
 			if (evaluatedExpression is Measurement measurement) {
 				return measurement;
 			}
 
 			if (evaluatedExpression is ListOfExpressionLists list) {
-				var singleValue = list.Single<Measurement>();
-				if (singleValue == null) {
-					throw new EvaluationException($"{expr} did not evaluate to a single value");
-				}
-
-				return singleValue;
+				return list.Single<Measurement>();
 			}
 
-			throw new EvaluationException($"{expr} is not a numeric expression");
+			return evaluatedExpression;
 		}
 
 		protected bool Equals(MathOperation other) {

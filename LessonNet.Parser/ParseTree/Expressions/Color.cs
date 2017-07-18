@@ -9,15 +9,18 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		private readonly uint r;
 		private readonly uint g;
 		private readonly uint b;
-		private readonly double alpha;
+		private readonly double? alpha;
 		private readonly string keyword;
 
-		public Color(uint r, uint g, uint b, double alpha = 1, string keyword = null) {
+		public Color(uint r, uint g, uint b, double? alpha = null, string keyword = null) {
 			this.r = r;
 			this.g = g;
 			this.b = b;
 			this.alpha = alpha;
 			this.keyword = keyword;
+		}
+
+		public Color(Measurement m) : this((uint) m.Number, (uint) m.Number, (uint) m.Number) {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
@@ -96,6 +99,38 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 				hashCode = (hashCode * 397) ^ (keyword != null ? keyword.GetHashCode() : 0);
 				return hashCode;
 			}
+		}
+
+		public static Color operator +(Color c1, Color c2) {
+			return new Color(
+				c1.r + c2.r,
+				c1.g + c2.g,
+				c1.b + c2.b
+			);
+		}
+
+		public static Color operator -(Color c1, Color c2) {
+			return new Color(
+				c1.r - c2.r,
+				c1.g - c2.g,
+				c1.b - c2.b
+			);
+		}
+
+		public static Color operator *(Color c1, Color c2) {
+			return new Color(
+				c1.r * c2.r,
+				c1.g * c2.g,
+				c1.b * c2.b
+			);
+		}
+
+		public static Color operator /(Color c1, Color c2) {
+			return new Color(
+				c1.r / c2.r,
+				c1.g / c2.g,
+				c1.b / c2.b
+			);
 		}
 	}
 
