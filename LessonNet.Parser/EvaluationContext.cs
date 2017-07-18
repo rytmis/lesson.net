@@ -94,19 +94,25 @@ namespace LessonNet.Parser
 			rulesets.Add(ruleset);
 		}
 
-		public virtual IEnumerable<MixinEvaluationResult> ResolveMatchingMixins(MixinCall call) {
+		public virtual IEnumerable<MixinEvaluationResult> ResolveMatchingMixins(MixinCall call, bool throwOnError = true) {
 			var resolvedMixins = ResolveMixinsCore(call);
 			if (!resolvedMixins.Any()) {
-				throw new EvaluationException($"No mixin found: {call} ");
+				if (throwOnError) {
+					throw new EvaluationException($"No mixin found: {call} ");
+				}
+				return null;
 			}
 
 			return resolvedMixins;
 		}
 
-		public virtual IEnumerable<InvocationResult> ResolveMatchingRulesets(RulesetCall call) {
+		public virtual IEnumerable<InvocationResult> ResolveMatchingRulesets(RulesetCall call, bool throwOnError = true) {
 			var resolvedRulesets = ResolveRulesetsCore(call);
 			if (!resolvedRulesets.Any()) {
-				throw new EvaluationException($"No matching ruleset found: {call} ");
+				if (throwOnError) {
+					throw new EvaluationException($"No matching ruleset found: {call} ");
+				}
+				return null;
 			}
 
 			return resolvedRulesets;
@@ -129,8 +135,10 @@ namespace LessonNet.Parser
 		private IEnumerable<MixinEvaluationResult> ResolveInChildContexts(MixinCall call) {
 			foreach (var child in children) {
 				foreach (var childSelector in child.Selectors.Selectors) {
-					if(childSelector.IsPrefixOf(call.Selector)) { 
-						foreach (var result in child.ResolveMixinsCore(call, resolveFromParents: false)) {
+					if (childSelector.IsPrefixOf(call.Selector)) {
+						var remainingSelectors = call.Selector.RemovePrefix(childSelector);
+
+						foreach (var result in child.ResolveMixinsCore(new MixinCall(remainingSelectors, call.Arguments), resolveFromParents: false)) {
 							yield return result;
 						}
 					}
@@ -217,6 +225,16 @@ namespace LessonNet.Parser
 		public override VariableDeclaration ResolveVariable(string name, bool throwOnError = true) {
 			return base.ResolveVariable(name, throwOnError: false)
 				?? closure.ResolveVariable(name, throwOnError: throwOnError);
+		}
+
+		public override IEnumerable<MixinEvaluationResult> ResolveMatchingMixins(MixinCall call, bool throwOnError = true) {
+			return base.ResolveMatchingMixins(call, throwOnError: false)
+				?? closure.ResolveMatchingMixins(call, throwOnError);
+		}
+
+		public override IEnumerable<InvocationResult> ResolveMatchingRulesets(RulesetCall call, bool throwOnError = true) {
+			return base.ResolveMatchingRulesets(call, throwOnError: false)
+				?? closure.ResolveMatchingRulesets(call, throwOnError);
 		}
 
 		public override void DeclareMixin(MixinDefinition mixin) {
