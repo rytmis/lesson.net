@@ -267,7 +267,9 @@ namespace LessonNet.Parser.ParseTree {
 				? list.Single<Expression>()
 				: expression;
 
-			yield return new AttributeSelectorElement(attributeName.EvaluateSingle<Identifier>(context), op, exprValue);
+			yield return new AttributeSelectorElement(attributeName.EvaluateSingle<Identifier>(context), op, exprValue) {
+				HasTrailingWhitespace = HasTrailingWhitespace
+			};
 		}
 
 		protected override string GetStringRepresentation() {
