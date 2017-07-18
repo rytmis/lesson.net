@@ -36,6 +36,10 @@ namespace LessonNet.Parser.ParseTree.Mixins
 				return result;
 			}
 
+			if (value is ListOfExpressionLists listOfLists) {
+				return listOfLists.Single<TExpr>();
+			}
+
 			if (value is ExpressionList list) {
 				return EvaluateSingleValueCore<TExpr>(context, list);
 			}

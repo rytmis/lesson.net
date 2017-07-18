@@ -87,7 +87,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return  new PatternMatchParameter(Identifier.EvaluateSingle<Identifier>(context));
+			yield return new PatternMatchParameter(Identifier.EvaluateSingle<Identifier>(context));
 		}
 
 		protected override string GetStringRepresentation() {
