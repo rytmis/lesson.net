@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "LessonNet.Commandline": {
+      "commandName": "Project",
+      "commandLineArgs": "\"D:\\Projects\\dotless\\sandbox.less\" > \"D:\\Projects\\dotless\\sandbox.css\""
+    }
+  }
+}
