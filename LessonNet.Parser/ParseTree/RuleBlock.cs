@@ -35,11 +35,7 @@ namespace LessonNet.Parser.ParseTree {
 
 			foreach (var statement in Statements.Except(mediaBlocks).Except(mixinDefinitions)) {
 				foreach (var generatedNode in statement.Evaluate(context)) {
-					if (generatedNode is Rule r) {
-						yield return generatedNode;
-					} else {
-						yield return generatedNode;
-					}
+					yield return generatedNode;
 				}
 			}
 		}
