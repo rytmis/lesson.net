@@ -478,7 +478,9 @@ namespace LessonNet.Parser {
 			var value = context.identifier()?.Accept(this)
 				?? context.variableName().Accept(this);
 
-			return new MediaIdentifierQuery(modifier, new ExpressionList((Expression) value));
+			bool parens = context.LPAREN() != null;
+
+			return new MediaIdentifierQuery(modifier, new ExpressionList((Expression) value), parens);
 		}
 
 		public override LessNode VisitMeasurementList(LessParser.MeasurementListContext context) {

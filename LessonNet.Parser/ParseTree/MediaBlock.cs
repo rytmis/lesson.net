@@ -114,16 +114,21 @@ namespace LessonNet.Parser.ParseTree
 
 	public class MediaIdentifierQuery : MediaFeatureQuery {
 		private readonly ExpressionList identifier;
+		private readonly bool parens;
 
-		public MediaIdentifierQuery(MediaQueryModifier modifier, ExpressionList identifier) : base(modifier) {
+		public MediaIdentifierQuery(MediaQueryModifier modifier, ExpressionList identifier, bool parens) : base(modifier) {
 			this.identifier = identifier;
+			this.parens = parens;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new MediaIdentifierQuery(Modifier, identifier.EvaluateSingle<ExpressionList>(context));
+			yield return new MediaIdentifierQuery(Modifier, identifier.EvaluateSingle<ExpressionList>(context), parens);
 		}
 
 		protected override string GetStringRepresentation() {
+			if (parens) {
+				return $"({identifier})";
+			}
 			return identifier.ToString();
 		}
 
@@ -132,7 +137,13 @@ namespace LessonNet.Parser.ParseTree
 				context.Append(Modifier.ToString().ToLowerInvariant() + " ");
 			}
 
-			context.Append(identifier);
+			if (parens) {
+				context.Append('(');
+				context.Append(identifier);
+				context.Append(')');
+			} else {
+				context.Append(identifier);
+			}
 		}
 	}
 
