@@ -20,7 +20,12 @@ namespace LessonNet.Parser.ParseTree {
 			// Handle variables and mixin definitions first: Variable scoping rules dictate that within a given
 			// variable scope, the last declaration is the one that takes effect for
 			// both the current scope and child scopes.
-			(var declarations, var mediaBlocks) = Statements.Split<Declaration, MediaBlock>();
+			(var variables, var declarations, var mediaBlocks) = Statements.Split<VariableDeclaration, Declaration, MediaBlock>();
+			// Variables first, because declaring rulesets evaluates selectors that may depend on those variables
+			foreach (var variable in variables) {
+				variable.DeclareIn(context);
+			}
+
 			foreach (var declaration in declarations) {
 				declaration.DeclareIn(context);
 			}
@@ -44,12 +49,14 @@ namespace LessonNet.Parser.ParseTree {
 			context.IncreaseIndentLevel();
 
 			foreach (var statement in Statements) {
-				context.Indent();
-				context.Append(statement);
-
-				if (statement is Rule) {
+				if (statement is Rule r) {
+					// Rules may exist within media queries, but are only indented and semicolon-terminated within rule blocks
+					context.Indent();
+					context.Append(r);
 					context.AppendLine(";");
-				} 
+				} else {
+					context.Append(statement);
+				}
 			}
 
 			context.DecreaseIndentLevel();

@@ -43,15 +43,27 @@ namespace LessonNet.Parser.ParseTree {
 			yield return new SelectorList(EvaluateSelectors());
 		}
 
+		public void AddExtenders(EvaluationContext context) {
+			foreach (var selector in Selectors) {
+				selector.AddExtenders(context);
+			}
+		}
+
 		protected override string GetStringRepresentation() {
 			return string.Join($",{Environment.NewLine}", Selectors.Select(s => s.ToString()));
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			for (var index = 0; index < Selectors.Count; index++) {
-				var selector = Selectors[index];
+			var outputSelectors = Selectors
+				.Concat(Selectors.SelectMany(s => context.Extensions.GetExtensions(s)))
+				.Distinct()
+				.ToList();
+
+			for (var index = 0; index < outputSelectors.Count; index++) {
+				context.Indent();
+				var selector = outputSelectors[index];
 				context.Append(selector);
-				if (index < Selectors.Count - 1) {
+				if (index < outputSelectors.Count - 1) {
 					context.AppendLine(",");
 				}
 			}

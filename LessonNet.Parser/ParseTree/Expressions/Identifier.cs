@@ -42,8 +42,6 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			context.Indent();
-
 			foreach (var identifierPart in parts) {
 				context.Append(identifierPart);
 			}

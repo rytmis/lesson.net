@@ -53,5 +53,27 @@ namespace LessonNet.Parser.Util
 
 			return (first, second, third);
 		}
+
+		public static (IList<TFirst> first, IList<TSecond> second, IList<TThird> third, IList<TFourth> fourth)
+			Split<TFirst, TSecond, TThird, TFourth>(this IEnumerable source) {
+			IList<TFirst> firsts = new List<TFirst>();
+			IList<TSecond> seconds = new List<TSecond>();
+			IList<TThird> thirds = new List<TThird>();
+			IList<TFourth> fourths = new List<TFourth>();
+
+			foreach (var item in source) {
+				if (item is TFirst first) {
+					firsts.Add(first);
+				} else if (item is TSecond second) {
+					seconds.Add(second);
+				} else if (item is TThird third) {
+					thirds.Add(third);
+				} else if (item is TFourth fourth) {
+					fourths.Add(fourth);
+				}
+			}
+
+			return (firsts, seconds, thirds, fourths);
+		}
 	}
 }

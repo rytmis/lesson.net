@@ -6,18 +6,19 @@ using System.Text;
 using System.Threading.Tasks;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
+using LessonNet.Parser.CodeGeneration;
 using LessonNet.Parser.ParseTree;
 using LessonNet.Parser.ParseTree.Mixins;
 
 namespace LessonNet.Parser
 {
-	public class EvaluationContext
-	{
+	public class EvaluationContext {
+		public ExtenderRegistry Extenders { get; } = new ExtenderRegistry();
+
 		private Stack<Scope> scopeStack = new Stack<Scope>();
 
 		public LessTreeParser Parser { get; }
 		public IFileResolver FileResolver { get; }
-
 		public Scope CurrentScope => scopeStack.Peek();
 
 		public EvaluationContext(LessTreeParser parser, IFileResolver fileResolver) {
@@ -35,6 +36,10 @@ namespace LessonNet.Parser
 			using (var stream = FileResolver.GetContent()) {
 				return Parser.Parse(FileResolver.CurrentFile, stream);
 			}
+		}
+
+		public OutputContext GetOutputContext(char indent, int indentationCount) {
+			return new OutputContext(Extenders, indent, indentationCount);
 		}
 
 		public IDisposable EnterScope(SelectorList selectors) {
@@ -64,6 +69,8 @@ namespace LessonNet.Parser
 
 	public class Scope {
 		public SelectorList Selectors { get; }
+		private SelectorList SelectorsWithoutCombinators;
+
 		public Scope Parent { get; protected set; }
 		public bool IsRoot => Parent == null;
 
@@ -78,7 +85,8 @@ namespace LessonNet.Parser
 
 		public Scope(EvaluationContext context, SelectorList selectors = null, Scope parent = null) {
 			this.context = context;
-			this.Selectors = selectors?.DropCombinators() ?? SelectorList.Empty;
+			this.Selectors = selectors ?? SelectorList.Empty;
+			this.SelectorsWithoutCombinators = selectors?.DropCombinators() ?? SelectorList.Empty;
 			Parent = parent;
 		}
 
@@ -134,7 +142,7 @@ namespace LessonNet.Parser
 
 		private IEnumerable<MixinEvaluationResult> ResolveInChildContexts(MixinCall call) {
 			foreach (var child in children) {
-				foreach (var childSelector in child.Selectors.Selectors) {
+				foreach (var childSelector in child.SelectorsWithoutCombinators.Selectors) {
 					if (childSelector.IsPrefixOf(call.Selector)) {
 						var remainingSelectors = call.Selector.RemovePrefix(childSelector);
 
@@ -169,7 +177,7 @@ namespace LessonNet.Parser
 
 		private IEnumerable<InvocationResult> ResolveInChildContexts(RulesetCall call) {
 			foreach (var child in children) {
-				foreach (var childSelector in child.Selectors.Selectors) {
+				foreach (var childSelector in child.SelectorsWithoutCombinators.Selectors) {
 					var remainingSelectors = call.Selector.RemovePrefix(childSelector);
 					if (remainingSelectors != null && !remainingSelectors.IsEmpty()) {
 						foreach (var result in child.ResolveRulesetsCore(new RulesetCall(remainingSelectors))) {

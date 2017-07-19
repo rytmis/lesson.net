@@ -31,12 +31,22 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitStatement(LessParser.StatementContext context) {
+			ExtendStatement GetExtendStatement() {
+				var extend = context.extend();
+				if (extend == null) {
+					return null;
+				}
+
+				return new ExtendStatement(GetExtend(extend));
+			}
+
 			return context.importDeclaration()?.Accept(this)
 				?? context.variableDeclaration()?.Accept(this)
 				?? context.mixinDefinition()?.Accept(this)
 				?? context.ruleset()?.Accept(this)
 				?? context.mixinCall()?.Accept(this)
 				?? context.mediaBlock()?.Accept(this)
+				?? GetExtendStatement()
 				?? throw new ParserException($"Unexpected statement type: [{context.GetText()}]");
 		}
 
@@ -128,18 +138,18 @@ namespace LessonNet.Parser {
 				return new Identifier(GetIdentifierParts());
 			}
 
-			SelectorElement GetElement() {
+			SelectorElement GetElement(bool hasTrailingWhitespace) {
 				var parentSelector = context.parentSelectorReference();
 				if (parentSelector != null) {
-					return new ParentReferenceSelectorElement();
+					return new ParentReferenceSelectorElement(hasTrailingWhitespace);
 				}
 
 				if (context.pseudoClass() != null) {
-					return new IdentifierSelectorElement(GetPseudoclassIdentifier());
+					return new IdentifierSelectorElement(GetPseudoclassIdentifier(), hasTrailingWhitespace);
 				}
 
 				if (context.identifier() != null) {
-					return new IdentifierSelectorElement(GetIdentifier());
+					return new IdentifierSelectorElement(GetIdentifier(), hasTrailingWhitespace);
 				}
 
 				var attrib = context.attrib();
@@ -148,27 +158,25 @@ namespace LessonNet.Parser {
 
 					var op = attrib.attribRelate();
 					if (op != null) {
-						return new AttributeSelectorElement(identifier, op.GetText(), (Expression) attrib.attribValue().Accept(this));
+						return new AttributeSelectorElement(identifier, op.GetText(), (Expression) attrib.attribValue().Accept(this), hasTrailingWhitespace);
 					}
-					return new AttributeSelectorElement(identifier);
+					return new AttributeSelectorElement(identifier, hasTrailingWhitespace);
 				}
 
 				// The lexer rules might match an ID selector as a color, so we account for that here
 				if (context.HexColor() != null) {
-					return new IdentifierSelectorElement(new Identifier(new ConstantIdentifierPart(context.HexColor().GetText())));
+					return new IdentifierSelectorElement(new Identifier(new ConstantIdentifierPart(context.HexColor().GetText())), hasTrailingWhitespace);
 				}
 
-				return new CombinatorSelectorElement(context.combinator().GetText());
+				return new CombinatorSelectorElement(context.combinator().GetText(), hasTrailingWhitespace);
 			}
 
 			int possibleWhitespaceIndex = context.Stop.TokenIndex + 1;
 
-			bool hasTrailingWhitespace = possibleWhitespaceIndex < tokenStream.Size
+			bool trailingWhitespace = possibleWhitespaceIndex < tokenStream.Size
 				&& tokenStream.Get(possibleWhitespaceIndex).Type == LessLexer.WS;
 
-			var element = GetElement();
-			element.HasTrailingWhitespace = hasTrailingWhitespace;
-			return element;
+			return GetElement(trailingWhitespace);
 		}
 
 		public override LessNode VisitAttribValue(LessParser.AttribValueContext context) {
@@ -181,25 +189,41 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitSelector(LessParser.SelectorContext context) {
-			IEnumerable<SelectorElement> GetElements() {
-				SelectorElement lastSelector = null;
-				foreach (var element in context.selectorElement()) {
-					lastSelector = (SelectorElement) element.Accept(this);
-					yield return lastSelector;
-				}
+			return GetSelector(context.selectorElement());
+		}
 
-				if (lastSelector != null) {
-					lastSelector.HasTrailingWhitespace = true;
+		public Extend GetExtend(LessParser.ExtendContext context) {
+			IEnumerable<Extender> GetExtenders() {
+				foreach (var extender in context.extenderList().extender()) {
+					var elements = extender.selector().selectorElement();
+					bool partialMatch = elements.LastOrDefault()?.GetText() == "all";
+					var selectorElements = partialMatch ? elements.Take(elements.Length - 1) : elements;
+
+					yield return new Extender(GetSelector(selectorElements), partialMatch);
 				}
 			}
 
-			return new Selector(GetElements());
+			if (context == null) {
+				return null;
+			}
+
+			return new Extend(GetExtenders());
+		}
+
+		private Selector GetSelector(IEnumerable<LessParser.SelectorElementContext> selectorElements, Extend extend = null) {
+			IEnumerable<SelectorElement> GetElements() {
+				foreach (var element in selectorElements) {
+					yield return (SelectorElement) element.Accept(this);
+				}
+			}
+
+			return new Selector(GetElements(), extend);
 		}
 
 		public override LessNode VisitSelectors(LessParser.SelectorsContext context) {
 			IEnumerable<Selector> GetSelectors() {
 				foreach (var selectorContext in context.selectorListElement()) {
-					yield return (Selector) selectorContext.selector().Accept(this);
+					yield return GetSelector(selectorContext.selector().selectorElement(), GetExtend(selectorContext.extend()));
 				}
 			}
 

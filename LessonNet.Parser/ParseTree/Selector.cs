@@ -7,20 +7,35 @@ using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser.ParseTree {
 	public class Selector : Expression {
-		public List<SelectorElement> Elements { get; }
+		public Extend Extend { get; }
+		public IReadOnlyList<SelectorElement> Elements { get; }
 
-		public Selector(IEnumerable<SelectorElement> elements) {
+		public Selector(IEnumerable<SelectorElement> elements) : this (elements, null) { }
+
+		public Selector(IEnumerable<SelectorElement> elements, Extend extend) {
+			this.Extend = extend;
 			this.Elements = elements.ToList();
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new Selector(
-				CombineSequentialConstantIdentifiers(Elements.Select(e => e.EvaluateSingle<SelectorElement>(context))));
+			var extend = Extend?.EvaluateSingle<Extend>(context);
+
+			var result = new Selector(CombineSequentialConstantIdentifiers(Elements.Select(e => e.EvaluateSingle<SelectorElement>(context))), extend);
+
+			yield return result;
+		}
+
+		public void AddExtenders(EvaluationContext context) {
+			if (Extend != null) {
+				foreach (var extender in Extend.Extenders) {
+					context.Extenders.Add(extender, this);
+				}
+			}
 		}
 
 		public IEnumerable<Selector> Inherit(SelectorList parentSelectors) {
 			IEnumerable<SelectorElement> SubstituteFirstParentSelector(Selector parentSelector,
-				IList<SelectorElement> currentElements) {
+				IReadOnlyList<SelectorElement> currentElements) {
 				bool substituted = false;
 				foreach (var selectorElement in currentElements) {
 
@@ -32,9 +47,7 @@ namespace LessonNet.Parser.ParseTree {
 
 						var lastParentElement = parentSelector.Elements.LastOrDefault();
 						if (lastParentElement is IdentifierSelectorElement ise) {
-							yield return new IdentifierSelectorElement(ise.Identifier) {
-								HasTrailingWhitespace = parentRef.HasTrailingWhitespace
-							};
+							yield return new IdentifierSelectorElement(ise.Identifier, parentRef.HasTrailingWhitespace);
 						}
 
 						substituted = true;
@@ -44,7 +57,7 @@ namespace LessonNet.Parser.ParseTree {
 				}
 			}
 
-			IEnumerable<Selector> SubstituteParentReferences(IList<SelectorElement> currentElements, bool isRoot = false) {
+			IEnumerable<Selector> SubstituteParentReferences(IReadOnlyList<SelectorElement> currentElements, bool isRoot = false) {
 				if (currentElements.HasAny<ParentReferenceSelectorElement>()) {
 					foreach (var selector in parentSelectors.Selectors) {
 						foreach (var generatedSelector in SubstituteParentReferences(
@@ -54,10 +67,10 @@ namespace LessonNet.Parser.ParseTree {
 					}
 				} else if (isRoot) {
 					foreach (var parentSelector in parentSelectors.Selectors) {
-						yield return new Selector(parentSelector.Elements.Concat(currentElements));
+						yield return parentSelector.Append(currentElements);
 					}
 				} else {
-					yield return new Selector(CombineSequentialConstantIdentifiers(currentElements));
+					yield return new Selector(currentElements, Extend);
 				}
 			}
 
@@ -87,7 +100,7 @@ namespace LessonNet.Parser.ParseTree {
 					}
 
 					selectorElements.RemoveAt(i + 1);
-					selectorElements[i] = new IdentifierSelectorElement(ise1.Identifier.CombineConstantIdentifiers(ise2.Identifier));
+					selectorElements[i] = new IdentifierSelectorElement(ise1.Identifier.CombineConstantIdentifiers(ise2.Identifier), false);
 				}
 			}
 			return selectorElements;
@@ -134,17 +147,25 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		public bool IsPrefixOf(Selector other) {
+			return IsPrefixOf(other.Elements);
+		}
+
+		private bool IsPrefixOf(IReadOnlyList<SelectorElement> targetElements, bool allowExactMatch = false) {
 			if (Elements.Count == 0) {
 				return false;
 			}
 
-			if (Elements.Count >= other.Elements.Count) {
+			if (!allowExactMatch && Elements.Count >= targetElements.Count) {
+				return false;
+			}
+
+			if (Elements.Count > targetElements.Count) {
 				return false;
 			}
 
 			for (var index = 0; index < Elements.Count; index++) {
 				var element = Elements[index];
-				var otherElement = other.Elements[index];
+				var otherElement = targetElements[index];
 				if (!Equals(element, otherElement)) {
 					return false;
 				}
@@ -166,10 +187,60 @@ namespace LessonNet.Parser.ParseTree {
 
 			return new Selector(GetRemainingElements());
 		}
+
+		public bool Contains(Selector other) {
+			return IndexOf(other) >= 0;
+		}
+
+		public Selector Replace(Selector search, Selector replace) {
+			int index = IndexOf(search);
+			if (index == -1) {
+				return this;
+			}
+
+			bool lastReplacedElementHasTrailingWhitespace = Elements[index + (search.Elements.Count - 1)].HasTrailingWhitespace;
+
+			var targetElements = replace.Elements.ToList();
+			targetElements[targetElements.Count - 1] =
+				targetElements[targetElements.Count - 1].Clone(lastReplacedElementHasTrailingWhitespace);
+
+			var elements = Elements.ToList();
+			elements.RemoveRange(index, search.Elements.Count);
+			elements.InsertRange(index, targetElements);
+
+			return new Selector(elements);
+		}
+
+		public Selector Append(IEnumerable<SelectorElement> elements) {
+			var elementList = Elements.ToList();
+			elementList[elementList.Count - 1] = elementList[elementList.Count - 1].Clone(withTrailingWhitespace: true);
+
+			return new Selector(elementList.Concat(elements));
+		}
+
+		private int IndexOf(Selector other) {
+			int index = 0;
+
+			var elements = Elements.ToList();
+			while (elements.Count > 0) {
+				if (other.IsPrefixOf(elements, allowExactMatch: true)) {
+					return index;
+				}
+
+				index += 1;
+				elements.RemoveAt(0);
+			}
+
+			return -1;
+		}
 	}
 
 	public abstract class SelectorElement : LessNode {
-		public bool HasTrailingWhitespace { get; set; }
+		public bool HasTrailingWhitespace { get; }
+
+		protected SelectorElement(bool hasTrailingWhitespace) {
+			HasTrailingWhitespace = hasTrailingWhitespace;
+		}
 
 		public override void WriteOutput(OutputContext context) {
 			base.WriteOutput(context);
@@ -179,19 +250,19 @@ namespace LessonNet.Parser.ParseTree {
 				context.Append(' ');
 			}
 		}
+
+		public abstract SelectorElement Clone(bool withTrailingWhitespace);
 	}
 
 	public class IdentifierSelectorElement : SelectorElement {
 		public Identifier Identifier { get; }
 
-		public IdentifierSelectorElement(Identifier identifier) {
+		public IdentifierSelectorElement(Identifier identifier, bool hasTrailingWhitespace) : base(hasTrailingWhitespace) {
 			this.Identifier = identifier;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new IdentifierSelectorElement(Identifier.EvaluateSingle<Identifier>(context)) {
-				HasTrailingWhitespace = HasTrailingWhitespace
-			};
+			yield return new IdentifierSelectorElement(Identifier.EvaluateSingle<Identifier>(context), HasTrailingWhitespace);
 		}
 
 		protected override string GetStringRepresentation() {
@@ -204,6 +275,10 @@ namespace LessonNet.Parser.ParseTree {
 			if (HasTrailingWhitespace) {
 				context.Append(' ');
 			}
+		}
+
+		public override SelectorElement Clone(bool withTrailingWhitespace) {
+			return new IdentifierSelectorElement(Identifier, withTrailingWhitespace);
 		}
 
 		public override bool Equals(object obj) {
@@ -223,6 +298,8 @@ namespace LessonNet.Parser.ParseTree {
 	}
 
 	public class ParentReferenceSelectorElement : SelectorElement {
+		public ParentReferenceSelectorElement(bool hasTrailingWhitespace) : base(hasTrailingWhitespace) { }
+
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			yield return this;
 		}
@@ -245,6 +322,10 @@ namespace LessonNet.Parser.ParseTree {
 		public override int GetHashCode() {
 			return '&'.GetHashCode();
 		}
+
+		public override SelectorElement Clone(bool withTrailingWhitespace) {
+			return new ParentReferenceSelectorElement(withTrailingWhitespace);
+		}
 	}
 
 	public class AttributeSelectorElement : SelectorElement {
@@ -252,10 +333,10 @@ namespace LessonNet.Parser.ParseTree {
 		private readonly string op;
 		private readonly Expression value;
 
-		public AttributeSelectorElement(Identifier attributeName) : this(attributeName, null, null) {
+		public AttributeSelectorElement(Identifier attributeName, bool hasTrailingWhitespace) : this(attributeName, null, null, hasTrailingWhitespace) {
 		}
 
-		public AttributeSelectorElement(Identifier attributeName, string op, Expression value) {
+		public AttributeSelectorElement(Identifier attributeName, string op, Expression value, bool hasTrailingWhitespace) : base(hasTrailingWhitespace) {
 			this.attributeName = attributeName;
 			this.op = op;
 			this.value = value;
@@ -267,9 +348,7 @@ namespace LessonNet.Parser.ParseTree {
 				? list.Single<Expression>()
 				: expression;
 
-			yield return new AttributeSelectorElement(attributeName.EvaluateSingle<Identifier>(context), op, exprValue) {
-				HasTrailingWhitespace = HasTrailingWhitespace
-			};
+			yield return new AttributeSelectorElement(attributeName.EvaluateSingle<Identifier>(context), op, exprValue, HasTrailingWhitespace);
 		}
 
 		protected override string GetStringRepresentation() {
@@ -301,12 +380,16 @@ namespace LessonNet.Parser.ParseTree {
 				return hashCode;
 			}
 		}
+
+		public override SelectorElement Clone(bool withTrailingWhitespace) {
+			return new AttributeSelectorElement(attributeName, op, value, withTrailingWhitespace);
+		}
 	}
 
 	public class CombinatorSelectorElement : SelectorElement {
 		private readonly string combinator;
 
-		public CombinatorSelectorElement(string combinator) {
+		public CombinatorSelectorElement(string combinator, bool hasTrailingWhitespace) : base(hasTrailingWhitespace) {
 			this.combinator = combinator;
 		}
 
@@ -331,6 +414,53 @@ namespace LessonNet.Parser.ParseTree {
 
 		public override int GetHashCode() {
 			return (combinator != null ? combinator.GetHashCode() : 0);
+		}
+
+		public override SelectorElement Clone(bool withTrailingWhitespace) {
+			return new CombinatorSelectorElement(combinator, withTrailingWhitespace);
+		}
+	}
+
+	public class Extend : LessNode {
+		public List<Extender> Extenders { get; }
+
+		public Extend(IEnumerable<Extender> extenders) {
+			this.Extenders = extenders.ToList();
+		}
+
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
+			yield return new Extend(Extenders.Select(e => e.EvaluateSingle<Extender>(context)));
+		}
+	}
+
+	public class Extender : LessNode {
+		public Selector Target { get; }
+		public bool PartialMatch { get; }
+
+		public Extender(Selector target, bool partialMatch) {
+			this.Target = target;
+			this.PartialMatch = partialMatch;
+		}
+
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
+			yield return new Extender(Target.EvaluateSingle<Selector>(context), PartialMatch);
+		}
+
+		protected bool Equals(Extender other) {
+			return Equals(Target, other.Target) && PartialMatch == other.PartialMatch;
+		}
+
+		public override bool Equals(object obj) {
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((Extender) obj);
+		}
+
+		public override int GetHashCode() {
+			unchecked {
+				return ((Target != null ? Target.GetHashCode() : 0) * 397) ^ PartialMatch.GetHashCode();
+			}
 		}
 	}
 }
