@@ -69,7 +69,7 @@ string
   ;
 
 quotedExpression
-  : TIL StringLiteral
+  : TIL string
   ;
 
 functionName
@@ -369,6 +369,7 @@ measurement
 
 featureQuery
   : MediaQueryModifier? LPAREN property RPAREN
+  | MediaQueryModifier? LPAREN (identifier|variableName) RPAREN
   | MediaQueryModifier? (identifier|variableName)
   ;
 

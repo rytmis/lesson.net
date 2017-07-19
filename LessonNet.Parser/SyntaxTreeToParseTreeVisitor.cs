@@ -346,7 +346,7 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitQuotedExpression(LessParser.QuotedExpressionContext context) {
-			return new QuotedExpression(context.StringLiteral().GetText());
+			return new QuotedExpression(context.@string().GetText());
 		}
 
 		public override LessNode VisitMixinDefinition(LessParser.MixinDefinitionContext context) {
