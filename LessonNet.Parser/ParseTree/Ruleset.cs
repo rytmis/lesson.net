@@ -23,22 +23,21 @@ namespace LessonNet.Parser.ParseTree
 			evaluatedSelectors.AddExtenders(context);
 
 			using (context.EnterScope(evaluatedSelectors)) {
-				(var mediaBlocks, var rulesets, var statements) = Block.Evaluate(context).Split<MediaBlock, Ruleset, Statement>();
+				(var rules, var others) = Block.Evaluate(context).Split<Rule, Statement>();
 
-				if (statements.Count > 0) {
+				if (rules.Count > 0) {
 					var ruleLookup = new HashSet<Rule>();
 
-					for (var i = statements.Count - 1; i >= 0; i--) {
-						if (statements[i] is Rule r) {
-							if (ruleLookup.Contains(r)) {
-								statements.RemoveAt(i);
-							} else {
-								ruleLookup.Add(r);
-							}
+					for (var i = rules.Count - 1; i >= 0; i--) {
+						var r = rules[i];
+						if (ruleLookup.Contains(r)) {
+							rules.RemoveAt(i);
+						} else {
+							ruleLookup.Add(r);
 						}
 					}
 
-					var evaluatedBlock = new RuleBlock(statements);
+					var evaluatedBlock = new RuleBlock(rules);
 
 					var evaluatedRuleset =
 						new Ruleset(evaluatedSelectors, evaluatedBlock);
@@ -46,15 +45,15 @@ namespace LessonNet.Parser.ParseTree
 					yield return evaluatedRuleset;
 				}
 
-				foreach (var generatedRuleset in rulesets) {
-					context.CurrentScope.Parent.DeclareRuleset(generatedRuleset);
+				foreach (var statement in others) {
+					if (statement is Ruleset rs) {
+						context.CurrentScope.Parent.DeclareRuleset(rs);
 
-					yield return generatedRuleset;
-				}
-
-				foreach (var generatedMediaBlock in mediaBlocks) {
-					foreach (var result in generatedMediaBlock.Evaluate(context).Cast<MediaBlock>()) {
-						yield return result.Bubble(context);
+						yield return rs;
+					} else if (statement is MediaBlock media) {
+						yield return media.Bubble(context);
+					} else {
+						throw new EvaluationException($"Unexpected statement type after evaluating rule block: {statement.GetType()}");
 					}
 				}
 			}

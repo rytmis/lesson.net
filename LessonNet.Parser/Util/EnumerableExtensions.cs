@@ -12,6 +12,16 @@ namespace LessonNet.Parser.Util
 			return source.OfType<T>().Any();
 		}
 
+		public static int FirstIndexOf<T>(this IReadOnlyList<object> source, int startIndex) {
+			for (int i = startIndex; i < source.Count; i++) {
+				if (source[i] is T) {
+					return i;
+				}
+			}
+
+			return -1;
+		}
+
 		public static (TElement first, IList<TElement> rest)
 			SplitFirst<TElement>(this IEnumerable<TElement> source) {
 			var elements = source.ToList();

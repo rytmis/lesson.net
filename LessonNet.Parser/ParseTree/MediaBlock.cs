@@ -39,11 +39,12 @@ namespace LessonNet.Parser.ParseTree
 		}
 
 		public MediaBlock Bubble(EvaluationContext context) {
-			// Wrap the rules in a ruleset that inherits selectors from the enclosing scope
-			var bubbledRuleset = new Ruleset(context.CurrentScope.Selectors, new RuleBlock(Block.Statements));
-			var bubbledStatements = bubbledRuleset.Evaluate(context).Cast<Statement>();
+			(var rulesets, var statements) = Block.Statements.Split<Ruleset, Statement>();
 
-			return new MediaBlock(mediaQueries, new RuleBlock(bubbledStatements));
+			// Wrap the rules in a ruleset that inherits selectors from the enclosing scope
+			var bubbledRuleset = new Ruleset(context.CurrentScope.Selectors, new RuleBlock(statements));
+
+			return new MediaBlock(mediaQueries, new RuleBlock(new []{bubbledRuleset}.Concat(rulesets)));
 		}
 
 

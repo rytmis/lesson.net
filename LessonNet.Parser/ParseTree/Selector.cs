@@ -35,11 +35,14 @@ namespace LessonNet.Parser.ParseTree {
 
 		public IEnumerable<Selector> Inherit(SelectorList parentSelectors) {
 			IEnumerable<SelectorElement> SubstituteFirstParentSelector(Selector parentSelector,
-				IReadOnlyList<SelectorElement> currentElements) {
+				IReadOnlyList<SelectorElement> currentElements,
+				int firstIndex) {
 				bool substituted = false;
+				int current = -1;
 				foreach (var selectorElement in currentElements) {
+					current += 1;
 
-					if (!substituted && selectorElement is ParentReferenceSelectorElement parentRef) {
+					if (current >= firstIndex && !substituted && selectorElement is ParentReferenceSelectorElement parentRef) {
 						// Add all parent selector elements except the last one
 						for (int i = 0; i < parentSelector.Elements.Count - 1; i++) {
 							yield return parentSelector.Elements[i];
@@ -57,11 +60,12 @@ namespace LessonNet.Parser.ParseTree {
 				}
 			}
 
-			IEnumerable<Selector> SubstituteParentReferences(IReadOnlyList<SelectorElement> currentElements, bool isRoot = false) {
-				if (currentElements.HasAny<ParentReferenceSelectorElement>()) {
+			IEnumerable<Selector> SubstituteParentReferences(IReadOnlyList<SelectorElement> currentElements, bool isRoot = false, int? startFrom = null) {
+				int firstIndex = currentElements.FirstIndexOf<ParentReferenceSelectorElement>(startFrom ?? 0);
+				if (firstIndex > -1) {
 					foreach (var selector in parentSelectors.Selectors) {
-						foreach (var generatedSelector in SubstituteParentReferences(
-							SubstituteFirstParentSelector(selector, currentElements).ToList())) {
+						var substituted = SubstituteFirstParentSelector(selector, currentElements, firstIndex).ToList();
+						foreach (var generatedSelector in SubstituteParentReferences(substituted, false, firstIndex + selector.Elements.Count)) {
 							yield return generatedSelector;
 						}
 					}
