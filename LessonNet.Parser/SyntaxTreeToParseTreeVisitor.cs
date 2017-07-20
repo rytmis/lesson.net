@@ -46,8 +46,108 @@ namespace LessonNet.Parser {
 				?? context.ruleset()?.Accept(this)
 				?? context.mixinCall()?.Accept(this)
 				?? context.mediaBlock()?.Accept(this)
+				?? context.atRule()?.Accept(this)
 				?? GetExtendStatement()
 				?? throw new ParserException($"Unexpected statement type: [{context.GetText()}]");
+		}
+
+		public override LessNode VisitAtRule(LessParser.AtRuleContext atRule) {
+			return atRule.toplevelAtRule()?.Accept(this)
+				?? atRule.nestedAtRule()?.Accept(this);
+		}
+
+		public override LessNode VisitToplevelAtRule(LessParser.ToplevelAtRuleContext context) {
+			var charset = context.charsetAtRule();
+			if (charset != null) {
+				return new CharsetAtRule((LessString) charset.@string().Accept(this));
+			}
+
+			var ns = context.namespaceAtRule();
+
+			var identifier = (Identifier) ns.identifier().Accept(this);
+			var namespaceExpr = (Expression) (ns.@string().Accept(this) ?? ns.url().Accept(this));
+
+			return new NamespaceAtRule(identifier, namespaceExpr);
+		}
+
+		public override LessNode VisitNestedAtRule(LessParser.NestedAtRuleContext context) {
+			return context.supportsAtRule()?.Accept(this)
+				?? context.documentAtRule()?.Accept(this)
+				?? context.pageAtRule()?.Accept(this)
+				?? context.keyframesAtRule()?.Accept(this)
+				?? context.genericAtRule()?.Accept(this);
+		}
+
+		public override LessNode VisitSupportsAtRule(LessParser.SupportsAtRuleContext context) {
+			SupportsCondition GetConditionList(LessParser.SupportsConditionListContext list, bool negate) {
+				var conditions = list?.supportsCondition().Select(GetCondition);
+				if (list?.AND() != null) {
+					return new ConjunctionSupportsCondition(negate, conditions);
+				}
+				if (list?.OR() != null) {
+					return new DisjunctionSupportsCondition(negate, conditions);
+				}
+				return null;
+			}
+
+			SupportsCondition GetCondition(LessParser.SupportsConditionContext supports) {
+				var negate = supports.NOT() != null;
+
+				return GetConditionList(supports.supportsConditionList(), negate)
+					?? new PropertySupportsCondition(negate, (Rule) supports.property().Accept(this));
+			}
+
+			var condition = GetConditionList(context.supportsDeclaration().supportsConditionList(), false)
+				?? GetCondition(context.supportsDeclaration().supportsCondition());
+
+			var block = (RuleBlock) context.block().Accept(this);
+
+			return new SupportsAtRule(condition, block);
+		}
+
+		public override LessNode VisitDocumentAtRule(LessParser.DocumentAtRuleContext context) {
+			var specifiers = context.documentSpecifierList().documentSpecifier().Select(d => (Expression) d.Accept(this));
+			var block = (RuleBlock)context.block().Accept(this);
+
+			return new DocumentAtRule(specifiers, block);
+		}
+
+		public override LessNode VisitPageAtRule(LessParser.PageAtRuleContext context) {
+			var selector = (Selector) context.selector()?.Accept(this);
+			var block = (RuleBlock) context.block().Accept(this);
+
+			return new PageAtRule(selector, block);
+		}
+
+		public override LessNode VisitKeyframesAtRule(LessParser.KeyframesAtRuleContext context) {
+			var identifier = (Identifier) context.identifier().Accept(this);
+
+			var keyframes = context.keyframesBlock().keyframe().Select(f => (Keyframe)f.Accept(this));
+
+			return new KeyframesAtRule(identifier, keyframes);
+		}
+
+		public override LessNode VisitKeyframe(LessParser.KeyframeContext context) {
+			string keyword = context.FROM()?.GetText()
+				?? context.TO()?.GetText();
+
+			var block = (RuleBlock) context.block().Accept(this);
+
+			if (!string.IsNullOrEmpty(keyword)) {
+				return new Keyframe(keyword, block);
+			}
+
+			var percentage = new Measurement(decimal.Parse(context.Number().GetText()), "%");
+
+			return new Keyframe(percentage, block);
+		}
+
+		public override LessNode VisitGenericAtRule(LessParser.GenericAtRuleContext context) {
+			var identifier = (Identifier) context.identifier().Accept(this);
+			var value = (Expression) context.valueList()?.Accept(this);
+			var block = (RuleBlock) context.block().Accept(this);
+
+			return new GenericAtRule(identifier, value, block);
 		}
 
 		public override LessNode VisitVariableName(LessParser.VariableNameContext variable) {

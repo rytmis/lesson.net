@@ -65,6 +65,15 @@ UrlStart
 
 MEDIA           : '@media';
 IMPORT          : '@import';
+CHARSET         : '@charset';
+NAMESPACE       : '@namespace';
+SUPPORTS        : '@supports';
+DOCUMENT        : '@document';
+PAGE            : '@page';
+KEYFRAMES       : '@keyframes';
+FROM            : 'from';
+TO              : 'to';
+COUNTERSTYLE    : '@counter-style';
 EXTEND          : 'extend';
 IMPORTANT       : '!important';
 ARGUMENTS       : '@arguments';

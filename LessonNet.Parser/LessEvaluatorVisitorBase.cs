@@ -37,6 +37,74 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
+		public virtual LessNode VisitAtRule(LessParser.AtRuleContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitToplevelAtRule(LessParser.ToplevelAtRuleContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitNestedAtRule(LessParser.NestedAtRuleContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitCharsetAtRule(LessParser.CharsetAtRuleContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitNamespaceAtRule(LessParser.NamespaceAtRuleContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitSupportsAtRule(LessParser.SupportsAtRuleContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitSupportsDeclaration(LessParser.SupportsDeclarationContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitSupportsCondition(LessParser.SupportsConditionContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitSupportsConditionList(LessParser.SupportsConditionListContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitDocumentAtRule(LessParser.DocumentAtRuleContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitDocumentSpecifierList(LessParser.DocumentSpecifierListContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitDocumentSpecifier(LessParser.DocumentSpecifierContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitPageAtRule(LessParser.PageAtRuleContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitKeyframesAtRule(LessParser.KeyframesAtRuleContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitKeyframesBlock(LessParser.KeyframesBlockContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitKeyframe(LessParser.KeyframeContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitGenericAtRule(LessParser.GenericAtRuleContext context) {
+			throw new System.NotImplementedException();
+		}
+
 		public virtual LessNode VisitVariableName(LessParser.VariableNameContext context)
 		{
 			throw new System.NotImplementedException();

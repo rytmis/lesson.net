@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
 	public class Function : Expression {
@@ -12,7 +13,14 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			throw new System.NotImplementedException();
+			yield return new Function(functionName, arguments.EvaluateSingle<ListOfExpressionLists>(context));
+		}
+
+		public override void WriteOutput(OutputContext context) {
+			context.Append(functionName);
+			context.Append('(');
+			context.Append(arguments);
+			context.Append(')');
 		}
 
 		protected bool Equals(Function other) {

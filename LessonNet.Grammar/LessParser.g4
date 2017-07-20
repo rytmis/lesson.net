@@ -14,12 +14,77 @@ stylesheet
 
 statement
   : importDeclaration
+  | mediaBlock
+  | variableDeclaration SEMI
+  | atRule
   | ruleset
   | mixinDefinition
-  | variableDeclaration SEMI
-  | mediaBlock
   | PARENTREF extend SEMI
   | mixinCall SEMI
+  ;
+
+atRule
+  : toplevelAtRule
+  | nestedAtRule
+  ;
+
+toplevelAtRule
+  : charsetAtRule
+  | namespaceAtRule
+  ;
+
+nestedAtRule
+  : supportsAtRule
+  | documentAtRule
+  | pageAtRule
+  | keyframesAtRule
+  | genericAtRule
+  ;
+
+charsetAtRule : CHARSET string;
+namespaceAtRule : NAMESPACE identifier? (string|url);
+
+supportsAtRule : SUPPORTS supportsDeclaration block;
+
+supportsDeclaration
+  : supportsCondition
+  | supportsConditionList
+  ;
+
+supportsCondition
+  : NOT LPAREN (property|supportsConditionList) RPAREN
+  | LPAREN property RPAREN
+  ;
+
+supportsConditionList
+  : supportsCondition (AND supportsCondition)*
+  | supportsCondition (OR supportsCondition)*
+  ;
+
+documentAtRule : DOCUMENT documentSpecifierList block;
+
+documentSpecifierList
+  : documentSpecifier (COMMA documentSpecifier)*;
+
+documentSpecifier
+  : url
+  | function
+  ;
+
+pageAtRule
+  : PAGE selector? block;
+
+keyframesAtRule
+  : KEYFRAMES identifier keyframesBlock;
+
+keyframesBlock
+  : BlockStart keyframe* BlockEnd;
+
+keyframe
+  : (FROM | TO | (Number PERC)) block;
+
+genericAtRule
+  : AT identifier valueList? block?
   ;
 
 variableName
@@ -318,6 +383,8 @@ keywordAsIdentifier
   | KnownColor
   | EXTEND
   | ALL
+  | FROM
+  | TO
   ;
 
 variableInterpolation
