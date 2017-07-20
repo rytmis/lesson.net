@@ -4,20 +4,30 @@ using LessonNet.Grammar;
 
 namespace LessonNet.Parser.ParseTree.Mixins {
 	public class RulesetCall : Statement {
+		public bool Important { get; }
 		public Selector Selector { get; }
 
-		public RulesetCall(Selector selector) {
+		public RulesetCall(Selector selector, bool important) {
+			this.Important = important;
 			this.Selector = selector.DropCombinators();
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			var call = new RulesetCall(Selector.EvaluateSingle<Selector>(context));
+			var call = new RulesetCall(Selector.EvaluateSingle<Selector>(context), Important);
 
 			foreach (var rulesetResult in context.CurrentScope.ResolveMatchingRulesets(call)) {
 				foreach (var evaluationResult in rulesetResult.Evaluate(context)) {
 					yield return evaluationResult;
 				}
 			}
+		}
+
+		public override Statement ForceImportant() {
+			if (Important) {
+				return this;
+			}
+
+			return new RulesetCall(Selector, important: true);
 		}
 
 		public bool Matches(Ruleset ruleset) {

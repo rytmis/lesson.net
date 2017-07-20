@@ -5,11 +5,13 @@ using LessonNet.Parser.ParseTree.Expressions;
 
 namespace LessonNet.Parser.ParseTree.Mixins {
 	public class MixinCall : Statement {
+		public bool Important { get; }
 		public Selector Selector { get; }
 		private readonly List<MixinCallArgument> arguments;
 		public IReadOnlyCollection<MixinCallArgument> Arguments => arguments.AsReadOnly();
 
-		public MixinCall(Selector selector, IEnumerable<MixinCallArgument> arguments) {
+		public MixinCall(Selector selector, IEnumerable<MixinCallArgument> arguments, bool important) {
+			this.Important = important;
 			// Combinators (descendant selectors etc.) do not count in mixin calls.
 			// E.g. #id > .class is equivalent to #id .class
 			this.Selector = selector.DropCombinators();
@@ -30,13 +32,21 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			var call = new MixinCall(Selector.EvaluateSingle<Selector>(context), arguments);
+			var call = new MixinCall(Selector.EvaluateSingle<Selector>(context), arguments, Important);
 
 			foreach (var mixinResult in context.CurrentScope.ResolveMatchingMixins(call)) {
 				foreach (var evaluationResult in mixinResult.Evaluate(context)) {
 					yield return evaluationResult;
 				}
 			}
+		}
+
+		public override Statement ForceImportant() {
+			if (Important) {
+				return this;
+			}
+
+			return new MixinCall(Selector, arguments, important: true);
 		}
 
 		public bool Matches(MixinDefinition mixinDefinition, EvaluationContext context) {
@@ -88,8 +98,8 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 				}
 
 				// See if the argument evalutes to an Identifier that matches the pattern match identifier
-				var identifierArgumentValue = positionalArguments[i].EvaluateSingleValue<Identifier>(context);
-				if (!ip.Identifier.Equals(identifierArgumentValue)) {
+				var patternArgumentValue = positionalArguments[i].EvaluateSingleValue<Expression>(context);
+				if (!ip.Pattern.Equals(patternArgumentValue)) {
 					return false;
 				}
 			}

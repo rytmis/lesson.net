@@ -209,8 +209,8 @@ mixinCallArgument
   ;
 
 mixinCall
-  : selector (LPAREN (mixinCallArgument (SEMI mixinCallArgument)*)? RPAREN)?
-  | selector (LPAREN (mixinCallArgument (COMMA mixinCallArgument)*)? RPAREN)?
+  : selector (LPAREN (mixinCallArgument (SEMI mixinCallArgument)*)? RPAREN)? IMPORTANT?
+  | selector (LPAREN (mixinCallArgument (COMMA mixinCallArgument)*)? RPAREN)? IMPORTANT?
   ;
 
 mixinGuard
@@ -221,6 +221,8 @@ mixinDefinitionParam
   : variableName
   | variableDeclaration
   | identifier
+  | string
+  | Number
   ;
 
 selectors

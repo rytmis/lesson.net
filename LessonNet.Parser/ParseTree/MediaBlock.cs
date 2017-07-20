@@ -38,6 +38,10 @@ namespace LessonNet.Parser.ParseTree
 			}
 		}
 
+		public override Statement ForceImportant() {
+			return new MediaBlock(mediaQueries, Block.ForceImportant());
+		}
+
 		public MediaBlock Bubble(EvaluationContext context) {
 			(var rulesets, var statements) = Block.Statements.Split<Ruleset, Statement>();
 

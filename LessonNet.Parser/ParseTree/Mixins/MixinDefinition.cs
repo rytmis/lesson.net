@@ -26,6 +26,10 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 			}
 		}
 
+		public override Statement ForceImportant() {
+			return new MixinDefinition(Selector, Parameters, block.ForceImportant(), guard);
+		}
+
 		public override void DeclareIn(EvaluationContext context) {
 			context.CurrentScope.DeclareMixin(
 				new MixinDefinition(Selector.EvaluateSingle<Selector>(context), Parameters, block, guard));
@@ -80,18 +84,18 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 	}
 
 	public class PatternMatchParameter : MixinParameterBase {
-		public Identifier Identifier { get; }
+		public Expression Pattern { get; }
 
-		public PatternMatchParameter(Identifier identifier) {
-			this.Identifier = identifier;
+		public PatternMatchParameter(Expression pattern) {
+			Pattern = pattern;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new PatternMatchParameter(Identifier.EvaluateSingle<Identifier>(context));
+			yield return new PatternMatchParameter(Pattern.EvaluateSingle<Expression>(context));
 		}
 
 		protected override string GetStringRepresentation() {
-			return Identifier.ToString();
+			return Pattern.ToString();
 		}
 	}
 }

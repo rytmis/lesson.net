@@ -450,19 +450,36 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitMixinDefinition(LessParser.MixinDefinitionContext context) {
+			MixinParameterBase GetParameter(LessParser.MixinDefinitionParamContext param) {
+				var variable = param.variableName();
+				if (variable != null) {
+					return new MixinParameter(variable.GetText().TrimStart('@'), null);
+				}
+				var variableDeclaration = param.variableDeclaration();
+				if (variableDeclaration != null) {
+					var decl = (VariableDeclaration) variableDeclaration.Accept(this);
+					return new MixinParameter(decl.Name, decl.Values);
+				}
+
+				var str = param.@string();
+				if (str != null) {
+					return new PatternMatchParameter((LessString) str.Accept(this));
+				}
+
+				var number = param.Number();
+				if (number != null) {
+					return new PatternMatchParameter(new Measurement(decimal.Parse(number.GetText()), ""));
+				}
+
+				return new PatternMatchParameter((Identifier) param.identifier().Accept(this));
+			}
+
 			IEnumerable<MixinParameterBase> GetParameters() {
 				if (context.mixinDefinitionParam() == null) {
 					yield break;
 				}
 				foreach (var param in context.mixinDefinitionParam()) {
-					if (param.variableName() != null) {
-						yield return new MixinParameter(param.variableName().GetText().TrimStart('@'), null);
-					} else if (param.variableDeclaration() != null) {
-						var decl = (VariableDeclaration) param.variableDeclaration().Accept(this);
-						yield return new MixinParameter(decl.Name, decl.Values);
-					} else {
-						yield return new PatternMatchParameter((Identifier) param.identifier().Accept(this));
-					}
+					yield return GetParameter(param);
 				}
 			}
 
@@ -546,13 +563,15 @@ namespace LessonNet.Parser {
 				}
 			}
 
+			bool important = context.IMPORTANT() != null;
+
 			var selector = (Selector)context.selector().Accept(this);
 
 			if (context.LPAREN() != null) {
-				return new MixinCall(selector, GetArguments());
+				return new MixinCall(selector, GetArguments(), important);
 			}
 
-			return new RulesetCall(selector);
+			return new RulesetCall(selector, important);
 		}
 
 		public override LessNode VisitMediaBlock(LessParser.MediaBlockContext context) {

@@ -58,9 +58,15 @@ namespace LessonNet.Parser.ParseTree
 				}
 			}
 		}
+
+		public override Statement ForceImportant() {
+			return new Ruleset(Selectors, Block.ForceImportant());
+		}
+
 		public override void DeclareIn(EvaluationContext context) {
 			context.CurrentScope.DeclareRuleset(new Ruleset(Selectors.EvaluateSingle<SelectorList>(context), Block));
 		}
+
 
 		public override void WriteOutput(OutputContext context) {
 			if (Block.RuleCount == 0) {

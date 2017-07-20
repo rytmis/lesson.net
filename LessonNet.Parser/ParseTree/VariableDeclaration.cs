@@ -16,6 +16,14 @@ namespace LessonNet.Parser.ParseTree {
 			return Enumerable.Empty<LessNode>();
 		}
 
+		public override Statement ForceImportant() {
+			if (Values.Important) {
+				return this;
+			}
+
+			return new VariableDeclaration(Name, new ListOfExpressionLists(Values, Values.Separator, important: true));
+		}
+
 		public override void DeclareIn(EvaluationContext context) {
 			context.CurrentScope.DeclareVariable(this);
 		}

@@ -19,6 +19,14 @@ namespace LessonNet.Parser.ParseTree {
 			yield return new Rule(Property, evaluatedValues);
 		}
 
+		public override Statement ForceImportant() {
+			if (Values.Important) {
+				return this;
+			}
+
+			return new Rule(Property, new ListOfExpressionLists(Values, Values.Separator, important: true));
+		}
+
 		public override void WriteOutput(OutputContext context) {
 			context.Append($"{Property}: {Values.ToCss()}");
 		}

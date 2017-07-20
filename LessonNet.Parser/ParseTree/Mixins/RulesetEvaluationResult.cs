@@ -22,7 +22,13 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 						decl.DeclareIn(context);
 					}
 
-					yield return evaluationResult;
+					if (call.Important && evaluationResult is Ruleset rs) {
+						yield return rs.ForceImportant();
+					} else if (call.Important && evaluationResult is Rule rule) {
+						yield return new Rule(rule.Property, new ListOfExpressionLists(rule.Values, rule.Values.Separator, true));
+					} else {
+						yield return evaluationResult;
+					}
 				}
 
 				Matched = true;

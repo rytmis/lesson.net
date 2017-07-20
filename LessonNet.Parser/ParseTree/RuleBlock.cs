@@ -16,6 +16,10 @@ namespace LessonNet.Parser.ParseTree {
 			Statements = statements?.ToList() ?? new List<Statement>();
 		}
 
+		public RuleBlock ForceImportant() {
+			return new RuleBlock(Statements.Select(s => s.ForceImportant()));
+		}
+
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			// Handle variables and mixin definitions first: Variable scoping rules dictate that within a given
 			// variable scope, the last declaration is the one that takes effect for
