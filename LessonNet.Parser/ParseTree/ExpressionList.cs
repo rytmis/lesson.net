@@ -28,7 +28,7 @@ namespace LessonNet.Parser.ParseTree {
 		public ListOfExpressionLists(Expression expression, char separator) : this(new ExpressionList(new []{expression}), separator) { }
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new ListOfExpressionLists(expressionLists.Select(l => l.EvaluateSingle<ExpressionList>(context)), Separator, Important);
+				yield return new ListOfExpressionLists(expressionLists.Select(l => l.EvaluateSingle<ExpressionList>(context)), Separator, Important);
 		}
 
 		protected override string GetStringRepresentation() {
@@ -126,7 +126,7 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override string GetStringRepresentation() {
-			return string.Join(", ", Values);
+			return string.Join(" ", Values);
 		}
 
 		protected bool Equals(ExpressionList other) {

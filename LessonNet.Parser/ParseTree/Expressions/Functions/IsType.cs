@@ -1,4 +1,4 @@
-namespace LessonNet.Parser.ParseTree.Expressions {
+namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 
 	public class IsColorFunction : LessFunction {
 		public IsColorFunction(ListOfExpressionLists arguments) : base(arguments) { }
@@ -51,6 +51,15 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			var str = arguments.Single<LessString>();
 
 			return new BooleanValue(str != null);
+		}
+	}
+
+	public class IsKeywordFunction : LessFunction {
+		public IsKeywordFunction(ListOfExpressionLists arguments) : base(arguments) { }
+		protected override Expression EvaluateFunction(ListOfExpressionLists arguments) {
+			var identifier = arguments.Single<Identifier>();
+
+			return new BooleanValue(identifier != null);
 		}
 	}
 }

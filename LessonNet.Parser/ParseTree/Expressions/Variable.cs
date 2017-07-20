@@ -3,7 +3,7 @@
 namespace LessonNet.Parser.ParseTree.Expressions {
 	public class Variable : Expression {
 		private readonly Variable variable;
-		private readonly string name;
+		public string Name { get; }
 
 		public bool Important { get; }
 
@@ -16,7 +16,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		public Variable(string name, bool important) {
-			this.name = name;
+			this.Name = name;
 			this.Important = important;
 		}
 
@@ -28,12 +28,12 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 				} else if (result is LessString str) {
 					yield return EvaluateVariable(context, str.GetUnquotedValue());
 				} else {
-					throw new EvaluationException($"Expected @{variable.name} to evaluate to a string or an identifier, but got {result.GetType().Name}");
+					throw new EvaluationException($"Expected @{variable.Name} to evaluate to a string or an identifier, but got {result.GetType().Name}");
 				}
 
 				
 			} else {
-				yield return EvaluateVariable(context, name);
+				yield return EvaluateVariable(context, Name);
 			}
 		}
 
@@ -46,12 +46,12 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		protected override string GetStringRepresentation() {
-			return $"@{name}";
+			return $"@{Name}";
 		}
 
 
 		protected bool Equals(Variable other) {
-			return string.Equals(name, other.name);
+			return string.Equals(Name, other.Name);
 		}
 
 		public override bool Equals(object obj) {
@@ -59,7 +59,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		public override int GetHashCode() {
-			return 397 ^ (name != null ? name.GetHashCode() : 0);
+			return 397 ^ (Name != null ? Name.GetHashCode() : 0);
 		}
 	}
 }

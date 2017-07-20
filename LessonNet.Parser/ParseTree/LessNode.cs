@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree {
+	[DebuggerDisplay("{" + nameof(DebuggerDisplay) + "}")]
 	public abstract class LessNode {
 
 		protected virtual string GetStringRepresentation() {
@@ -43,6 +45,8 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected abstract IEnumerable<LessNode> EvaluateCore(EvaluationContext context);
+
+		private string DebuggerDisplay => $"({GetType().Name}: {ToString()})";
 	}
 
 	public abstract class NoOutputNode : LessNode {

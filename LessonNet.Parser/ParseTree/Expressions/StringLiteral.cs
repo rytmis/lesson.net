@@ -70,6 +70,10 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		public override int GetHashCode() {
 			return 397 ^ (variable != null ? variable.GetHashCode() : 0);
 		}
+
+		protected override string GetStringRepresentation() {
+			return $"@{{{variable.Name}}}";
+		}
 	}
 
 	public class LessString : Expression {
