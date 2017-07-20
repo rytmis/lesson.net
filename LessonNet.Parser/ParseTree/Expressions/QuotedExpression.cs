@@ -3,22 +3,22 @@ using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
 	public class QuotedExpression : Expression {
-		private readonly string literal;
+		private readonly LessString value;
 
-		public QuotedExpression(string literal) {
-			this.literal = literal;
+		public QuotedExpression(LessString value) {
+			this.value = value;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return this;
+			yield return new QuotedExpression(value.EvaluateSingle<LessString>(context));
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			context.Append(literal.Trim('"'));
+			context.Append(value.GetUnquotedValue());
 		}
 
 		protected bool Equals(QuotedExpression other) {
-			return string.Equals(literal, other.literal);
+			return string.Equals(value, other.value);
 		}
 
 		public override bool Equals(object obj) {
@@ -29,7 +29,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		public override int GetHashCode() {
-			return 397 ^ (literal != null ? literal.GetHashCode() : 0);
+			return 397 ^ (value != null ? value.GetHashCode() : 0);
 		}
 	}
 }
