@@ -120,7 +120,7 @@ KnownColor
     | 'purple' | 'rebeccapurple' | 'red' | 'rosybrown' | 'royalblue' | 'saddlebrown' | 'salmon' | 'sandybrown' | 'seagreen' 
     | 'seashell' | 'sienna' | 'silver' | 'skyblue' | 'slateblue' | 'slategray' | 'slategrey' | 'snow' | 'springgreen' 
     | 'steelblue' | 'tan' | 'teal' | 'thistle' | 'tomato' | 'turquoise' | 'violet' | 'wheat' | 'white' | 'whitesmoke' 
-    | 'yellow' | 'yellowgreen')
+    | 'yellow' | 'yellowgreen' | 'transparent')
   ;
 
 fragment ID_CHAR : ('_' | '-' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' | '0'..'9' | '\\.' | '\\:' );
@@ -258,7 +258,7 @@ AVERAGE: 'average';
 NEGATION: 'negation';
 
 fragment CHAR_UNIT
-  : ('px'|'cm'|'mm'|'in'|'pt'|'pc'|'em'|'ex'|'deg'|'rad'|'grad'|'ms'|'s'|'hz'|'khz'|'dpi'|'dpcm');
+  : ('px'|'cm'|'mm'|'in'|'pt'|'pc'|'rem'|'em'|'ex'|'deg'|'rad'|'grad'|'ms'|'s'|'hz'|'khz'|'dpi'|'dpcm'|'vmin'|'vmax'|'vm'|'vw'|'vh');
 
 Unit : ('%'| CHAR_UNIT);
 
