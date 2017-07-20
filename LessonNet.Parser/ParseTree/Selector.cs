@@ -49,8 +49,8 @@ namespace LessonNet.Parser.ParseTree {
 						}
 
 						var lastParentElement = parentSelector.Elements.LastOrDefault();
-						if (lastParentElement is IdentifierSelectorElement ise) {
-							yield return new IdentifierSelectorElement(ise.Identifier, parentRef.HasTrailingWhitespace);
+						if (lastParentElement != null) {
+							yield return lastParentElement.Clone(parentRef.HasTrailingWhitespace);
 						}
 
 						substituted = true;
