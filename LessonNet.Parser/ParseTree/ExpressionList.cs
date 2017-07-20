@@ -104,6 +104,13 @@ namespace LessonNet.Parser.ParseTree {
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			IEnumerable<Expression> EvaluateExpressions() {
 				foreach (var expression in Values) {
+					// If strict math is enabled, only evaluate the operands. ParenthesizedExpressions will
+					// still perform normal evaluation, so things should work out nicely.
+					if (context.StrictMath && expression is MathOperation math) {
+						yield return math.EvaluateOperands(context);
+						continue;
+					}
+
 					foreach (var evaluatedExpression in expression.Evaluate(context)) {
 						if (evaluatedExpression is ExpressionList list) {
 							foreach (var evaluatedValue in list.Values) {

@@ -19,11 +19,13 @@ namespace LessonNet.Parser
 
 		public LessTreeParser Parser { get; }
 		public IFileResolver FileResolver { get; }
+		public bool StrictMath { get; }
 		public Scope CurrentScope => scopeStack.Peek();
 
-		public EvaluationContext(LessTreeParser parser, IFileResolver fileResolver) {
+		public EvaluationContext(LessTreeParser parser, IFileResolver fileResolver, bool strictMath = false) {
 			Parser = parser;
 			FileResolver = fileResolver;
+			StrictMath = strictMath;
 
 			scopeStack.Push(new Scope(this));
 		}

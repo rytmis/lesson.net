@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
 	public class ParenthesizedExpression : Expression {
@@ -14,6 +15,12 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 
 		protected bool Equals(ParenthesizedExpression other) {
 			return Equals(expression, other.expression);
+		}
+
+		public override void WriteOutput(OutputContext context) {
+			context.Append('(');
+			context.Append(expression);
+			context.Append(')');
 		}
 
 		public override bool Equals(object obj) {

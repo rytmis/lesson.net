@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
 	public class MathOperation : Expression {
@@ -17,6 +18,10 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			yield return MathOperations.Operate(op, EvaluateSingleValue(lhs, context),  EvaluateSingleValue(rhs, context));
 		}
 
+		public MathOperation EvaluateOperands(EvaluationContext context) {
+			return new MathOperation(EvaluateSingleValue(lhs, context), op, EvaluateSingleValue(rhs, context));
+		}
+
 		private static Expression EvaluateSingleValue(Expression expr, EvaluationContext context) {
 			var evaluatedExpression = expr.EvaluateSingle<Expression>(context);
 
@@ -29,6 +34,14 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			}
 
 			return evaluatedExpression;
+		}
+
+		public override void WriteOutput(OutputContext context) {
+			context.Append(lhs);
+			context.Append(' ');
+			context.Append(op);
+			context.Append(' ');
+			context.Append(rhs);
 		}
 
 		protected bool Equals(MathOperation other) {
