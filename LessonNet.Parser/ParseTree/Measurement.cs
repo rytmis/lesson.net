@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LessonNet.Parser.CodeGeneration;
 using LessonNet.Parser.ParseTree.Expressions;
+using static System.FormattableString;
 
 namespace LessonNet.Parser.ParseTree
 {
@@ -22,7 +23,7 @@ namespace LessonNet.Parser.ParseTree
 		}
 
 		protected override string GetStringRepresentation() {
-			return $"{Number.ToString(CultureInfo.InvariantCulture)}{Unit}";
+			return Invariant($"{Number:G29}{Unit}");
 		}
 
 		public override void WriteOutput(OutputContext context) {
