@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using LessonNet.Parser.CodeGeneration;
+using static System.FormattableString;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
 	public class Color : Expression {
@@ -39,8 +40,8 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 				return Keyword;
 			}
 
-			if (Alpha.HasValue) {
-				return $"rgba({R}, {G}, {B}, {Alpha})";
+			if (Alpha.HasValue && Alpha < 1) {
+				return Invariant($"rgba({R}, {G}, {B}, {Alpha})");
 			}
 
 			return $"#{R:x2}{G:x2}{B:x2}";
