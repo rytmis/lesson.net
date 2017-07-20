@@ -3,19 +3,17 @@ using System.Linq;
 using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
-	public class Function : Expression {
+	public class CssFunction : Expression {
 		private readonly string functionName;
 		private readonly ListOfExpressionLists arguments;
 
-		public Function(string functionName, ListOfExpressionLists arguments) {
+		public CssFunction(string functionName, ListOfExpressionLists arguments) {
 			this.functionName = functionName;
 			this.arguments = arguments;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			var evaluatedArgs = arguments.EvaluateSingle<ListOfExpressionLists>(context);
-
-			yield return new Function(functionName, evaluatedArgs);
+			yield return new CssFunction(functionName, arguments.EvaluateSingle<ListOfExpressionLists>(context));
 		}
 
 		public override void WriteOutput(OutputContext context) {
@@ -25,7 +23,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			context.Append(')');
 		}
 
-		protected bool Equals(Function other) {
+		protected bool Equals(CssFunction other) {
 			return string.Equals(functionName, other.functionName) 
 				&& arguments.Equals(other.arguments);
 		}
@@ -34,7 +32,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			if (ReferenceEquals(null, obj)) return false;
 			if (ReferenceEquals(this, obj)) return true;
 			if (obj.GetType() != this.GetType()) return false;
-			return Equals((Function) obj);
+			return Equals((CssFunction) obj);
 		}
 
 		public override int GetHashCode() {

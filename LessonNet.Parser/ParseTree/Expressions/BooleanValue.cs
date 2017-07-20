@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
 	public class BooleanValue : Expression {
+		public static readonly BooleanValue True = new BooleanValue(true);
+		public static readonly BooleanValue False = new BooleanValue(false);
+
 		public bool Value { get; }
 
 		public BooleanValue(bool value) {
@@ -10,7 +14,11 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			throw new NotImplementedException();
+			yield return this;
+		}
+
+		public override void WriteOutput(OutputContext context) {
+			context.Append(Value.ToString().ToLowerInvariant());
 		}
 
 		public override bool Equals(object obj) {

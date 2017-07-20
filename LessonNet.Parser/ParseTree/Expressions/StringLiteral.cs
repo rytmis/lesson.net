@@ -80,6 +80,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			this.quoteChar = quoteChar;
 			this.parts = parts.ToList();
 		}
+
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			var evaluatedParts = parts.Select(p => p.EvaluateSingle<LessStringLiteral>(context));
 

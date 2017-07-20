@@ -91,7 +91,7 @@ namespace LessonNet.Parser.ParseTree {
 		}
 	}
 
-	public class ExpressionList : LessNode {
+	public class ExpressionList : Expression {
 		public IList<Expression> Values { get; }
 
 		public ExpressionList(Expression expr) {

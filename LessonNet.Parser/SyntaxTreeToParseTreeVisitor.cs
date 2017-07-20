@@ -593,7 +593,7 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitFunction(LessParser.FunctionContext context) {
-			return new Function(context.functionName().GetText(), GetExpressionLists(context.valueList()));
+			return FunctionResolver.Resolve(context.functionName().GetText(), GetExpressionLists(context.valueList()));
 		}
 
 		private ListOfExpressionLists GetExpressionLists(LessParser.ValueListContext valueList, bool important = false) {

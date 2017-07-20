@@ -6,18 +6,21 @@ using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
 	public class Color : Expression {
-		private readonly uint r;
-		private readonly uint g;
-		private readonly uint b;
-		private readonly double? alpha;
-		private readonly string keyword;
+		public static readonly Color Transparent = new Color(0, 0, 0, 0);
 
-		public Color(uint r, uint g, uint b, double? alpha = null, string keyword = null) {
-			this.r = r;
-			this.g = g;
-			this.b = b;
-			this.alpha = alpha;
-			this.keyword = keyword;
+		public uint R { get; }
+		public uint G { get; }
+		public uint B { get; }
+		public decimal? Alpha { get; }
+		public string Keyword { get; }
+
+
+		public Color(uint r, uint g, uint b, decimal? alpha = null, string keyword = null) {
+			this.R = r;
+			this.G = g;
+			this.B = b;
+			this.Alpha = alpha;
+			this.Keyword = keyword;
 		}
 
 		public Color(Measurement m) : this((uint) m.Number, (uint) m.Number, (uint) m.Number) {
@@ -32,11 +35,21 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		protected override string GetStringRepresentation() {
-			if (!string.IsNullOrEmpty(keyword)) {
-				return keyword;
+			if (!string.IsNullOrEmpty(Keyword)) {
+				return Keyword;
 			}
 
-			return $"#{r:x2}{g:x2}{b:x2}";
+			if (Alpha.HasValue) {
+				return $"rgba({R}, {G}, {B}, {Alpha})";
+			}
+
+			return $"#{R:x2}{G:x2}{B:x2}";
+		}
+
+		public string ToArgbString() {
+			int alpha = (int) Math.Ceiling((Alpha ?? 1) * 255);
+
+			return $"#{alpha:x2}{R:x2}{G:x2}{B:x2}";
 		}
 
 		public static Color FromHexString(string hex) {
@@ -48,10 +61,13 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 
 			byte[] values = BitConverter.GetBytes(value);
 
-			return new Color(values[2], values[1], values[0], 1, keyword);
+			return new Color(values[2], values[1], values[0], null, keyword);
 		}
 
 		public static Color FromKeyword(string keyword) {
+			if (string.Equals("transparent", keyword)) {
+				return Color.Transparent;
+			}
 			return FromHexStringCore(KnownColors.GetHexString(keyword), keyword);
 		}
 
@@ -75,11 +91,11 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		protected bool Equals(Color other) {
-			return r == other.r
-				&& g == other.g
-				&& b == other.b
-				&& alpha.Equals(other.alpha)
-				&& string.Equals(keyword, other.keyword);
+			return R == other.R
+				&& G == other.G
+				&& B == other.B
+				&& Alpha.Equals(other.Alpha)
+				&& string.Equals(Keyword, other.Keyword);
 		}
 
 		public override bool Equals(object obj) {
@@ -92,44 +108,44 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		public override int GetHashCode() {
 			unchecked {
 				int hashCode = 397;
-				hashCode = (hashCode * 397) ^ (int) r;
-				hashCode = (hashCode * 397) ^ (int) g;
-				hashCode = (hashCode * 397) ^ (int) b;
-				hashCode = (hashCode * 397) ^ alpha.GetHashCode();
-				hashCode = (hashCode * 397) ^ (keyword != null ? keyword.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (int) R;
+				hashCode = (hashCode * 397) ^ (int) G;
+				hashCode = (hashCode * 397) ^ (int) B;
+				hashCode = (hashCode * 397) ^ Alpha.GetHashCode();
+				hashCode = (hashCode * 397) ^ (Keyword != null ? Keyword.GetHashCode() : 0);
 				return hashCode;
 			}
 		}
 
 		public static Color operator +(Color c1, Color c2) {
 			return new Color(
-				c1.r + c2.r,
-				c1.g + c2.g,
-				c1.b + c2.b
+				c1.R + c2.R,
+				c1.G + c2.G,
+				c1.B + c2.B
 			);
 		}
 
 		public static Color operator -(Color c1, Color c2) {
 			return new Color(
-				c1.r - c2.r,
-				c1.g - c2.g,
-				c1.b - c2.b
+				c1.R - c2.R,
+				c1.G - c2.G,
+				c1.B - c2.B
 			);
 		}
 
 		public static Color operator *(Color c1, Color c2) {
 			return new Color(
-				c1.r * c2.r,
-				c1.g * c2.g,
-				c1.b * c2.b
+				c1.R * c2.R,
+				c1.G * c2.G,
+				c1.B * c2.B
 			);
 		}
 
 		public static Color operator /(Color c1, Color c2) {
 			return new Color(
-				c1.r / c2.r,
-				c1.g / c2.g,
-				c1.b / c2.b
+				c1.R / c2.R,
+				c1.G / c2.G,
+				c1.B / c2.B
 			);
 		}
 	}
