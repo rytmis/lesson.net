@@ -30,7 +30,8 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			}
 
 			if (evaluatedExpression is ListOfExpressionLists list) {
-				return list.Single<Measurement>();
+				return list.Single<Measurement>()
+					?? (Expression) list.Single<Color>();
 			}
 
 			return evaluatedExpression;
