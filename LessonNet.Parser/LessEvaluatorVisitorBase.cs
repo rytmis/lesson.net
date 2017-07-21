@@ -37,6 +37,14 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
+		public virtual LessNode VisitBlockStatement(LessParser.BlockStatementContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitLineStatement(LessParser.LineStatementContext context) {
+			throw new System.NotImplementedException();
+		}
+
 		public virtual LessNode VisitAtRule(LessParser.AtRuleContext context) {
 			throw new System.NotImplementedException();
 		}

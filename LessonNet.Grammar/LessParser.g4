@@ -13,14 +13,23 @@ stylesheet
   ;
 
 statement
-  : importDeclaration
-  | mediaBlock
-  | variableDeclaration SEMI
+  : lineStatement SEMI
+  | blockStatement SEMI?
+  ;
+
+blockStatement
+  : mediaBlock
   | atRule
   | ruleset
   | mixinDefinition
-  | PARENTREF extend SEMI
-  | mixinCall SEMI
+  ;
+
+lineStatement
+  : importDeclaration
+  | variableDeclaration
+  | PARENTREF extend
+  | property
+  | mixinCall
   ;
 
 atRule
@@ -175,7 +184,7 @@ variableDeclaration
 
 /* Imports */
 importDeclaration
-  : '@import' referenceUrl importMediaTypes? ';'
+  : '@import' referenceUrl importMediaTypes?
   ;
 
 referenceUrl
@@ -193,7 +202,7 @@ ruleset
   ;
 
 block
-  : BlockStart (property ';' | statement)* property? BlockEnd
+  : BlockStart statement* (lineStatement SEMI?)? BlockEnd
   ;
 
 mixinDefinition

@@ -31,6 +31,19 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitStatement(LessParser.StatementContext context) {
+			return context.blockStatement()?.Accept(this)
+				?? context.lineStatement()?.Accept(this)
+				?? throw new ParserException($"Unexpected statement type: [{context.GetText()}]");
+		}
+
+		public override LessNode VisitBlockStatement(LessParser.BlockStatementContext context) {
+			return context.mixinDefinition()?.Accept(this)
+				?? context.ruleset()?.Accept(this)
+				?? context.mediaBlock()?.Accept(this)
+				?? context.atRule()?.Accept(this);
+		}
+
+		public override LessNode VisitLineStatement(LessParser.LineStatementContext context) {
 			ExtendStatement GetExtendStatement() {
 				var extend = context.extend();
 				if (extend == null) {
@@ -42,11 +55,8 @@ namespace LessonNet.Parser {
 
 			return context.importDeclaration()?.Accept(this)
 				?? context.variableDeclaration()?.Accept(this)
-				?? context.mixinDefinition()?.Accept(this)
-				?? context.ruleset()?.Accept(this)
 				?? context.mixinCall()?.Accept(this)
-				?? context.mediaBlock()?.Accept(this)
-				?? context.atRule()?.Accept(this)
+				?? context.property()?.Accept(this)
 				?? GetExtendStatement()
 				?? throw new ParserException($"Unexpected statement type: [{context.GetText()}]");
 		}
@@ -545,7 +555,7 @@ namespace LessonNet.Parser {
 		public override LessNode VisitBlock(LessParser.BlockContext context) {
 			IEnumerable<T> GetChildren<T>(IEnumerable<IParseTree> nodes) where T : LessNode {
 				foreach (var child in nodes) {
-					if (child is LessParser.PropertyContext || child is LessParser.StatementContext) {
+					if (child is LessParser.StatementContext || child is LessParser.LineStatementContext) {
 						yield return (T) child.Accept(this);
 					}
 				}
