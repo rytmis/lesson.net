@@ -104,14 +104,22 @@ namespace LessonNet.Parser
 			rulesets.Add(ruleset);
 		}
 
-		public virtual IEnumerable<MixinEvaluationResult> ResolveMatchingMixins(MixinCall call, bool throwOnError = true) {
+		public virtual IEnumerable<InvocationResult> ResolveMatchingMixins(MixinCall call, bool throwOnError = true) {
 			var resolvedMixins = ResolveMixinsCore(call);
 			if (!resolvedMixins.Any()) {
+				if (call.Arguments.Count == 0) {
+					var matchingRulesets = ResolveRulesetsCore(new RulesetCall(call.Selector, call.Important));
+					if (matchingRulesets.Any()) {
+						return matchingRulesets;
+					}
+				}
+
 				if (throwOnError) {
 					throw new EvaluationException($"No mixin found: {call} ");
 				}
 				return null;
 			}
+
 
 			return resolvedMixins;
 		}
@@ -237,7 +245,7 @@ namespace LessonNet.Parser
 				?? closure.ResolveVariable(name, throwOnError: throwOnError);
 		}
 
-		public override IEnumerable<MixinEvaluationResult> ResolveMatchingMixins(MixinCall call, bool throwOnError = true) {
+		public override IEnumerable<InvocationResult> ResolveMatchingMixins(MixinCall call, bool throwOnError = true) {
 			return base.ResolveMatchingMixins(call, throwOnError: false)
 				?? closure.ResolveMatchingMixins(call, throwOnError);
 		}
