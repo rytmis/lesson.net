@@ -15,26 +15,19 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return MathOperations.Operate(op, EvaluateSingleValue(lhs, context),  EvaluateSingleValue(rhs, context));
+			if (context.StrictMath) {
+				yield return new MathOperation(EvaluateSingleValue(lhs, context), op, EvaluateSingleValue(rhs, context));
+			} else {
+				yield return ForceEvaluateExpression(context);
+			}
 		}
 
-		public MathOperation EvaluateOperands(EvaluationContext context) {
-			return new MathOperation(EvaluateSingleValue(lhs, context), op, EvaluateSingleValue(rhs, context));
+		public Expression ForceEvaluateExpression(EvaluationContext context) {
+			return MathOperations.Operate(op, EvaluateSingleValue(lhs, context), EvaluateSingleValue(rhs, context));
 		}
 
 		private static Expression EvaluateSingleValue(Expression expr, EvaluationContext context) {
-			var evaluatedExpression = expr.EvaluateSingle<Expression>(context);
-
-			if (evaluatedExpression is Measurement measurement) {
-				return measurement;
-			}
-
-			if (evaluatedExpression is ListOfExpressionLists list) {
-				return list.Single<Measurement>()
-					?? (Expression) list.Single<Color>();
-			}
-
-			return evaluatedExpression;
+			return expr.EvaluateSingle<Expression>(context);
 		}
 
 		public override void WriteOutput(OutputContext context) {

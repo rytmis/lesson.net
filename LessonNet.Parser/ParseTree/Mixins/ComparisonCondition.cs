@@ -23,12 +23,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		}
 
 		private Expression Evaluate(Expression expr, EvaluationContext context) {
-			var evaluated = expr.EvaluateSingle<Expression>(context);
-			if (evaluated is ListOfExpressionLists list) {
-				return list.Single<Expression>();
-			}
-
-			return evaluated;
+			return expr.EvaluateSingle<Expression>(context);
 		}
 	}
 

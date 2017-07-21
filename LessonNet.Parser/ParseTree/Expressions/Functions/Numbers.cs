@@ -3,9 +3,9 @@
 namespace LessonNet.Parser.ParseTree.Expressions.Functions
 {
 	public abstract class NumberFunction : LessFunction {
-		protected NumberFunction(ListOfExpressionLists arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(ListOfExpressionLists arguments) {
-			var number = arguments.Single<Measurement>();
+		protected NumberFunction(Expression arguments) : base(arguments) { }
+		protected override Expression EvaluateFunction(Expression arguments) {
+			var number = arguments as Measurement;
 			if (number == null) {
 				throw new EvaluationException("Argument must be a number");
 			}
@@ -18,7 +18,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 
 	public class PercentageFunction : NumberFunction
 	{
-		public PercentageFunction(ListOfExpressionLists arguments) : base(arguments) { }
+		public PercentageFunction(Expression arguments) : base(arguments) { }
 
 		protected override Measurement EvaluateFunction(Measurement input) {
 			return new Measurement(input.Number * 100, "%");
@@ -27,7 +27,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 
 	public class CeilFunction : NumberFunction
 	{
-		public CeilFunction(ListOfExpressionLists arguments) : base(arguments) { }
+		public CeilFunction(Expression arguments) : base(arguments) { }
 
 		protected override Measurement EvaluateFunction(Measurement input) {
 			return new Measurement(Math.Ceiling(input.Number), input.Unit);
@@ -36,7 +36,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 
 	public class FloorFunction : NumberFunction
 	{
-		public FloorFunction(ListOfExpressionLists arguments) : base(arguments) { }
+		public FloorFunction(Expression arguments) : base(arguments) { }
 
 		protected override Measurement EvaluateFunction(Measurement input) {
 			return new Measurement(Math.Floor(input.Number), input.Unit);

@@ -10,7 +10,13 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return expression.EvaluateSingle<Expression>(context);
+			// Support strict math mode: if the parenthesized expression is a math expression,
+			// force-compute the value (this is correct regardless of mode)
+			if (expression is MathOperation math) {
+				yield return math.ForceEvaluateExpression(context);
+			} else {
+				yield return expression.EvaluateSingle<Expression>(context);
+			}
 		}
 
 		protected bool Equals(ParenthesizedExpression other) {

@@ -55,9 +55,9 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 
 	public class MixinParameter : MixinParameterBase {
 		public string Name { get; }
-		public ListOfExpressionLists DefaultValue { get; }
+		public Expression DefaultValue { get; }
 
-		public MixinParameter(string name, ListOfExpressionLists defaultValue) {
+		public MixinParameter(string name, Expression defaultValue) {
 			this.Name = name;
 			this.DefaultValue = defaultValue;
 		}

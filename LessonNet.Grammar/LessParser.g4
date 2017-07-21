@@ -84,7 +84,7 @@ keyframe
   : (FROM | TO | (Number PERC)) block;
 
 genericAtRule
-  : AT identifier valueList? block?
+  : AT identifier expression? block?
   ;
 
 variableName
@@ -101,10 +101,6 @@ parenthesizedExpression
     : LPAREN expression RPAREN
     ;
 
-expressionList
-  : expression+
-  ;
-
 color
   : HexColor
   | KnownColor
@@ -115,7 +111,6 @@ expression
   | parenthesizedExpression
   | fraction
   | expression mathCharacter expression
-  | measurementList
   | measurement
   | color
   | function
@@ -124,6 +119,8 @@ expression
   | variableName
   | identifier
   | selector
+  | expression (COMMA expression)+
+  | expression expression+
   ;
 
 
@@ -143,7 +140,7 @@ functionName
   ;
 
 function
-  : functionName LPAREN valueList? RPAREN
+  : functionName LPAREN expression? RPAREN
   ;
 
 mixinGuardConditions
@@ -173,7 +170,7 @@ conditionStatement
   ;
 
 variableDeclaration
-  : variableName COLON valueList IMPORTANT?
+  : variableName COLON expression IMPORTANT?
   ;
 
 /* Imports */
@@ -205,7 +202,7 @@ mixinDefinition
 
 mixinCallArgument
   : variableDeclaration
-  | valueList
+  | expression
   ;
 
 mixinCall
@@ -408,20 +405,7 @@ identifierVariableName
   ;
 
 property
-  : identifier COLON valueList IMPORTANT?
-  ;
-
-valueList
-  : commaSeparatedExpressionList
-  | expressionList
-  ;
-
-commaSeparatedExpressionList
-  : expressionList (COMMA expressionList)*?
-  ;
-
-measurementList
-  : measurement measurement+
+  : identifier COLON expression IMPORTANT?
   ;
 
 url

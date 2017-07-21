@@ -47,7 +47,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			var expression = variable.EvaluateSingle<ListOfExpressionLists>(context).Single<Expression>();
+			var expression = variable.EvaluateSingle<Expression>(context);
 
 			if (expression is LessString str) {
 				yield return new LessStringLiteral(str.GetUnquotedValue());
@@ -83,6 +83,10 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		public LessString(char quoteChar, IEnumerable<LessStringFragment> parts) {
 			this.quoteChar = quoteChar;
 			this.parts = parts.ToList();
+		}
+
+		public static LessString FromString(string str) {
+			return new LessString('"', new[] {new LessStringLiteral(str)});
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {

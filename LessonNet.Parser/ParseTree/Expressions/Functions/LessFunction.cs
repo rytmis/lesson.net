@@ -2,17 +2,17 @@ using System.Collections.Generic;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
 	public abstract class LessFunction : Expression {
-		protected ListOfExpressionLists Arguments { get; }
+		protected Expression Arguments { get; }
 
-		protected LessFunction(ListOfExpressionLists arguments) {
+		protected LessFunction(Expression arguments) {
 			this.Arguments = arguments;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return EvaluateFunction(Arguments.EvaluateSingle<ListOfExpressionLists>(context));
+			yield return EvaluateFunction(Arguments.EvaluateSingle<Expression>(context));
 		}
 
-		protected abstract Expression EvaluateFunction(ListOfExpressionLists arguments);
+		protected abstract Expression EvaluateFunction(Expression arguments);
 		protected bool Equals(LessFunction other) {
 			return Equals(Arguments, other.Arguments);
 		}

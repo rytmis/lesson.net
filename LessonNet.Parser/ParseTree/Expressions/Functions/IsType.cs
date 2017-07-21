@@ -1,63 +1,63 @@
 namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 
 	public class IsColorFunction : LessFunction {
-		public IsColorFunction(ListOfExpressionLists arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(ListOfExpressionLists arguments) {
-			var argumentMatch = arguments.Single<Color>();
+		public IsColorFunction(Expression arguments) : base(arguments) { }
+		protected override Expression EvaluateFunction(Expression arguments) {
+			var argumentMatch = arguments as Color;
 
 			return new BooleanValue(argumentMatch != null);
 		}
 	}
 
 	public class IsEmFunction : LessFunction {
-		public IsEmFunction(ListOfExpressionLists arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(ListOfExpressionLists arguments) {
-			var measurement = arguments.Single<Measurement>();
+		public IsEmFunction(Expression arguments) : base(arguments) { }
+		protected override Expression EvaluateFunction(Expression arguments) {
+			var measurement = arguments as Measurement;
 
 			return new BooleanValue(string.Equals(measurement?.Unit, "em"));
 		}
 	}
 
 	public class IsNumberFunction : LessFunction {
-		public IsNumberFunction(ListOfExpressionLists arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(ListOfExpressionLists arguments) {
-			var measurement = arguments.Single<Measurement>();
+		public IsNumberFunction(Expression arguments) : base(arguments) { }
+		protected override Expression EvaluateFunction(Expression arguments) {
+			var measurement = arguments as Measurement;
 
 			return new BooleanValue(measurement != null);
 		}
 	}
 
 	public class IsPercentageFunction : LessFunction {
-		public IsPercentageFunction(ListOfExpressionLists arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(ListOfExpressionLists arguments) {
-			var measurement = arguments.Single<Measurement>();
+		public IsPercentageFunction(Expression arguments) : base(arguments) { }
+		protected override Expression EvaluateFunction(Expression arguments) {
+			var measurement = arguments as Measurement;
 
 			return new BooleanValue(string.Equals(measurement?.Unit, "%"));
 		}
 	}
 
 	public class IsPixelFunction : LessFunction {
-		public IsPixelFunction(ListOfExpressionLists arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(ListOfExpressionLists arguments) {
-			var measurement = arguments.Single<Measurement>();
+		public IsPixelFunction(Expression arguments) : base(arguments) { }
+		protected override Expression EvaluateFunction(Expression arguments) {
+			var measurement = arguments as Measurement;
 
 			return new BooleanValue(string.Equals(measurement?.Unit, "px"));
 		}
 	}
 
 	public class IsStringFunction : LessFunction {
-		public IsStringFunction(ListOfExpressionLists arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(ListOfExpressionLists arguments) {
-			var str = arguments.Single<LessString>();
+		public IsStringFunction(Expression arguments) : base(arguments) { }
+		protected override Expression EvaluateFunction(Expression arguments) {
+			var str = arguments as LessString;
 
 			return new BooleanValue(str != null);
 		}
 	}
 
 	public class IsKeywordFunction : LessFunction {
-		public IsKeywordFunction(ListOfExpressionLists arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(ListOfExpressionLists arguments) {
-			var identifier = arguments.Single<Identifier>();
+		public IsKeywordFunction(Expression arguments) : base(arguments) { }
+		protected override Expression EvaluateFunction(Expression arguments) {
+			var identifier = arguments as Identifier;
 
 			return new BooleanValue(identifier != null);
 		}

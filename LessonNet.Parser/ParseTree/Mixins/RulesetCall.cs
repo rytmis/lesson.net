@@ -16,8 +16,12 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 			var call = new RulesetCall(Selector.EvaluateSingle<Selector>(context), Important);
 
 			foreach (var rulesetResult in context.CurrentScope.ResolveMatchingRulesets(call)) {
-				foreach (var evaluationResult in rulesetResult.Evaluate(context)) {
-					yield return evaluationResult;
+				foreach (var evaluationResult in rulesetResult.Evaluate(context).Cast<Statement>()) {
+					if (Important) {
+						yield return evaluationResult.ForceImportant();
+					} else {
+						yield return evaluationResult;
+					}
 				}
 			}
 		}

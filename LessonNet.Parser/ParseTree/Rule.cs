@@ -6,37 +6,36 @@ using LessonNet.Parser.ParseTree.Expressions;
 namespace LessonNet.Parser.ParseTree {
 	public class Rule : Statement {
 		public string Property { get; }
-		public ListOfExpressionLists Values { get; }
+		public Expression Value { get; }
 
-		public Rule(string property, ListOfExpressionLists values) {
+		public Rule(string property, Expression value) {
 			this.Property = property;
-			this.Values = values;
+			this.Value = value;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			var evaluatedValues = this.Values.EvaluateSingle<ListOfExpressionLists>(context);
 
-			yield return new Rule(Property, evaluatedValues);
+			yield return new Rule(Property, this.Value.EvaluateSingle<Expression>(context));
 		}
 
 		public override Statement ForceImportant() {
-			if (Values.Important) {
+			if (Value is ImportantExpression) {
 				return this;
 			}
 
-			return new Rule(Property, new ListOfExpressionLists(Values, Values.Separator, important: true));
+			return new Rule(Property, new ImportantExpression(Value));
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			context.Append($"{Property}: {Values.ToCss()}");
+			context.Append($"{Property}: {Value.ToCss()}");
 		}
 
 		protected override string GetStringRepresentation() {
-			return $"{Property}: {string.Join(", ", Values)}";
+			return $"{Property}: {Value}";
 		}
 
 		protected bool Equals(Rule other) {
-			return string.Equals(Property, other.Property) && Values.Equals(other.Values);
+			return string.Equals(Property, other.Property) && Value.Equals(other.Value);
 		}
 
 		public override bool Equals(object obj) {
@@ -49,7 +48,7 @@ namespace LessonNet.Parser.ParseTree {
 		public override int GetHashCode() {
 			unchecked {
 				var hashCode = (Property != null ? Property.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (Values != null ? Values.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (Value != null ? Value.GetHashCode() : 0);
 				return hashCode;
 			}
 		}

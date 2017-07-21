@@ -5,15 +5,15 @@ using LessonNet.Parser.CodeGeneration;
 namespace LessonNet.Parser.ParseTree.Expressions {
 	public class CssFunction : Expression {
 		private readonly string functionName;
-		private readonly ListOfExpressionLists arguments;
+		private readonly Expression arguments;
 
-		public CssFunction(string functionName, ListOfExpressionLists arguments) {
+		public CssFunction(string functionName, Expression arguments) {
 			this.functionName = functionName;
 			this.arguments = arguments;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new CssFunction(functionName, arguments.EvaluateSingle<ListOfExpressionLists>(context));
+			yield return new CssFunction(functionName, arguments.EvaluateSingle<Expression>(context));
 		}
 
 		public override void WriteOutput(OutputContext context) {

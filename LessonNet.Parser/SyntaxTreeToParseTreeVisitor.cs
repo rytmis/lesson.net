@@ -144,7 +144,7 @@ namespace LessonNet.Parser {
 
 		public override LessNode VisitGenericAtRule(LessParser.GenericAtRuleContext context) {
 			var identifier = (Identifier) context.identifier().Accept(this);
-			var value = (Expression) context.valueList()?.Accept(this);
+			var value = (Expression) context.expression()?.Accept(this);
 			var block = (RuleBlock) context.block().Accept(this);
 
 			return new GenericAtRule(identifier, value, block);
@@ -334,21 +334,12 @@ namespace LessonNet.Parser {
 
 			string name = context.variableName().Identifier().GetText();
 
-			return new VariableDeclaration(name, GetExpressionLists(context.valueList(), context.IMPORTANT() != null));
-		}
-		public override LessNode VisitValueList(LessParser.ValueListContext context) {
-			return context.commaSeparatedExpressionList()?.Accept(this)
-				?? context.expressionList()?.Accept(this);
-		}
-
-		public override LessNode VisitExpressionList(LessParser.ExpressionListContext context) {
-			IEnumerable<Expression> GetValues() {
-				foreach (var value in context.expression()) {
-					yield return (Expression) value.Accept(this);
-				}
+			var value = GetExpression(context.expression());
+			var important = context.IMPORTANT() != null;
+			if (important) {
+				return new VariableDeclaration(name, new ImportantExpression(value));
 			}
-
-			return new ExpressionList(GetValues());
+			return new VariableDeclaration(name, value);
 		}
 
 		public override LessNode VisitParenthesizedExpression(LessParser.ParenthesizedExpressionContext context) {
@@ -356,6 +347,10 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitExpression(LessParser.ExpressionContext context) {
+			return GetExpression(context);
+		}
+
+		private Expression GetExpression(LessParser.ExpressionContext context) {
 			Expression GetMathOperation() {
 				if (context.mathCharacter() == null) {
 					return null;
@@ -396,20 +391,44 @@ namespace LessonNet.Parser {
 				return new Fraction(numbers[0], numbers[1], fraction.Unit()?.GetText());
 			}
 
-			return context.variableName()?.Accept(this)
+			Expression GetExpressionList() {
+				var expressions = context.expression();
+				if (expressions.Length < 2) {
+					return null;
+				}
+
+				char separator;
+				if (context.COMMA().Length > 0) {
+					separator = ',';
+				} else {
+					separator = ' ';
+				}
+
+				var list = new ExpressionList(context.expression().Select(expr => (Expression)expr.Accept(this)), separator);
+				var flattened = list.Flatten();
+				return flattened;
+			}
+
+			if (context == null) {
+				return null;
+			}
+
+			LessNode result = context.variableName()?.Accept(this)
 				?? GetColor()
 				?? context.measurement()?.Accept(this)
 				?? GetStringLiteral()
 				?? context.function()?.Accept(this)
 				?? context.identifier()?.Accept(this)
 				?? context.parenthesizedExpression()?.Accept(this)
-				?? context.measurementList()?.Accept(this)
 				?? GetFraction()
 				?? GetMathOperation()
 				?? context.url()?.Accept(this)
 				?? context.quotedExpression()?.Accept(this)
 				?? context.selector()?.Accept(this)
+				?? GetExpressionList()
 				?? throw new ParserException($"Unexpected expression {context.GetText()}");
+
+			return (Expression) result;
 		}
 
 		public override LessNode VisitString(LessParser.StringContext context) {
@@ -458,7 +477,7 @@ namespace LessonNet.Parser {
 				var variableDeclaration = param.variableDeclaration();
 				if (variableDeclaration != null) {
 					var decl = (VariableDeclaration) variableDeclaration.Accept(this);
-					return new MixinParameter(decl.Name, decl.Values);
+					return new MixinParameter(decl.Name, decl.Value);
 				}
 
 				var str = param.@string();
@@ -539,29 +558,33 @@ namespace LessonNet.Parser {
 		public override LessNode VisitProperty(LessParser.PropertyContext context) {
 			string name = context.identifier().GetText();
 
-			return new Rule(name, GetExpressionLists(context.valueList(), context.IMPORTANT() != null));
+			var value = GetExpression(context.expression());
+			var important = context.IMPORTANT() != null;
+			if (important) {
+				return new Rule(name, new ImportantExpression(value));
+			}
+			return new Rule(name, value);
 		}
 
 		public override LessNode VisitMixinCall(LessParser.MixinCallContext context) {
 			IEnumerable<MixinCallArgument> GetArguments() {
-				bool semicolonSeparated = context.SEMI().Any();
-						
 				foreach (var arg in context.mixinCallArgument()) {
 					var namedArg = arg.variableDeclaration();
 					if (namedArg != null) {
-						yield return new NamedArgument(namedArg.variableName().Identifier().GetText(), GetExpressionLists(namedArg.valueList()));
-					} else {
-						var expressionLists = GetExpressionLists(arg.valueList());
-						if (semicolonSeparated) {
-							yield return new PositionalArgument(expressionLists);
-						} else {
-							foreach (var expressionList in expressionLists) {
-								yield return new PositionalArgument(new ListOfExpressionLists(expressionList, ' '));
-							}
+						yield return new NamedArgument(namedArg.variableName().GetText(), GetExpression(namedArg.expression()));
+					}
+
+					var expression = GetExpression(arg.expression());
+					if (expression is ExpressionList list && context.SEMI().Length == 0) {
+						foreach (var value in list.Values) {
+							yield return new PositionalArgument(value);
 						}
+					} else {
+						yield return new PositionalArgument(expression);
 					}
 				}
 			}
+
 
 			bool important = context.IMPORTANT() != null;
 
@@ -599,35 +622,15 @@ namespace LessonNet.Parser {
 
 			bool parens = context.LPAREN() != null;
 
-			return new MediaIdentifierQuery(modifier, new ExpressionList((Expression) value), parens);
+			return new MediaIdentifierQuery(modifier, new ExpressionList((Expression) value, ' '), parens);
 		}
-
-		public override LessNode VisitMeasurementList(LessParser.MeasurementListContext context) {
-			return new MeasurementList(context.measurement().Select(m => (Measurement) m.Accept(this)));
-		}
-
 
 		public override LessNode VisitMeasurement(LessParser.MeasurementContext context) {
 			return new Measurement(decimal.Parse(context.Number().GetText(), CultureInfo.InvariantCulture), context.Unit()?.GetText());
 		}
 
 		public override LessNode VisitFunction(LessParser.FunctionContext context) {
-			return FunctionResolver.Resolve(context.functionName().GetText(), GetExpressionLists(context.valueList()));
-		}
-
-		private ListOfExpressionLists GetExpressionLists(LessParser.ValueListContext valueList, bool important = false) {
-			if (valueList == null) {
-				return null;
-			}
-
-			var commaSeparatedExpressionListContext = valueList.commaSeparatedExpressionList();
-
-			if (commaSeparatedExpressionListContext != null) {
-				var lists = commaSeparatedExpressionListContext.expressionList().Select(l => (ExpressionList) l.Accept(this));
-				return new ListOfExpressionLists(lists, ',', important);
-			} else {
-				return new ListOfExpressionLists(new[] {(ExpressionList) valueList.expressionList().Accept(this)}, ' ', important);
-			}
+			return FunctionResolver.Resolve(context.functionName().GetText(), GetExpression(context.expression()));
 		}
 
 	}

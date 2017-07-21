@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using LessonNet.Parser.ParseTree.Mixins;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
@@ -8,5 +7,4 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		public abstract override bool Equals(object obj);
 		public abstract override int GetHashCode();
 	}
-
 }

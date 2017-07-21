@@ -22,10 +22,8 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 						decl.DeclareIn(context);
 					}
 
-					if (call.Important && evaluationResult is Ruleset rs) {
-						yield return rs.ForceImportant();
-					} else if (call.Important && evaluationResult is Rule rule) {
-						yield return new Rule(rule.Property, new ListOfExpressionLists(rule.Values, rule.Values.Separator, true));
+					if (call.Important && evaluationResult is Statement s) {
+						yield return s.ForceImportant();
 					} else {
 						yield return evaluationResult;
 					}

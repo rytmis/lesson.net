@@ -347,10 +347,7 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			var expression = value?.EvaluateSingle<Expression>(context);
-			var exprValue = expression is ListOfExpressionLists list
-				? list.Single<Expression>()
-				: expression;
+			var exprValue = value?.EvaluateSingle<Expression>(context);
 
 			yield return new AttributeSelectorElement(attributeName.EvaluateSingle<Identifier>(context), op, exprValue, HasTrailingWhitespace);
 		}

@@ -8,9 +8,9 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 {
 	public class ColorFunction : LessFunction
 	{
-		public ColorFunction(ListOfExpressionLists arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(ListOfExpressionLists arguments) {
-			var str = arguments.Single<LessString>().GetUnquotedValue();
+		public ColorFunction(Expression arguments) : base(arguments) { }
+		protected override Expression EvaluateFunction(Expression arguments) {
+			var str = (arguments as LessString)?.GetUnquotedValue();
 
 			try {
 				return Color.FromHexString(str);
@@ -30,9 +30,9 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 
 	public class ArgbFunction : LessFunction
 	{
-		public ArgbFunction(ListOfExpressionLists arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(ListOfExpressionLists arguments) {
-			var color = arguments.Single<Color>();
+		public ArgbFunction(Expression arguments) : base(arguments) { }
+		protected override Expression EvaluateFunction(Expression arguments) {
+			var color = arguments as Color;
 			if (color != null) {
 				return new Identifier(new ConstantIdentifierPart(color.ToArgbString()));
 			}
@@ -42,9 +42,9 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 	}
 
 	public class AlphaFunction : LessFunction {
-		public AlphaFunction(ListOfExpressionLists arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(ListOfExpressionLists arguments) {
-			var color = arguments.Single<Color>();
+		public AlphaFunction(Expression arguments) : base(arguments) { }
+		protected override Expression EvaluateFunction(Expression arguments) {
+			var color = arguments as Color;
 			if (color == null) {
 				throw new EvaluationException("Argument must be a color");
 			}
@@ -58,62 +58,56 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 	}
 
 	public class RgbFunction : LessFunction {
-		public RgbFunction(ListOfExpressionLists arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(ListOfExpressionLists arguments) {
+		public RgbFunction(Expression arguments) : base(arguments) { }
+		protected override Expression EvaluateFunction(Expression arguments) {
 			var (r, g, b) = VerifyArguments(arguments);
 			
 			return new Color((uint)r.Number, (uint)g.Number, (uint)b.Number, null);
 		}
 
-		private static (Measurement, Measurement, Measurement) VerifyArguments(ListOfExpressionLists arguments) {
-			if (arguments.Count != 3) {
-				throw new EvaluationException($"Unexpected argument count: {arguments.Count}");
+		private static (Measurement, Measurement, Measurement) VerifyArguments(Expression arguments) {
+			var list = arguments as ExpressionList;
+			if (list?.Values.Count != 3) {
+				throw new EvaluationException($"Unexpected argument count: {list?.Values.Count ?? 1}");
 			}
 
-			for (var i = 0; i < arguments.Count; i++) {
-				if (arguments[i].Values.Count != 1) {
-					throw new EvaluationException($"Unexpected argument: {arguments[i]}");
-				}
 
-				var value = arguments[i].Values[0];
+			var values = list.Values;
+			for (var i = 0; i < values.Count; i++) {
+				var value = values[i];
 				if (!(value is Measurement)) {
 					throw new EvaluationException($"Unexpected argument: {value}");
 				}
 			}
 
-			var values = arguments.Select(arg => arg.Values[0] as Measurement).ToList();
-
-			return (values[0], values[1], values[2]);
+			return ((Measurement)values[0], (Measurement)values[1], (Measurement)values[2]);
 		}
 	}
 
 	public class RgbaFunction : LessFunction {
-		public RgbaFunction(ListOfExpressionLists arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(ListOfExpressionLists arguments) {
+		public RgbaFunction(Expression arguments) : base(arguments) { }
+		protected override Expression EvaluateFunction(Expression arguments) {
 			var (r, g, b, a) = VerifyArguments(arguments);
 			
 			return new Color((uint)r.Number, (uint)g.Number, (uint)b.Number, a.Number);
 		}
 
-		private static (Measurement, Measurement, Measurement, Measurement) VerifyArguments(ListOfExpressionLists arguments) {
-			if (arguments.Count != 4) {
-				throw new EvaluationException($"Unexpected argument count: {arguments.Count}");
+		private static (Measurement, Measurement, Measurement, Measurement) VerifyArguments(Expression arguments) {
+			var valueList = arguments as ExpressionList;
+			if (valueList?.Values.Count != 4) {
+				throw new EvaluationException($"Unexpected argument count: {valueList?.Values.Count ?? 1}");
 			}
 
-			for (var i = 0; i < arguments.Count; i++) {
-				if (arguments[i].Values.Count != 1) {
-					throw new EvaluationException($"Unexpected argument: {arguments[i]}");
-				}
-
-				var value = arguments[i].Values[0];
+			for (var i = 0; i < valueList.Values.Count; i++) {
+				var value = valueList.Values[0];
 				if (!(value is Measurement)) {
 					throw new EvaluationException($"Unexpected argument: {value}");
 				}
 			}
 
-			var values = arguments.Select(arg => arg.Values[0] as Measurement).ToList();
+			var values = valueList.Values;
 
-			return (values[0], values[1], values[2], values[3]);
+			return ((Measurement)values[0], (Measurement)values[1], (Measurement)values[2], (Measurement)values[3]);
 		}
 	}
 }

@@ -20,12 +20,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 					return null;
 				}
 
-				var evaluated = value.EvaluateSingle<Expression>(context);
-				if (evaluated is ListOfExpressionLists list) {
-					return list.Single<Expression>();
-				}
-
-				return evaluated;
+				return value.EvaluateSingle<Expression>(context);
 			}
 
 			var expressionValue = value != null

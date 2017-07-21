@@ -35,8 +35,12 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 			var call = new MixinCall(Selector.EvaluateSingle<Selector>(context), arguments, Important);
 
 			foreach (var mixinResult in context.CurrentScope.ResolveMatchingMixins(call)) {
-				foreach (var evaluationResult in mixinResult.Evaluate(context)) {
-					yield return evaluationResult;
+				foreach (var evaluationResult in mixinResult.Evaluate(context).Cast<Statement>()) {
+					if (Important) {
+						yield return evaluationResult.ForceImportant();
+					} else {
+						yield return evaluationResult;
+					}
 				}
 			}
 		}
@@ -98,7 +102,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 				}
 
 				// See if the argument evalutes to an Identifier that matches the pattern match identifier
-				var patternArgumentValue = positionalArguments[i].EvaluateSingleValue<Expression>(context);
+				var patternArgumentValue = positionalArguments[i].Value.EvaluateSingle<Expression>(context);
 				if (!ip.Pattern.Equals(patternArgumentValue)) {
 					return false;
 				}

@@ -119,10 +119,6 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
-		public virtual LessNode VisitExpressionList(LessParser.ExpressionListContext context) {
-			throw new System.NotImplementedException();
-		}
-
 		public virtual LessNode VisitColor(LessParser.ColorContext context) {
 			throw new System.NotImplementedException();
 		}
@@ -307,19 +303,6 @@ namespace LessonNet.Parser
 
 		public virtual LessNode VisitProperty(LessParser.PropertyContext context)
 		{
-			throw new System.NotImplementedException();
-		}
-
-		public virtual LessNode VisitValueList(LessParser.ValueListContext context)
-		{
-			throw new System.NotImplementedException();
-		}
-
-		public virtual LessNode VisitCommaSeparatedExpressionList(LessParser.CommaSeparatedExpressionListContext context) {
-			throw new System.NotImplementedException();
-		}
-
-		public virtual LessNode VisitMeasurementList(LessParser.MeasurementListContext context) {
 			throw new System.NotImplementedException();
 		}
 

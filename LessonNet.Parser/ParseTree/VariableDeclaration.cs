@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LessonNet.Parser.ParseTree.Expressions;
 
 namespace LessonNet.Parser.ParseTree {
 	public class VariableDeclaration : Declaration {
+		public Expression Value { get; }
 		public string Name { get; }
-		public ListOfExpressionLists Values { get; }
 
-		public VariableDeclaration(string name, ListOfExpressionLists expressionLists) {
+		public VariableDeclaration(string name, Expression value) {
+			this.Value = value;
 			Name = name;
-			Values = expressionLists;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
@@ -17,11 +18,11 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		public override Statement ForceImportant() {
-			if (Values.Important) {
+			if (Value is ImportantExpression) {
 				return this;
 			}
 
-			return new VariableDeclaration(Name, new ListOfExpressionLists(Values, Values.Separator, important: true));
+			return new VariableDeclaration(Name, new ImportantExpression(Value));
 		}
 
 		public override void DeclareIn(EvaluationContext context) {

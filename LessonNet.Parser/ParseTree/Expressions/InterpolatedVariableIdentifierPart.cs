@@ -10,11 +10,8 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			IEnumerable<Expression> EvaluateVariable() {
 				var variable = context.CurrentScope.ResolveVariable(variableName);
-				foreach (var expressionList in variable.Values) {
-					foreach (var expression in expressionList.Values) {
-						yield return expression.EvaluateSingle<Expression>(context);
-					}
-				}
+
+				yield return variable.Value.EvaluateSingle<Expression>(context);
 			}
 
 			yield return new ConstantIdentifierPart(string.Join("", EvaluateVariable()));

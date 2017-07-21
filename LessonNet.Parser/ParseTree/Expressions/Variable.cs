@@ -22,7 +22,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			if (variable != null) {
-				var result = variable.EvaluateSingle<ListOfExpressionLists>(context).Single<Expression>();
+				var result = variable.EvaluateSingle<Expression>(context);
 				if (result is Identifier id) {
 					yield return EvaluateVariable(context, id.ToString());
 				} else if (result is LessString str) {
@@ -37,12 +37,10 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			}
 		}
 
-		private ListOfExpressionLists EvaluateVariable(EvaluationContext context, string variableName) {
+		private Expression EvaluateVariable(EvaluationContext context, string variableName) {
 			var declaration = context.CurrentScope.ResolveVariable(variableName);
 
-			var values = declaration.Values.EvaluateSingle<ListOfExpressionLists>(context);
-
-			return new ListOfExpressionLists(values, values.Separator, Important || values.Important);
+			return declaration.Value.EvaluateSingle<Expression>(context);
 		}
 
 		protected override string GetStringRepresentation() {

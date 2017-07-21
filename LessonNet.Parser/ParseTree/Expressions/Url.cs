@@ -21,7 +21,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			if (var != null) {
-				yield return new Url(var.EvaluateSingle<ListOfExpressionLists>(context).Single<LessString>());
+				yield return new Url(var.EvaluateSingle<LessString>(context));
 			} else if (str != null) {
 				yield return new Url(str.EvaluateSingle<LessString>(context));
 			} else {

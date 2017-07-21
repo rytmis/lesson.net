@@ -10,51 +10,21 @@ namespace LessonNet.Parser.ParseTree.Mixins
 {
 	public abstract class MixinCallArgument : LessNode
 	{
-		public ListOfExpressionLists Value { get; }
+		public Expression Value { get; }
 
-		protected MixinCallArgument(ListOfExpressionLists value)
+		protected MixinCallArgument(Expression value)
 		{
 			Value = value;
-		}
-
-		public TExpr EvaluateSingleValue<TExpr>(EvaluationContext context) where TExpr : Expression {
-			if (Value.Count != 1) {
-				return null;
-			}
-
-			return EvaluateSingleValueCore<TExpr>(context, Value[0]);
-		}
-
-		private static TExpr EvaluateSingleValueCore<TExpr>(EvaluationContext context, ExpressionList expressionList)
-			where TExpr : Expression {
-			if (expressionList.Values.Count != 1) {
-				return null;
-			}
-
-			var value = expressionList.Values[0].EvaluateSingle<LessNode>(context);
-			if (value is TExpr result) {
-				return result;
-			}
-
-			if (value is ListOfExpressionLists listOfLists) {
-				return listOfLists.Single<TExpr>();
-			}
-
-			if (value is ExpressionList list) {
-				return EvaluateSingleValueCore<TExpr>(context, list);
-			}
-
-			return null;
 		}
 	}
 
 	public class PositionalArgument : MixinCallArgument
 	{
-		public PositionalArgument(ListOfExpressionLists value) : base(value) { }
+		public PositionalArgument(Expression value) : base(value) { }
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context)
 		{
-			yield return new PositionalArgument(Value.EvaluateSingle<ListOfExpressionLists>(context));
+			yield return new PositionalArgument(Value.EvaluateSingle<Expression>(context));
 		}
 
 		protected override string GetStringRepresentation()
@@ -67,14 +37,14 @@ namespace LessonNet.Parser.ParseTree.Mixins
 	{
 		public string ParameterName { get; }
 
-		public NamedArgument(string parameterName, ListOfExpressionLists value) : base(value)
+		public NamedArgument(string parameterName, Expression value) : base(value)
 		{
 			this.ParameterName = parameterName;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context)
 		{
-			yield return new NamedArgument(ParameterName, Value.EvaluateSingle<ListOfExpressionLists>(context));
+			yield return new NamedArgument(ParameterName, Value.EvaluateSingle<Expression>(context));
 		}
 
 		protected override string GetStringRepresentation()
@@ -92,7 +62,7 @@ namespace LessonNet.Parser.ParseTree.Mixins
 	{
 		public Identifier Identifier { get; }
 
-		public IdentifierArgument(Identifier identifier) : base(new ListOfExpressionLists(new ExpressionList(new[] { identifier }), ' '))
+		public IdentifierArgument(Identifier identifier) : base(identifier)
 		{
 			this.Identifier = identifier;
 		}
