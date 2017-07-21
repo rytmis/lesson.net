@@ -215,7 +215,7 @@ mixinCallArgument
   ;
 
 mixinCall
-  : selector (LPAREN (mixinCallArgument (SEMI mixinCallArgument)*)? RPAREN)? IMPORTANT?
+  : selector (LPAREN (mixinCallArgument (SEMI mixinCallArgument)* SEMI?)? RPAREN)? IMPORTANT?
   | selector (LPAREN (mixinCallArgument (COMMA mixinCallArgument)*)? RPAREN)? IMPORTANT?
   ;
 
