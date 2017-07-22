@@ -17,14 +17,26 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 
 
 		public Color(uint r, uint g, uint b, decimal? alpha = null, string keyword = null) {
-			this.R = r;
-			this.G = g;
-			this.B = b;
-			this.Alpha = alpha;
+			this.R = ChannelValue(r);
+			this.G = ChannelValue(g);
+			this.B = ChannelValue(b);
+			this.Alpha = AlphaValue(alpha);
 			this.Keyword = keyword;
 		}
 
 		public Color(Measurement m) : this((uint) m.Number, (uint) m.Number, (uint) m.Number) {
+		}
+
+		private static uint ChannelValue(uint channel) {
+			return Math.Max(Math.Min(channel, 255), 0);
+		}
+
+		private static decimal? AlphaValue(decimal? alpha) {
+			if (!alpha.HasValue) {
+				return null;
+			}
+
+			return Math.Max(Math.Min(alpha.Value, 1), 0);
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
