@@ -178,7 +178,7 @@ namespace LessonNet.Parser
 				.Concat<InvocationResult>(matchingMixins)
 				.Concat(ResolveInChildContexts(call));
 
-			if (Parent == null) {
+			if (!resolveFromParents || Parent == null) {
 				return localResults.ToList();
 			}
 
@@ -188,10 +188,14 @@ namespace LessonNet.Parser
 		private IEnumerable<InvocationResult> ResolveInChildContexts(RulesetCall call) {
 			foreach (var child in children) {
 				foreach (var childSelector in child.SelectorsWithoutCombinators.Selectors) {
-					var remainingSelectors = call.Selector.RemovePrefix(childSelector);
-					if (remainingSelectors != null && !remainingSelectors.IsEmpty()) {
-						foreach (var result in child.ResolveRulesetsCore(new RulesetCall(remainingSelectors, call.Important), resolveFromParents: false)) {
-							yield return result;
+					if (childSelector.IsPrefixOf(call.Selector)) {
+						var remainingSelectors = call.Selector.RemovePrefix(childSelector);
+
+						if (remainingSelectors != null && !remainingSelectors.IsEmpty()) {
+							foreach (var result in child.ResolveRulesetsCore(new RulesetCall(remainingSelectors, call.Important),
+								resolveFromParents: false)) {
+								yield return result;
+							}
 						}
 					}
 				}

@@ -70,11 +70,11 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		public bool MatchesAny(SelectorList selectorList) {
-			return Selectors.Any(s => selectorList.Selectors.Any(s.Equals));
+			return Selectors.Any(s => selectorList.Selectors.Any(s.Matches));
 		}
 
 		public bool Matches(Selector selector) {
-			return Selectors.Any(selector.Equals);
+			return Selectors.Any(selector.Matches);
 		}
 
 		protected bool Equals(SelectorList other) {

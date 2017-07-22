@@ -127,6 +127,12 @@ namespace LessonNet.Parser.ParseTree {
 			context.TrimTrailingWhitespace();
 		}
 
+		public bool Matches(Selector other) {
+			// TODO: This is probably a hot path, so it would make sense
+			// to avoid allocations here
+			return DropCombinators().Equals(other.DropCombinators());
+		}
+
 		protected bool Equals(Selector other) {
 			return Elements.SequenceEqual(other.Elements);
 		}
