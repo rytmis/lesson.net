@@ -577,18 +577,25 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitMixinCall(LessParser.MixinCallContext context) {
-			IEnumerable<MixinCallArgument> GetArguments() {
+			IEnumerable<MixinCallArgument> GetArguments(bool semicolonSeparated) {
 				foreach (var arg in context.mixinCallArgument()) {
 					var namedArg = arg.variableDeclaration();
-					if (namedArg != null) {
-						yield return new NamedArgument(namedArg.variableName().GetText(), GetExpression(namedArg.expression()));
-					}
+					var expression = GetExpression(arg.expression()) ?? GetExpression(namedArg?.expression());
 
-					var expression = GetExpression(arg.expression());
-					if (expression is ExpressionList list && context.SEMI().Length == 0) {
-						foreach (var value in list.Values) {
-							yield return new PositionalArgument(value);
+					if (expression is ExpressionList list && !semicolonSeparated) {
+						var firstValue = list.Values[0];
+
+						if (namedArg != null) {
+							yield return new NamedArgument(namedArg.variableName().Identifier().GetText(), firstValue);
+						} else {
+							yield return new PositionalArgument(firstValue);
 						}
+
+						foreach (var remainingValue in list.Values.Skip(1)) {
+							yield return new PositionalArgument(remainingValue);
+						}
+					} else if (namedArg != null) {
+						yield return new NamedArgument(namedArg.variableName().Identifier().GetText(), expression);
 					} else {
 						yield return new PositionalArgument(expression);
 					}
@@ -596,12 +603,13 @@ namespace LessonNet.Parser {
 			}
 
 
+			bool semi = context.SEMI().Length > 0;
 			bool important = context.IMPORTANT() != null;
 
 			var selector = (Selector)context.selector().Accept(this);
 
 			if (context.LPAREN() != null) {
-				return new MixinCall(selector, GetArguments(), important);
+				return new MixinCall(selector, GetArguments(semi), important);
 			}
 
 			return new RulesetCall(selector, important);
