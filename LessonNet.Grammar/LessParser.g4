@@ -99,6 +99,19 @@ genericAtRule
 variableName
   : AT variableName
   | AT identifier
+  | ARGUMENTS
+  | REST
+  | MEDIA
+  | IMPORT
+  | CHARSET
+  | NAMESPACE
+  | SUPPORTS
+  | DOCUMENT
+  | PAGE
+  | KEYFRAMES
+  | COUNTERSTYLE
+  | ARGUMENTS
+  | REST
   ;
 
 
@@ -204,7 +217,8 @@ block
   ;
 
 mixinDefinition
-  : selector LPAREN (mixinDefinitionParam ((';'|',') mixinDefinitionParam)*)? Ellipsis? RPAREN mixinGuard? block
+  : selector LPAREN (mixinDefinitionParam (SEMI mixinDefinitionParam)*)? RPAREN mixinGuard? block
+  | selector LPAREN (mixinDefinitionParam (COMMA mixinDefinitionParam)*)? RPAREN mixinGuard? block
   ;
 
 mixinCallArgument
@@ -228,11 +242,12 @@ mixinGuardDefault
   : LPAREN DEFAULT_FN LPAREN RPAREN RPAREN;
 
 mixinDefinitionParam
-  : variableName
+  : variableName Ellipsis?
   | variableDeclaration
   | identifier
   | string
   | Number
+  | Ellipsis
   ;
 
 selectors

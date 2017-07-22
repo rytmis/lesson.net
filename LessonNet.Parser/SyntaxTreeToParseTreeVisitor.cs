@@ -162,7 +162,7 @@ namespace LessonNet.Parser {
 
 		public override LessNode VisitVariableName(LessParser.VariableNameContext variable) {
 			string GetVariableName(LessParser.VariableNameContext variableName) {
-				return variableName.identifier().GetText();
+				return variableName.GetText().TrimStart('@');
 			}
 
 			var variableVariable = variable.variableName();
@@ -339,7 +339,7 @@ namespace LessonNet.Parser {
 
 		public override LessNode VisitVariableDeclaration(LessParser.VariableDeclarationContext context) {
 
-			string name = context.variableName().identifier().GetText();
+			string name = ((Variable)context.variableName().Accept(this)).Name;
 
 			var value = GetExpression(context.expression());
 			var important = context.IMPORTANT() != null;
@@ -488,10 +488,22 @@ namespace LessonNet.Parser {
 
 		public override LessNode VisitMixinDefinition(LessParser.MixinDefinitionContext context) {
 			MixinParameterBase GetParameter(LessParser.MixinDefinitionParamContext param) {
+				var ellipsis = param.Ellipsis();
 				var variable = param.variableName();
 				if (variable != null) {
-					return new MixinParameter(variable.GetText().TrimStart('@'), null);
+					var paramName = variable.GetText().TrimStart('@');
+
+					if (ellipsis != null) {
+						return new NamedVarargsParameter(paramName);
+					}
+
+					return new MixinParameter(paramName, null);
 				}
+
+				if (ellipsis != null) {
+					return VarargsParameter.Instance;
+				}
+
 				var variableDeclaration = param.variableDeclaration();
 				if (variableDeclaration != null) {
 					var decl = (VariableDeclaration) variableDeclaration.Accept(this);

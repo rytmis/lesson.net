@@ -20,6 +20,11 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 			this.block = block;
 			this.guard = guard;
 			this.IsDefaultOverload = guard is DefaultMixinGuard;
+
+			var varargsCount = this.parameters.OfType<VarargsParameter>().Count();
+			if (varargsCount > 1 ||varargsCount == 1 && !(this.parameters.Last() is VarargsParameter) ) {
+				throw new ParserException("Only one varargs parameter at the end of the parameter list is allowed");
+			}
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
@@ -98,6 +103,36 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 
 		protected override string GetStringRepresentation() {
 			return Pattern.ToString();
+		}
+	}
+
+	public class VarargsParameter : MixinParameterBase {
+		public static readonly VarargsParameter Instance = new VarargsParameter();
+
+		protected VarargsParameter() { }
+
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
+			yield return this;
+		}
+
+		protected override string GetStringRepresentation() {
+			return "...";
+		}
+	}
+
+	public class NamedVarargsParameter : VarargsParameter {
+		public string Name { get; }
+
+		public NamedVarargsParameter(string name) {
+			Name = name;
+		}
+
+		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
+			yield return this;
+		}
+
+		protected override string GetStringRepresentation() {
+			return $"@{Name}...";
 		}
 	}
 }

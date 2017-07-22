@@ -40,7 +40,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 
 		public bool Matches(MixinDefinition mixinDefinition) {
 			return mixinDefinition.Arity == 0
-				|| mixinDefinition.Parameters.All(p => p.HasDefaultValue);
+				|| mixinDefinition.Parameters.All(p => p.HasDefaultValue || p is VarargsParameter);
 		}
 
 		protected override string GetStringRepresentation() {

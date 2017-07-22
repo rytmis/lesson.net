@@ -59,7 +59,9 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 				return false;
 			}
 
-			if (mixinDefinition.Parameters.Count < arguments.Count) {
+			bool hasVarargs = mixinDefinition.Parameters.LastOrDefault() is VarargsParameter;
+
+			if (mixinDefinition.Parameters.Count < arguments.Count && !hasVarargs) {
 				// No match: too many arguments
 				return false;
 			}
@@ -72,7 +74,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 
 			var namedArguments = arguments.OfType<NamedArgument>().ToList();
 
-			var remainingParameters = mixinDefinition.Parameters.Skip(positionalArguments.Count).Cast<MixinParameter>().ToList();
+			var remainingParameters = mixinDefinition.Parameters.Skip(positionalArguments.Count).OfType<MixinParameter>().ToList();
 
 			var matchedParams = remainingParameters
 				.Where(p => namedArguments.Any(arg => string.Equals(p.Name, arg.ParameterName, StringComparison.OrdinalIgnoreCase)))
