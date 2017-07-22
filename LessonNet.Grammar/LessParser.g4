@@ -101,9 +101,6 @@ variableName
   | AT identifier
   ;
 
-mathCharacter
-  : TIMES | PLUS | DIV | MINUS | PERC
-  ;
 
 parenthesizedExpression
     : LPAREN expression RPAREN
@@ -118,7 +115,8 @@ expression
   : quotedExpression
   | parenthesizedExpression
   | fraction
-  | expression mathCharacter expression
+  | expression op=(DIV|TIMES) expression
+  | expression op=(PLUS|MINUS) expression
   | measurement
   | color
   | function

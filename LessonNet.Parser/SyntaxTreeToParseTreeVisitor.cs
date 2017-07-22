@@ -359,14 +359,15 @@ namespace LessonNet.Parser {
 
 		private Expression GetExpression(LessParser.ExpressionContext context) {
 			Expression GetMathOperation() {
-				if (context.mathCharacter() == null) {
+				var mathOperation = context.op;
+				if (mathOperation == null) {
 					return null;
 				}
 
 				var lhs = (Expression) context.expression(0).Accept(this);
 				var rhs = (Expression) context.expression(1).Accept(this);
 
-				return new MathOperation(lhs, context.mathCharacter().GetText(), rhs);
+				return new MathOperation(lhs, mathOperation.Text, rhs);
 			}
 
 			Expression GetColor() {

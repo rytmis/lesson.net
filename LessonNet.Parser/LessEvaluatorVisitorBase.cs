@@ -118,11 +118,6 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
-		public virtual LessNode VisitMathCharacter(LessParser.MathCharacterContext context)
-		{
-			throw new System.NotImplementedException();
-		}
-
 		public virtual LessNode VisitParenthesizedExpression(LessParser.ParenthesizedExpressionContext context) {
 			throw new System.NotImplementedException();
 		}
