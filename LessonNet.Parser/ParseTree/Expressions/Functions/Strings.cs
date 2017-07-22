@@ -29,12 +29,22 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 			}
 
 			if (arguments is ExpressionList list && list.IsCommaSeparated && list.Values[0] is LessString str) {
-				var formatted = string.Format(str.GetUnquotedValue(), list.Values.Skip(1).ToArray<object>());
+				var formatted = string.Format(str.GetUnquotedValue(), ConvertToStrings(list.Values.Skip(1)).ToArray<object>());
 
 				return new QuotedExpression(LessString.FromString(formatted));
 			}
 
 			throw new EvaluationException("First argument must be a string");
+		}
+
+		private IEnumerable<string> ConvertToStrings(IEnumerable<Expression> expressions) {
+			foreach (var expression in expressions) {
+				if (expression is LessString str) {
+					yield return str.GetUnquotedValue();
+				} else {
+					yield return expression.ToString();
+				}
+			}
 		}
 	}
 }
