@@ -13,7 +13,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new CssFunction(functionName, arguments.EvaluateSingle<Expression>(context));
+			yield return new CssFunction(functionName, arguments?.EvaluateSingle<Expression>(context));
 		}
 
 		public override void WriteOutput(OutputContext context) {
