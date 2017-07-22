@@ -7,7 +7,7 @@ using static System.FormattableString;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
 	public class Color : Expression {
-		public static readonly Color Transparent = new Color(0, 0, 0, 0);
+		public static readonly Color Transparent = new Color(0, 0, 0, 0, "transparent");
 
 		public uint R { get; }
 		public uint G { get; }
@@ -66,7 +66,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		public static Color FromKeyword(string keyword) {
-			if (string.Equals("transparent", keyword)) {
+			if (string.Equals(Transparent.Keyword, keyword)) {
 				return Color.Transparent;
 			}
 			return FromHexStringCore(KnownColors.GetHexString(keyword), keyword);
