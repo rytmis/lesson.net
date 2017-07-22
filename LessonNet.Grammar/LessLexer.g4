@@ -55,6 +55,9 @@ CIRC_EQ         : '^=';
 DOLLAR_EQ       : '$=';
 STAR_EQ         : '*=';
 
+TRUE            : 'true';
+FALSE           : 'false';
+
 /* URLs */
 /* http://lesscss.org/features/#variables-feature-urls */
 URL : 'url';
@@ -80,7 +83,7 @@ ARGUMENTS       : '@arguments';
 REST            : '@rest';
 ALL             : 'all';
 
-MediaQueryModifier
+fragment MediaQueryModifier
   : (NOT|ONLY)
   ;
 
@@ -122,12 +125,6 @@ KnownColor
     | 'steelblue' | 'tan' | 'teal' | 'thistle' | 'tomato' | 'turquoise' | 'violet' | 'wheat' | 'white' | 'whitesmoke' 
     | 'yellow' | 'yellowgreen' | 'transparent')
   ;
-
-fragment ID_CHAR : ('_' | '-' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' | '0'..'9' | '\\.' | '\\:' );
-
-Identifier
-  : ( ('_' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' ) ID_CHAR*
-	|  '-' ('_' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' )* ID_CHAR*) -> pushMode(IDENTIFY);
 
 DQUOT_STRING_START : '"' -> pushMode(DQ_STRING);
 SQUOT_STRING_START : '\'' -> pushMode(SQ_STRING);
@@ -261,6 +258,12 @@ fragment CHAR_UNIT
   : ('px'|'cm'|'mm'|'in'|'pt'|'pc'|'rem'|'em'|'ex'|'deg'|'rad'|'grad'|'ms'|'s'|'hz'|'khz'|'dpi'|'dpcm'|'vmin'|'vmax'|'vm'|'vw'|'vh');
 
 Unit : ('%'| CHAR_UNIT);
+
+fragment ID_CHAR : ('_' | '-' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' | '0'..'9' | '\\.' | '\\:' );
+
+Identifier
+  : ( ('_' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' ) ID_CHAR*
+	|  '-' ('_' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' )* ID_CHAR*) -> pushMode(IDENTIFY);
 
 mode URL_STARTED;
 DQUOT_STRING_START_URL : '"' -> type(DQUOT_STRING_START), pushMode(DQ_STRING);

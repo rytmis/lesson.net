@@ -416,6 +416,15 @@ namespace LessonNet.Parser {
 				return flattened;
 			}
 
+			Expression GetBoolean() {
+				var boolean = context.booleanValue();
+				if (boolean == null) {
+					return null;
+				}
+
+				return new BooleanValue(string.Equals("true", boolean.GetText()));
+			}
+
 			if (context == null) {
 				return null;
 			}
@@ -432,6 +441,7 @@ namespace LessonNet.Parser {
 				?? context.url()?.Accept(this)
 				?? context.quotedExpression()?.Accept(this)
 				?? context.selector()?.Accept(this)
+				?? GetBoolean()
 				?? GetExpressionList()
 				?? throw new ParserException($"Unexpected expression {context.GetText()}");
 
@@ -518,7 +528,11 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitMixinGuard(LessParser.MixinGuardContext context) {
-			return new MixinGuard((OrConditionList) context.mixinGuardConditions().Accept(this));
+			if (context.mixinGuardDefault() != null) {
+				return DefaultMixinGuard.Instance;
+			}
+
+			return new ConditionMixinGuard((OrConditionList) context.mixinGuardConditions().Accept(this));
 		}
 
 		public override LessNode VisitMixinGuardConditions(LessParser.MixinGuardConditionsContext context) {

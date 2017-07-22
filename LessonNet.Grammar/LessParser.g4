@@ -125,13 +125,14 @@ expression
   | string
   | url
   | variableName
+  | booleanValue
   | identifier
   | selector
   | expression (COMMA expression)+
   | expression expression+
   ;
 
-
+booleanValue : (TRUE | FALSE);
 
 string
   : SQUOT_STRING_START (variableInterpolation | SQUOT_STRING_FRAGMENT)* SQUOT_STRING_END
@@ -218,9 +219,15 @@ mixinCall
   | selector (LPAREN (mixinCallArgument (COMMA mixinCallArgument)*)? RPAREN)? IMPORTANT?
   ;
 
+
+
 mixinGuard
-  : WHEN mixinGuardConditions
+  : WHEN mixinGuardDefault
+  | WHEN mixinGuardConditions
   ;
+
+mixinGuardDefault
+  : LPAREN DEFAULT_FN LPAREN RPAREN RPAREN;
 
 mixinDefinitionParam
   : variableName
@@ -392,6 +399,8 @@ keywordAsIdentifier
   | ALL
   | FROM
   | TO
+  | TRUE
+  | FALSE
   ;
 
 variableInterpolation

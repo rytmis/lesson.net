@@ -7,13 +7,15 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		private readonly MixinDefinition mixin;
 		private readonly MixinCall call;
 		private readonly Scope closure;
+		private readonly MixinGuardScope guardScope;
 
 		public bool Matched { get; private set; }
 
-		public MixinEvaluationResult(MixinDefinition mixin, MixinCall call, Scope closure) {
+		public MixinEvaluationResult(MixinDefinition mixin, MixinCall call, Scope closure, MixinGuardScope guardScope) {
 			this.mixin = mixin;
 			this.call = call;
 			this.closure = closure;
+			this.guardScope = guardScope;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
@@ -45,7 +47,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 					context.CurrentScope.DeclareVariable(argument);
 				}
 
-				if (mixin.Guard(context)) {
+				if (mixin.Guard(context, guardScope)) {
 					foreach (var evaluationResult in mixin.Evaluate(context)) {
 						yield return evaluationResult;
 					}

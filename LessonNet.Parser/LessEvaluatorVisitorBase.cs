@@ -136,6 +136,10 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
+		public virtual LessNode VisitBooleanValue(LessParser.BooleanValueContext context) {
+			throw new System.NotImplementedException();
+		}
+
 		public virtual LessNode VisitString(LessParser.StringContext context) {
 			throw new System.NotImplementedException();
 		}
@@ -222,6 +226,10 @@ namespace LessonNet.Parser
 
 		public virtual LessNode VisitMixinGuard(LessParser.MixinGuardContext context)
 		{
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitMixinGuardDefault(LessParser.MixinGuardDefaultContext context) {
 			throw new System.NotImplementedException();
 		}
 

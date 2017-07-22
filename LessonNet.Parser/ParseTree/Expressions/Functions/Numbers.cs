@@ -42,4 +42,13 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 			return new Measurement(Math.Floor(input.Number), input.Unit);
 		}
 	}
+
+	public class AbsFunction : NumberFunction
+	{
+		public AbsFunction(Expression arguments) : base(arguments) { }
+
+		protected override Measurement EvaluateFunction(Measurement input) {
+			return new Measurement(Math.Abs(input.Number), input.Unit);
+		}
+	}
 }

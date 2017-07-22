@@ -7,6 +7,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		private readonly List<MixinParameterBase> parameters;
 		private readonly RuleBlock block;
 		private readonly MixinGuard guard;
+		public bool IsDefaultOverload { get; }
 		public Selector Selector { get; }
 		public int Arity => parameters.Count;
 		public IReadOnlyList<MixinParameterBase> Parameters => parameters.AsReadOnly();
@@ -18,6 +19,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 			this.parameters = parameters.ToList();
 			this.block = block;
 			this.guard = guard;
+			this.IsDefaultOverload = guard is DefaultMixinGuard;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
@@ -35,12 +37,12 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 				new MixinDefinition(Selector.EvaluateSingle<Selector>(context), Parameters, block, guard));
 		}
 
-		public bool Guard(EvaluationContext context) {
+		public bool Guard(EvaluationContext context, MixinGuardScope guardScope) {
 			if (guard == null) {
 				return true;
 			}
 
-			return guard.SatisfiedBy(context);
+			return guard.SatisfiedBy(context, guardScope);
 		}
 
 		protected override string GetStringRepresentation() {

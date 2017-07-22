@@ -137,10 +137,12 @@ namespace LessonNet.Parser
 		}
 
 		private IList<MixinEvaluationResult> ResolveMixinsCore(MixinCall call, bool resolveFromParents = true) {
-			// No namespace support or result caching yet
+			var guardScope = new MixinGuardScope();
+
 			var matchingMixins = mixins
 				.Where(mixin => call.Matches(mixin, context))
-				.Select(m => new MixinEvaluationResult(m, call, this))
+				.OrderBy(mixin => mixin.IsDefaultOverload)
+				.Select(m => new MixinEvaluationResult(m, call, this, guardScope))
 				.Concat(ResolveInChildContexts(call));
 
 			if (!resolveFromParents || Parent == null) {
@@ -170,9 +172,10 @@ namespace LessonNet.Parser
 				.Where(call.Matches)
 				.Select(m => new RulesetEvaluationResult(m, call, this));
 
+			var guardScope = new MixinGuardScope();
 			var matchingMixins = mixins
 				.Where(call.Matches)
-				.Select(m => new MixinEvaluationResult(m, new MixinCall(call.Selector, Enumerable.Empty<PositionalArgument>(), call.Important), this));
+				.Select(m => new MixinEvaluationResult(m, new MixinCall(call.Selector, Enumerable.Empty<PositionalArgument>(), call.Important), this, guardScope));
 
 			var localResults = matchingRulesets
 				.Concat<InvocationResult>(matchingMixins)
