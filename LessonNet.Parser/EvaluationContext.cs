@@ -164,7 +164,7 @@ namespace LessonNet.Parser
 			}
 		}
 
-		private IList<InvocationResult> ResolveRulesetsCore(RulesetCall call) {
+		private IList<InvocationResult> ResolveRulesetsCore(RulesetCall call, bool resolveFromParents = true) {
 			// No namespace support or result caching yet
 			var matchingRulesets = rulesets
 				.Where(call.Matches)
@@ -190,7 +190,7 @@ namespace LessonNet.Parser
 				foreach (var childSelector in child.SelectorsWithoutCombinators.Selectors) {
 					var remainingSelectors = call.Selector.RemovePrefix(childSelector);
 					if (remainingSelectors != null && !remainingSelectors.IsEmpty()) {
-						foreach (var result in child.ResolveRulesetsCore(new RulesetCall(remainingSelectors, call.Important))) {
+						foreach (var result in child.ResolveRulesetsCore(new RulesetCall(remainingSelectors, call.Important), resolveFromParents: false)) {
 							yield return result;
 						}
 					}
