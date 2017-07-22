@@ -15,7 +15,9 @@ namespace LessonNet.Parser.ParseTree
 
 		public Measurement(decimal number, string unit) {
 			this.Number = number;
-			this.Unit = unit;
+			if (!string.IsNullOrWhiteSpace(unit)) {
+				this.Unit = unit;
+			}
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
