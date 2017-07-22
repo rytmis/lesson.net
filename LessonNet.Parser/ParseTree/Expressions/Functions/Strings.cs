@@ -9,12 +9,11 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 		public EFunction(Expression arguments) : base(arguments) { }
 
 		protected override Expression EvaluateFunction(Expression arguments) {
-			var str = arguments as LessString;
-			if (str == null) {
-				throw new EvaluationException("Argument must be a string");
+			if (arguments is LessString str) {
+				return new Identifier(new ConstantIdentifierPart(str.GetUnquotedValue()));
 			}
 
-			return new Identifier(new ConstantIdentifierPart(str.GetUnquotedValue()));
+			return arguments;
 		}
 	}
 
