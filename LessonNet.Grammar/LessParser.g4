@@ -98,8 +98,7 @@ genericAtRule
 
 variableName
   : AT variableName
-  | AT Identifier
-  | AT URL
+  | AT identifier
   ;
 
 mathCharacter

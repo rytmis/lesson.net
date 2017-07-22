@@ -162,10 +162,7 @@ namespace LessonNet.Parser {
 
 		public override LessNode VisitVariableName(LessParser.VariableNameContext variable) {
 			string GetVariableName(LessParser.VariableNameContext variableName) {
-				var id = variableName.Identifier()
-					?? variableName.URL();
-
-				return id.ToString();
+				return variableName.identifier().GetText();
 			}
 
 			var variableVariable = variable.variableName();
@@ -342,7 +339,7 @@ namespace LessonNet.Parser {
 
 		public override LessNode VisitVariableDeclaration(LessParser.VariableDeclarationContext context) {
 
-			string name = context.variableName().Identifier().GetText();
+			string name = context.variableName().identifier().GetText();
 
 			var value = GetExpression(context.expression());
 			var important = context.IMPORTANT() != null;
@@ -586,7 +583,7 @@ namespace LessonNet.Parser {
 						var firstValue = list.Values[0];
 
 						if (namedArg != null) {
-							yield return new NamedArgument(namedArg.variableName().Identifier().GetText(), firstValue);
+							yield return new NamedArgument(namedArg.variableName().identifier().GetText(), firstValue);
 						} else {
 							yield return new PositionalArgument(firstValue);
 						}
@@ -595,7 +592,7 @@ namespace LessonNet.Parser {
 							yield return new PositionalArgument(remainingValue);
 						}
 					} else if (namedArg != null) {
-						yield return new NamedArgument(namedArg.variableName().Identifier().GetText(), expression);
+						yield return new NamedArgument(namedArg.variableName().identifier().GetText(), expression);
 					} else {
 						yield return new PositionalArgument(expression);
 					}
