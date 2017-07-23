@@ -341,7 +341,7 @@ namespace LessonNet.Parser {
 
 			string name = ((Variable)context.variableName().Accept(this)).Name;
 
-			var value = GetExpression(context.expression());
+			var value = GetValue(context.expression());
 			var important = context.IMPORTANT() != null;
 			if (important) {
 				return new VariableDeclaration(name, new ImportantExpression(value));
@@ -358,14 +358,34 @@ namespace LessonNet.Parser {
 		}
 
 		private Expression GetExpression(LessParser.ExpressionContext context) {
+			if (context == null) {
+				return null;
+			}
+
+			var expressions = context.singleValuedExpression();
+
+			if (expressions.Length > 1) {
+				return new ExpressionList(expressions.Select(GetSingleValuedExpression), ' ');
+			}
+
+			var commaExpressions = context.commaExpression();
+			if (commaExpressions.Length > 0) {
+				var allExpressions = expressions.Concat(commaExpressions.Select(c => c.singleValuedExpression()));
+				return new ExpressionList(allExpressions.Select(GetSingleValuedExpression), ',');
+			}
+
+			return GetSingleValuedExpression(expressions[0]);
+		}
+
+		private Expression GetSingleValuedExpression(LessParser.SingleValuedExpressionContext context) {
 			Expression GetMathOperation() {
 				var mathOperation = context.op;
 				if (mathOperation == null) {
 					return null;
 				}
 
-				var lhs = (Expression) context.expression(0).Accept(this);
-				var rhs = (Expression) context.expression(1).Accept(this);
+				var lhs = GetSingleValuedExpression(context.singleValuedExpression(0));
+				var rhs = GetSingleValuedExpression(context.singleValuedExpression(1));
 
 				return new MathOperation(lhs, mathOperation.Text, rhs);
 			}
@@ -399,22 +419,6 @@ namespace LessonNet.Parser {
 				return new Fraction(numbers[0], numbers[1], fraction.Unit()?.GetText());
 			}
 
-			Expression GetExpressionList() {
-				var expressions = context.expression();
-
-				if (expressions.Length > 1) {
-					return new ExpressionList(context.expression().Select(expr => (Expression)expr.Accept(this)), ' ').Flatten();
-				}
-
-				var commaExpressions = context.commaExpression();
-				if (commaExpressions.Length > 0) {
-					var allExpressions = expressions.Concat(commaExpressions.Select(c => c.expression()));
-					return new ExpressionList(allExpressions.Select(expr => (Expression)expr.Accept(this)), ',').Flatten();
-				}
-
-				return null;
-			}
-
 			Expression GetBoolean() {
 				var boolean = context.booleanValue();
 				if (boolean == null) {
@@ -441,7 +445,6 @@ namespace LessonNet.Parser {
 				?? context.quotedExpression()?.Accept(this)
 				?? context.selector()?.Accept(this)
 				?? GetBoolean()
-				?? GetExpressionList()
 				?? throw new ParserException($"Unexpected expression {context.GetText()}");
 
 			return (Expression) result;
@@ -590,22 +593,30 @@ namespace LessonNet.Parser {
 			return new RuleBlock(GetChildren<Statement>(context.children));
 		}
 
+		private Expression GetValue(LessParser.ExpressionContext[] expressions) {
+			var values = expressions.Select(GetExpression).ToList();
+			if (values.Count == 1) {
+				return values[0];
+			}
+			return new ExpressionList(values, ' ');
+		}
+
 		public override LessNode VisitProperty(LessParser.PropertyContext context) {
 			string name = context.identifier().GetText();
 
-			var value = GetExpression(context.expression());
+			var expr = GetValue(context.expression());
 			var important = context.IMPORTANT() != null;
 			if (important) {
-				return new Rule(name, new ImportantExpression(value));
+				return new Rule(name, new ImportantExpression(expr));
 			}
-			return new Rule(name, value);
+			return new Rule(name, expr);
 		}
 
 		public override LessNode VisitMixinCall(LessParser.MixinCallContext context) {
 			IEnumerable<MixinCallArgument> GetArguments(bool semicolonSeparated) {
 				foreach (var arg in context.mixinCallArgument()) {
 					var namedArg = arg.variableDeclaration();
-					var expression = GetExpression(arg.expression()) ?? GetExpression(namedArg?.expression());
+					var expression = GetExpression(arg.expression()) ?? GetValue(namedArg?.expression());
 
 					if (expression is ExpressionList list && !semicolonSeparated) {
 						var firstValue = list.Values[0];

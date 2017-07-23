@@ -19,24 +19,6 @@ namespace LessonNet.Parser.ParseTree {
 			this.Values = values.ToList();
 		}
 
-		public ExpressionList Flatten() {
-			return new ExpressionList(FlattenCore(), separator);
-		}
-
-		private IEnumerable<Expression> FlattenCore() {
-			if (Values.Count == 2 && Values[1] is ExpressionList cdr && cdr.separator == separator) {
-				yield return Values[0];
-
-				foreach (var flattened in cdr.FlattenCore()) {
-					yield return flattened;
-				}
-			} else {
-				foreach (var expression in Values) {
-					yield return expression;
-				}
-			}
-		}
-
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			bool important = false;
 

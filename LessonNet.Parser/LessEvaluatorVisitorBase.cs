@@ -131,6 +131,10 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
+		public virtual LessNode VisitSingleValuedExpression(LessParser.SingleValuedExpressionContext context) {
+			throw new System.NotImplementedException();
+		}
+
 		public virtual LessNode VisitCommaExpression(LessParser.CommaExpressionContext context) {
 			throw new System.NotImplementedException();
 		}

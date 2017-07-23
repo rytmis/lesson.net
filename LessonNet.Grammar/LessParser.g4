@@ -8,8 +8,6 @@ parser grammar LessParser;
 
 options { tokenVocab=LessLexer; }
 
-@members { private bool matchCommaSeparatedLists = true; }
-
 stylesheet
   : statement*
   ;
@@ -127,11 +125,16 @@ color
   ;
 
 expression
+  : { matchCommaSeparatedLists }? singleValuedExpression commaExpression+
+  | singleValuedExpression+ 
+  ;
+
+singleValuedExpression
   : quotedExpression
   | parenthesizedExpression
   | fraction
-  | expression op=(DIV|TIMES) expression
-  | expression op=(PLUS|MINUS) expression
+  | singleValuedExpression op=(DIV|TIMES) singleValuedExpression
+  | singleValuedExpression op=(PLUS|MINUS) singleValuedExpression
   | measurement
   | color
   | function
@@ -141,12 +144,12 @@ expression
   | booleanValue
   | identifier
   | selector
-  | expression commaExpression+
-  | expression expression+
   ;
 
+/* The intent here is to direct parsing to not create nested expressions from lists, e.g. 1, 2, 3 -> (1, (2, 3)) */
 commaExpression
-  : {matchCommaSeparatedLists}? COMMA expression;
+  : COMMA singleValuedExpression
+  ;
 
 booleanValue : (TRUE | FALSE);
 
@@ -165,7 +168,7 @@ functionName
   ;
 
 function
-  : functionName LPAREN expression? RPAREN
+  : { EnterCommaMode(true); } functionName LPAREN  expression? RPAREN { ExitCommaMode(); }
   ;
 
 mixinGuardConditions
@@ -195,7 +198,7 @@ conditionStatement
   ;
 
 variableDeclaration
-  : variableName COLON expression IMPORTANT?
+  : variableName COLON expression+ IMPORTANT?
   ;
 
 /* Imports */
@@ -229,9 +232,9 @@ mixinDeclaration
   : selector LPAREN (mixinDefinitionParam SEMI) RPAREN
   | selector LPAREN (mixinDefinitionParam (SEMI mixinDefinitionParam)+)? RPAREN 
   | 
-    { matchCommaSeparatedLists = false; } 
+    { EnterCommaMode(false); } 
       selector LPAREN (mixinDefinitionParam (COMMA mixinDefinitionParam)*)? RPAREN
-    { matchCommaSeparatedLists = true; }
+    { ExitCommaMode(); }
   ;
 
 mixinCallArgument
@@ -452,7 +455,7 @@ identifierVariableName
   ;
 
 property
-  : identifier COLON expression IMPORTANT?
+  : identifier COLON expression+ IMPORTANT?
   ;
 
 url
