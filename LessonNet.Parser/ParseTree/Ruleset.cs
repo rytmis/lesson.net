@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using LessonNet.Grammar;
 using LessonNet.Parser.CodeGeneration;
+using LessonNet.Parser.ParseTree.Mixins;
 using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser.ParseTree
@@ -13,12 +14,25 @@ namespace LessonNet.Parser.ParseTree
 		public SelectorList Selectors { get; }
 		public RuleBlock Block { get; }
 
+		public RulesetGuard Guard { get; }
+
+		public Ruleset(SelectorList selectors, RulesetGuard guard, RuleBlock block) {
+			this.Selectors = selectors;
+			Guard = guard;
+			this.Block = block;
+		}
+
 		public Ruleset(SelectorList selectors, RuleBlock block) {
 			this.Selectors = selectors;
+			Guard = null;
 			this.Block = block;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
+			if (Guard?.SatisfiedBy(context) == false) {
+				yield break;
+			}
+
 			var evaluatedSelectors = Selectors.Inherit(context.CurrentScope.Selectors).EvaluateSingle<SelectorList>(context);
 			evaluatedSelectors.AddExtenders(context);
 

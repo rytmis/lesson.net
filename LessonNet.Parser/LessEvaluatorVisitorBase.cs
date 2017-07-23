@@ -160,7 +160,7 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
-		public virtual LessNode VisitMixinGuardConditions(LessParser.MixinGuardConditionsContext context) {
+		public virtual LessNode VisitGuardConditions(LessParser.GuardConditionsContext context) {
 			throw new System.NotImplementedException();
 		}
 
@@ -206,6 +206,10 @@ namespace LessonNet.Parser
 
 		public virtual LessNode VisitRuleset(LessParser.RulesetContext context)
 		{
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitRulesetGuard(LessParser.RulesetGuardContext context) {
 			throw new System.NotImplementedException();
 		}
 

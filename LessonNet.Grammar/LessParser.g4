@@ -171,7 +171,7 @@ function
   : { EnterCommaMode(true); } functionName LPAREN  expression? RPAREN { ExitCommaMode(); }
   ;
 
-mixinGuardConditions
+guardConditions
   : conditionList (COMMA conditionList)*
   ;
 
@@ -217,7 +217,11 @@ importMediaTypes
 
 /* Rules */
 ruleset
-   : selectors block
+   : selectors rulesetGuard? block
+  ;
+
+rulesetGuard
+  : WHEN guardConditions
   ;
 
 block
@@ -255,7 +259,7 @@ mixinCall
 
 mixinGuard
   : WHEN mixinGuardDefault
-  | WHEN mixinGuardConditions
+  | WHEN guardConditions
   ;
 
 mixinGuardDefault

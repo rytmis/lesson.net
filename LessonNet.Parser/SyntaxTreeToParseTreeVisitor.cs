@@ -182,9 +182,14 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitRuleset(LessParser.RulesetContext context) {
-			SelectorList selectors = (SelectorList) context.selectors().Accept(this);
+			var selectors = (SelectorList) context.selectors().Accept(this);
+			var guard = (RulesetGuard) context.rulesetGuard()?.Accept(this);
 
-			return new Ruleset(selectors, (RuleBlock) context.block().Accept(this));
+			return new Ruleset(selectors, guard, (RuleBlock) context.block().Accept(this));
+		}
+
+		public override LessNode VisitRulesetGuard(LessParser.RulesetGuardContext context) {
+			return new RulesetGuard((OrConditionList) context.guardConditions().Accept(this));
 		}
 
 		private IEnumerable<IdentifierPart> GetIdentifierParts(string prefix, LessParser.IdentifierContext idContext) {
@@ -549,10 +554,10 @@ namespace LessonNet.Parser {
 				return DefaultMixinGuard.Instance;
 			}
 
-			return new ConditionMixinGuard((OrConditionList) context.mixinGuardConditions().Accept(this));
+			return new ConditionMixinGuard((OrConditionList) context.guardConditions().Accept(this));
 		}
 
-		public override LessNode VisitMixinGuardConditions(LessParser.MixinGuardConditionsContext context) {
+		public override LessNode VisitGuardConditions(LessParser.GuardConditionsContext context) {
 			var conditionLists = context.conditionList().Select(cl => (AndConditionList) cl.Accept(this));
 
 			return new OrConditionList(conditionLists);

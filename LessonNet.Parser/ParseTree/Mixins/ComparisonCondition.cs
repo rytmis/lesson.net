@@ -38,6 +38,8 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 					return NumericCompare(lhs, rhs, (l, r) => l.Number >= r.Number);
 				case "<=":
 					return NumericCompare(lhs, rhs, (l, r) => l.Number <= r.Number);
+				case "=<":
+					return NumericCompare(lhs, rhs, (l, r) => l.Number <= r.Number);
 				case "=":
 					return Equals(lhs, rhs);
 				default:

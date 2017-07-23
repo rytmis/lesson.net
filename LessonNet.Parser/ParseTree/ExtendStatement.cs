@@ -16,9 +16,8 @@ namespace LessonNet.Parser.ParseTree {
 					context.Extenders.Add(extender, selector);
 				}
 			}
-			
 
-			yield return extension;
+			yield break;
 		}
 	}
 }
