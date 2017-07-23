@@ -243,7 +243,7 @@ namespace LessonNet.Parser {
 					?? pseudo.COLONCOLON()?.GetText()
 					?? "";
 
-				return new Identifier(new PseudoclassIdentifierPart(prefix, pseudo.Identifier().GetText(), (Expression) pseudo.expression()?.Accept(this)));
+				return new Identifier(new PseudoclassIdentifierPart(prefix, pseudo.pseudoclassIdentifier().GetText(), (Expression) pseudo.expression()?.Accept(this)));
 			}
 
 			Identifier GetIdentifier() {

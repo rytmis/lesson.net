@@ -309,12 +309,20 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
+		public virtual LessNode VisitKeywordAsPseudoclassIdentifier(LessParser.KeywordAsPseudoclassIdentifierContext context) {
+			throw new System.NotImplementedException();
+		}
+
 		public virtual LessNode VisitVariableInterpolation(LessParser.VariableInterpolationContext context) {
 			throw new System.NotImplementedException();
 		}
 
 		public virtual LessNode VisitIdentifier(LessParser.IdentifierContext context)
 		{
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitPseudoclassIdentifier(LessParser.PseudoclassIdentifierContext context) {
 			throw new System.NotImplementedException();
 		}
 

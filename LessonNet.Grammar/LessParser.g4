@@ -327,7 +327,7 @@ extender
 
 
 pseudoClass
-  : (COLON|COLONCOLON) Identifier (LPAREN expression RPAREN)?;
+  : (COLON|COLONCOLON) pseudoclassIdentifier (LPAREN expression RPAREN)?;
 
 attribRelate
   : EQ 
@@ -339,6 +339,11 @@ attribRelate
   ;
 
 keywordAsIdentifier
+  : keywordAsPseudoclassIdentifier
+  | EXTEND
+  ;
+
+keywordAsPseudoclassIdentifier
   : NULL
   | IN
   | URL
@@ -432,7 +437,6 @@ keywordAsIdentifier
   | NEGATION
   | CHAR_UNIT
   | KnownColor
-  | EXTEND
   | ALL
   | FROM
   | TO
@@ -446,6 +450,11 @@ variableInterpolation
 
 identifier
   : (keywordAsIdentifier | Identifier | IdentifierAfter) identifierPart*
+  | variableInterpolation identifierPart*
+  ;
+
+pseudoclassIdentifier
+  : (keywordAsPseudoclassIdentifier | Identifier | IdentifierAfter) identifierPart*
   | variableInterpolation identifierPart*
   ;
 
