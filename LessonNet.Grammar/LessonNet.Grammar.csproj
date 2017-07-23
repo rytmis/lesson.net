@@ -13,6 +13,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="LessParser.partial.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Antlr4 Include="LessLexer.g4">
       <Generator>MSBuild:Compile</Generator>
       <CustomToolNamespace>LessonNet.Grammar</CustomToolNamespace>

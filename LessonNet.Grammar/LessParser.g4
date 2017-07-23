@@ -8,6 +8,8 @@ parser grammar LessParser;
 
 options { tokenVocab=LessLexer; }
 
+@members { private bool matchCommaSeparatedLists = true; }
+
 stylesheet
   : statement*
   ;
@@ -139,9 +141,12 @@ expression
   | booleanValue
   | identifier
   | selector
-  | expression (COMMA expression)+
+  | expression commaExpression+
   | expression expression+
   ;
+
+commaExpression
+  : {matchCommaSeparatedLists}? COMMA expression;
 
 booleanValue : (TRUE | FALSE);
 
@@ -195,7 +200,7 @@ variableDeclaration
 
 /* Imports */
 importDeclaration
-  : '@import' referenceUrl importMediaTypes?
+  : IMPORT referenceUrl importMediaTypes?
   ;
 
 referenceUrl
@@ -217,8 +222,16 @@ block
   ;
 
 mixinDefinition
-  : selector LPAREN (mixinDefinitionParam (SEMI mixinDefinitionParam)*)? RPAREN mixinGuard? block
-  | selector LPAREN (mixinDefinitionParam (COMMA mixinDefinitionParam)*)? RPAREN mixinGuard? block
+  : mixinDeclaration mixinGuard? block
+  ;
+
+mixinDeclaration
+  : selector LPAREN (mixinDefinitionParam SEMI) RPAREN
+  | selector LPAREN (mixinDefinitionParam (SEMI mixinDefinitionParam)+)? RPAREN 
+  | 
+    { matchCommaSeparatedLists = false; } 
+      selector LPAREN (mixinDefinitionParam (COMMA mixinDefinitionParam)*)? RPAREN
+    { matchCommaSeparatedLists = true; }
   ;
 
 mixinCallArgument
@@ -227,8 +240,12 @@ mixinCallArgument
   ;
 
 mixinCall
-  : selector (LPAREN (mixinCallArgument (SEMI mixinCallArgument)* SEMI?)? RPAREN)? IMPORTANT?
-  | selector (LPAREN (mixinCallArgument (COMMA mixinCallArgument)*)? RPAREN)? IMPORTANT?
+  : selector LPAREN mixinCallArgument SEMI RPAREN IMPORTANT?
+  | selector LPAREN mixinCallArgument (SEMI mixinCallArgument)+ RPAREN IMPORTANT?
+  | 
+    { matchCommaSeparatedLists = false; } 
+      selector (LPAREN (mixinCallArgument (COMMA mixinCallArgument)*)? RPAREN)? IMPORTANT? 
+    { matchCommaSeparatedLists = true; }
   ;
 
 

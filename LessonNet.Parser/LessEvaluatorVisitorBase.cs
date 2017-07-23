@@ -131,6 +131,10 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
+		public virtual LessNode VisitCommaExpression(LessParser.CommaExpressionContext context) {
+			throw new System.NotImplementedException();
+		}
+
 		public virtual LessNode VisitBooleanValue(LessParser.BooleanValueContext context) {
 			throw new System.NotImplementedException();
 		}
@@ -208,6 +212,10 @@ namespace LessonNet.Parser
 
 		public virtual LessNode VisitMixinDefinition(LessParser.MixinDefinitionContext context)
 		{
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitMixinDeclaration(LessParser.MixinDeclarationContext context) {
 			throw new System.NotImplementedException();
 		}
 

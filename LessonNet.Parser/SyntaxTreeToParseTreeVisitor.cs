@@ -401,20 +401,18 @@ namespace LessonNet.Parser {
 
 			Expression GetExpressionList() {
 				var expressions = context.expression();
-				if (expressions.Length < 2) {
-					return null;
+
+				if (expressions.Length > 1) {
+					return new ExpressionList(context.expression().Select(expr => (Expression)expr.Accept(this)), ' ').Flatten();
 				}
 
-				char separator;
-				if (context.COMMA().Length > 0) {
-					separator = ',';
-				} else {
-					separator = ' ';
+				var commaExpressions = context.commaExpression();
+				if (commaExpressions.Length > 0) {
+					var allExpressions = expressions.Concat(commaExpressions.Select(c => c.expression()));
+					return new ExpressionList(allExpressions.Select(expr => (Expression)expr.Accept(this)), ',').Flatten();
 				}
 
-				var list = new ExpressionList(context.expression().Select(expr => (Expression)expr.Accept(this)), separator);
-				var flattened = list.Flatten();
-				return flattened;
+				return null;
 			}
 
 			Expression GetBoolean() {
@@ -507,6 +505,7 @@ namespace LessonNet.Parser {
 				var variableDeclaration = param.variableDeclaration();
 				if (variableDeclaration != null) {
 					var decl = (VariableDeclaration) variableDeclaration.Accept(this);
+
 					return new MixinParameter(decl.Name, decl.Value);
 				}
 
@@ -523,21 +522,23 @@ namespace LessonNet.Parser {
 				return new PatternMatchParameter((Identifier) param.identifier().Accept(this));
 			}
 
-			IEnumerable<MixinParameterBase> GetParameters() {
-				if (context.mixinDefinitionParam() == null) {
+			IEnumerable<MixinParameterBase> GetParameters(LessParser.MixinDeclarationContext decl) {
+				var parameters = decl.mixinDefinitionParam();
+				if (parameters == null) {
 					yield break;
 				}
-				foreach (var param in context.mixinDefinitionParam()) {
+				foreach (var param in parameters) {
 					yield return GetParameter(param);
 				}
 			}
 
-			var selector = (Selector) context.selector().Accept(this);
+			var declaration = context.mixinDeclaration();
+			var selector = (Selector) declaration.selector().Accept(this);
 			var ruleBlock = (RuleBlock) context.block().Accept(this);
 
 			var guard = (MixinGuard) context.mixinGuard()?.Accept(this);
 
-			return new MixinDefinition(selector, GetParameters(), ruleBlock, guard);
+			return new MixinDefinition(selector, GetParameters(declaration), ruleBlock, guard);
 		}
 
 		public override LessNode VisitMixinGuard(LessParser.MixinGuardContext context) {
