@@ -618,24 +618,12 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitMixinCall(LessParser.MixinCallContext context) {
-			IEnumerable<MixinCallArgument> GetArguments(bool semicolonSeparated) {
+			IEnumerable<MixinCallArgument> GetArguments() {
 				foreach (var arg in context.mixinCallArgument()) {
 					var namedArg = arg.variableDeclaration();
 					var expression = GetExpression(arg.expression()) ?? GetValue(namedArg?.expression());
 
-					if (expression is ExpressionList list && !semicolonSeparated) {
-						var firstValue = list.Values[0];
-
-						if (namedArg != null) {
-							yield return new NamedArgument(namedArg.variableName().identifier().GetText(), firstValue);
-						} else {
-							yield return new PositionalArgument(firstValue);
-						}
-
-						foreach (var remainingValue in list.Values.Skip(1)) {
-							yield return new PositionalArgument(remainingValue);
-						}
-					} else if (namedArg != null) {
+					if (namedArg != null) {
 						yield return new NamedArgument(namedArg.variableName().identifier().GetText(), expression);
 					} else {
 						yield return new PositionalArgument(expression);
@@ -644,13 +632,12 @@ namespace LessonNet.Parser {
 			}
 
 
-			bool semi = context.SEMI().Length > 0;
 			bool important = context.IMPORTANT() != null;
 
 			var selector = (Selector)context.selector().Accept(this);
 
 			if (context.LPAREN() != null) {
-				return new MixinCall(selector, GetArguments(semi), important);
+				return new MixinCall(selector, GetArguments(), important);
 			}
 
 			return new RulesetCall(selector, important);
