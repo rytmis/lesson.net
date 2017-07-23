@@ -11,7 +11,10 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 
 
 		public override bool SatisfiedBy(EvaluationContext context) {
-			bool result = expression.EvaluateSingle<BooleanValue>(context).Value;
+			var evaluated = expression.EvaluateSingle<Expression>(context);
+
+			bool result = evaluated is BooleanValue boolean && boolean.Value;
+
 			return negate ? !result : result;
 		}
 	}
