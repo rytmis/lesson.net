@@ -13,9 +13,13 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		}
 
 		public override bool SatisfiedBy(EvaluationContext context, MixinGuardScope guardScope) {
+			if (!conditions.SatisfiedBy(context)) {
+				return false;
+			}
+
 			guardScope.SetConditionGuard();
 
-			return conditions.SatisfiedBy(context);
+			return true;
 		}
 	}
 
