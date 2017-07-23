@@ -50,8 +50,8 @@ namespace LessonNet.Parser
 			return new ScopeGuard(scopeStack);
 		}
 
-		public IDisposable EnterClosureScope(Scope closure) {
-			scopeStack.Push(new ClosureScope(this, closure, CurrentScope));
+		public IDisposable EnterClosureScope(Scope closure, IEnumerable<VariableDeclaration> localVariables = null) {
+			scopeStack.Push(new ClosureScope(this, closure, CurrentScope, localVariables));
 
 			return new ScopeGuard(scopeStack);
 		}
@@ -74,6 +74,7 @@ namespace LessonNet.Parser
 		private SelectorList SelectorsWithoutCombinators;
 
 		public Scope Parent { get; protected set; }
+
 		public bool IsRoot => Parent == null;
 
 		private readonly EvaluationContext context;
@@ -81,7 +82,7 @@ namespace LessonNet.Parser
 		private IList<Scope> children = new List<Scope>();
 		private IDictionary<string, VariableDeclaration> variables = new Dictionary<string, VariableDeclaration>();
 
-		private IList<MixinDefinition> mixins = new List<MixinDefinition>();
+		private IList<(MixinDefinition Mixin, Scope Closure)> mixinDefinitions = new List<(MixinDefinition, Scope)>();
 		private IList<Ruleset> rulesets = new List<Ruleset>();
 
 
@@ -93,7 +94,11 @@ namespace LessonNet.Parser
 		}
 
 		public virtual void DeclareMixin(MixinDefinition mixin) {
-			mixins.Add(mixin);
+			DeclareMixinCore(mixin, null);
+		}
+
+		internal void DeclareMixinCore(MixinDefinition mixin, Scope closure) {
+			mixinDefinitions.Add((mixin, closure));
 		}
 
 		public virtual void DeclareVariable(VariableDeclaration variable) {
@@ -139,10 +144,10 @@ namespace LessonNet.Parser
 		private IList<MixinEvaluationResult> ResolveMixinsCore(MixinCall call, bool resolveFromParents = true) {
 			var guardScope = new MixinGuardScope();
 
-			var matchingMixins = mixins
-				.Where(mixin => call.Matches(mixin, context))
-				.OrderBy(mixin => mixin.IsDefaultOverload)
-				.Select(m => new MixinEvaluationResult(m, call, this, guardScope))
+			var matchingMixins = mixinDefinitions
+				.Where(mixin => call.Matches(mixin.Mixin, context))
+				.OrderBy(mixin => mixin.Mixin.IsDefaultOverload)
+				.Select(m => new MixinEvaluationResult(m.Mixin, call, m.Closure ?? this, guardScope))
 				.Concat(ResolveInChildContexts(call));
 
 			if (!resolveFromParents || Parent == null) {
@@ -173,9 +178,9 @@ namespace LessonNet.Parser
 				.Select(m => new RulesetEvaluationResult(m, call, this));
 
 			var guardScope = new MixinGuardScope();
-			var matchingMixins = mixins
-				.Where(call.Matches)
-				.Select(m => new MixinEvaluationResult(m, new MixinCall(call.Selector, Enumerable.Empty<PositionalArgument>(), call.Important), this, guardScope));
+			var matchingMixins = mixinDefinitions
+				.Where(m => call.Matches(m.Mixin))
+				.Select(m => new MixinEvaluationResult(m.Mixin, new MixinCall(call.Selector, Enumerable.Empty<PositionalArgument>(), call.Important), m.Closure ?? this, guardScope));
 
 			var localResults = matchingRulesets
 				.Concat<InvocationResult>(matchingMixins)
@@ -241,10 +246,16 @@ namespace LessonNet.Parser
 	public class ClosureScope : Scope {
 		private readonly Scope closure;
 
-		public ClosureScope(EvaluationContext context, Scope closure, Scope overlay) : base(context, overlay.Selectors) {
+		public ClosureScope(EvaluationContext context, Scope closure, Scope overlay, IEnumerable<VariableDeclaration> localVariables) : base(context, overlay.Selectors) {
 			this.closure = closure;
 
 			Parent = overlay;
+
+			if (localVariables != null) {
+				foreach (var variableDeclaration in localVariables) {
+					base.DeclareVariable(variableDeclaration);
+				}
+			}
 		}
 
 		public override VariableDeclaration ResolveVariable(string name, bool throwOnError = true) {
@@ -263,7 +274,7 @@ namespace LessonNet.Parser
 		}
 
 		public override void DeclareMixin(MixinDefinition mixin) {
-			Parent.DeclareMixin(mixin);
+			Parent.DeclareMixinCore(mixin, this);
 		}
 
 		public override void DeclareVariable(VariableDeclaration variable) {

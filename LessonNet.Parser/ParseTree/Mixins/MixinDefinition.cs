@@ -74,12 +74,6 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 			throw new System.NotImplementedException();
 		}
 
-		public void DeclareIn(EvaluationContext context) {
-			if (DefaultValue != null) {
-				context.CurrentScope.DeclareVariable(new VariableDeclaration(Name, DefaultValue));
-			}
-		}
-
 		public override bool HasDefaultValue => DefaultValue != null;
 
 		protected override string GetStringRepresentation() {

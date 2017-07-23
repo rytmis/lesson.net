@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using LessonNet.Parser.ParseTree.Expressions;
 using LessonNet.Parser.Util;
@@ -10,8 +12,6 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		private readonly Scope closure;
 		private readonly MixinGuardScope guardScope;
 
-		public bool Matched { get; private set; }
-
 		public MixinEvaluationResult(MixinDefinition mixin, MixinCall call, Scope closure, MixinGuardScope guardScope) {
 			this.mixin = mixin;
 			this.call = call;
@@ -20,37 +20,39 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			using (context.EnterClosureScope(closure)) {
+			IEnumerable<VariableDeclaration> GetArguments() {
 				// Evaluate all arguments prior to declaring default values and such in the scope
 				var evaluatedArgs = call.Arguments.Select(arg => arg.EvaluateSingle<MixinCallArgument>(context)).ToArray();
 
 				var namedParameters = mixin.Parameters.OfType<MixinParameter>().ToArray();
 
-				var varargs = evaluatedArgs.Skip(namedParameters.Length).Select(arg => arg.Value).ToArray(); 
+				var varargs = evaluatedArgs.Skip(namedParameters.Length).Select(arg => arg.Value).ToArray();
 
 				// Resolve named parameters from variables so that default argument values re taken into account
 				var allArguments = namedParameters
 					.Select(p => new Variable(p.Name))
 					.Concat(varargs);
 
-				context.CurrentScope.DeclareVariable(new VariableDeclaration("arguments", new ExpressionList(allArguments, ' ')));
+				yield return new VariableDeclaration("arguments", new ExpressionList(allArguments, ' '));
 
 				foreach (var mixinParameter in namedParameters) {
-					mixinParameter.DeclareIn(context);
+					if (mixinParameter.DefaultValue != null) {
+						yield return new VariableDeclaration(mixinParameter.Name, mixinParameter.DefaultValue);
+					}
 				}
 
 				if (mixin.Parameters.Count > 0 && mixin.Parameters.Last() is NamedVarargsParameter namedVarags) {
-					context.CurrentScope.DeclareVariable(new VariableDeclaration(namedVarags.Name, new ExpressionList(varargs, ' ')));
+					yield return new VariableDeclaration(namedVarags.Name, new ExpressionList(varargs, ' '));
 				}
 
 				(var namedArgs, var positionalArgs) = evaluatedArgs.Split<NamedArgument, PositionalArgument>();
 
 				foreach (var namedArgument in namedArgs) {
-					namedArgument.DeclareIn(context);
+					yield return new VariableDeclaration(namedArgument.ParameterName, namedArgument.Value);
 				}
 
 				var parameterArgumentPairs = mixin.Parameters
-					.Zip(positionalArgs, (param, argument) => new { Parameter = param, Argument = argument })
+					.Zip(positionalArgs, (param, argument) => new {Parameter = param, Argument = argument})
 					.Where(pair => pair.Parameter is MixinParameter)
 					.Select(pair => {
 						var param = (MixinParameter) pair.Parameter;
@@ -59,15 +61,15 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 					});
 
 				foreach (var argument in parameterArgumentPairs) {
-					context.CurrentScope.DeclareVariable(argument);
+					yield return argument;
 				}
+			}
 
+			using (context.EnterClosureScope(closure, GetArguments())) {
 				if (mixin.Guard(context, guardScope)) {
 					foreach (var evaluationResult in mixin.Evaluate(context)) {
 						yield return evaluationResult;
 					}
-
-					Matched = true;
 				}
 			}
 		}
