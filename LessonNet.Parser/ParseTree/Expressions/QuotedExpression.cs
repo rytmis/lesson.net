@@ -10,7 +10,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new QuotedExpression(value.EvaluateSingle<LessString>(context));
+			yield return new Identifier(new ConstantIdentifierPart(value.EvaluateSingle<LessString>(context).GetUnquotedValue()));
 		}
 
 		public override void WriteOutput(OutputContext context) {
