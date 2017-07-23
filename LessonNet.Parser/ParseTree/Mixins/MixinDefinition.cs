@@ -51,7 +51,8 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		}
 
 		protected override string GetStringRepresentation() {
-			return $"{Selector} ({string.Join(",", Parameters)})";
+			var guardStr = guard != null ? $" {guard}" : "";
+			return $"{Selector} ({string.Join(",", Parameters)}){guardStr}";
 		}
 	}
 

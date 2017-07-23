@@ -21,6 +21,10 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 
 			return true;
 		}
+
+		protected override string GetStringRepresentation() {
+			return $"when {conditions}";
+		}
 	}
 
 	public class DefaultMixinGuard : MixinGuard {

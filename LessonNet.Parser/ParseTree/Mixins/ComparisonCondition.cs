@@ -25,6 +25,10 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		private Expression Evaluate(Expression expr, EvaluationContext context) {
 			return expr.EvaluateSingle<Expression>(context);
 		}
+
+		protected override string GetStringRepresentation() {
+			return $"({lhs} {comparison} {rhs})";
+		}
 	}
 
 	public static class ComparisonOperations {

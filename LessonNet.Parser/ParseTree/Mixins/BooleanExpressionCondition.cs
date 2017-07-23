@@ -17,5 +17,9 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 
 			return negate ? !result : result;
 		}
+
+		protected override string GetStringRepresentation() {
+			return $"({expression})";
+		}
 	}
 }

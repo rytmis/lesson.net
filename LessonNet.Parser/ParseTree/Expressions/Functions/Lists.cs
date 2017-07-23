@@ -15,6 +15,10 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 
 			return new Measurement(1, "");
 		}
+
+		protected override string GetStringRepresentation() {
+			return $"length({Arguments})";
+		}
 	}
 	public class ExtractFunction : LessFunction {
 		public ExtractFunction(Expression arguments) : base(arguments) { }

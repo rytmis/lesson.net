@@ -38,6 +38,10 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			context.Append(rhs);
 		}
 
+		protected override string GetStringRepresentation() {
+			return $"{lhs} {op} {rhs}";
+		}
+
 		protected bool Equals(MathOperation other) {
 			return Equals(lhs, other.lhs)
 				&& string.Equals(op, other.op)

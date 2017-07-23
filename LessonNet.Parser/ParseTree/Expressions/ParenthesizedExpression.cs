@@ -29,6 +29,10 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			context.Append(')');
 		}
 
+		protected override string GetStringRepresentation() {
+			return $"({expression})";
+		}
+
 		public override bool Equals(object obj) {
 			if (ReferenceEquals(null, obj)) return false;
 			if (ReferenceEquals(this, obj)) return true;

@@ -12,5 +12,9 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		public bool SatisfiedBy(EvaluationContext context) {
 			return conditionLists.Any(cl => cl.SatisfiedBy(context));
 		}
+
+		protected override string GetStringRepresentation() {
+			return string.Join(", ", conditionLists.Select(c => c.ToString()));
+		}
 	}
 }
