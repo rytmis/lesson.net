@@ -9,26 +9,22 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 	public class Color : Expression {
 		public static readonly Color Transparent = new Color(0, 0, 0, 0, "transparent");
 
-		public uint R { get; }
-		public uint G { get; }
-		public uint B { get; }
+		public byte R { get; }
+		public byte G { get; }
+		public byte B { get; }
 		public decimal? Alpha { get; }
 		public string Keyword { get; }
 
 
-		public Color(uint r, uint g, uint b, decimal? alpha = null, string keyword = null) {
-			this.R = ChannelValue(r);
-			this.G = ChannelValue(g);
-			this.B = ChannelValue(b);
+		public Color(byte r, byte g, byte b, decimal? alpha = null, string keyword = null) {
+			this.R = r;
+			this.G = g;
+			this.B = b;
 			this.Alpha = AlphaValue(alpha);
 			this.Keyword = keyword;
 		}
 
-		public Color(Measurement m) : this((uint) m.Number, (uint) m.Number, (uint) m.Number) {
-		}
-
-		private static uint ChannelValue(uint channel) {
-			return Math.Max(Math.Min(channel, 255), 0);
+		public Color(Measurement m) : this((byte) m.Number, (byte) m.Number, (byte) m.Number) {
 		}
 
 		private static decimal? AlphaValue(decimal? alpha) {
@@ -41,6 +37,33 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			yield return this;
+		}
+
+		public Color BlendWith(Color other, Func<byte, byte, byte> op) {
+			var otherAlpha = other.Alpha ?? 1;
+			var selfAlpha = Alpha ?? 1;
+
+			var resultAlpha = otherAlpha + selfAlpha * (1 - otherAlpha);
+
+			return new Color(
+				ComposeWith(other, resultAlpha, c => c.R, op),
+				ComposeWith(other, resultAlpha, c => c.G, op),
+				ComposeWith(other, resultAlpha, c => c.B, op),
+				resultAlpha);
+		}
+
+		private byte ComposeWith(Color other, decimal resultAlpha, Func<Color, byte> channel, Func<byte,byte,byte> op)
+		{
+			var backdropChannelValue = channel(this);
+			var sourceChannelValue = channel(other);
+			var backdropAlpha = Alpha ?? 1;
+			var sourceAlpha = other.Alpha ?? 1;
+			byte channelResult = op(backdropChannelValue, sourceChannelValue);
+			if (resultAlpha <= 0) {
+				return channelResult;
+			}
+
+			return (byte) ((sourceAlpha * sourceChannelValue + backdropAlpha * (backdropChannelValue - sourceAlpha * (backdropChannelValue + sourceChannelValue - channelResult))) / resultAlpha);
 		}
 
 		public override void WriteOutput(OutputContext context) {
@@ -132,33 +155,33 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 
 		public static Color operator +(Color c1, Color c2) {
 			return new Color(
-				c1.R + c2.R,
-				c1.G + c2.G,
-				c1.B + c2.B
+				(byte) (c1.R + c2.R),
+				(byte) (c1.G + c2.G),
+				(byte) (c1.B + c2.B)
 			);
 		}
 
 		public static Color operator -(Color c1, Color c2) {
 			return new Color(
-				c1.R - c2.R,
-				c1.G - c2.G,
-				c1.B - c2.B
+				(byte) (c1.R - c2.R),
+				(byte) (c1.G - c2.G),
+				(byte) (c1.B - c2.B)
 			);
 		}
 
 		public static Color operator *(Color c1, Color c2) {
 			return new Color(
-				c1.R * c2.R,
-				c1.G * c2.G,
-				c1.B * c2.B
+				(byte) (c1.R * c2.R),
+				(byte) (c1.G * c2.G),
+				(byte) (c1.B * c2.B)
 			);
 		}
 
 		public static Color operator /(Color c1, Color c2) {
 			return new Color(
-				c1.R / c2.R,
-				c1.G / c2.G,
-				c1.B / c2.B
+				(byte) (c1.R / c2.R),
+				(byte) (c1.G / c2.G),
+				(byte) (c1.B / c2.B)
 			);
 		}
 	}

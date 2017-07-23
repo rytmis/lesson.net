@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -62,7 +61,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 		protected override Expression EvaluateFunction(Expression arguments) {
 			var (r, g, b) = VerifyArguments(arguments);
 			
-			return new Color((uint)r.Number, (uint)g.Number, (uint)b.Number, null);
+			return new Color((byte)r.Number, (byte)g.Number, (byte)b.Number, null);
 		}
 
 		private static (Measurement, Measurement, Measurement) VerifyArguments(Expression arguments) {
@@ -89,7 +88,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 		protected override Expression EvaluateFunction(Expression arguments) {
 			var (r, g, b, a) = VerifyArguments(arguments);
 			
-			return new Color((uint)r.Number, (uint)g.Number, (uint)b.Number, a.Number);
+			return new Color((byte)r.Number, (byte)g.Number, (byte)b.Number, a.Number);
 		}
 
 		private static (Measurement, Measurement, Measurement, Measurement) VerifyArguments(Expression arguments) {
