@@ -1837,13 +1837,14 @@ fieldset[disabled] .test {
         [Fact]
         public void MultipleCommaseparatedGeneratedSelectorsAreCallableAsMixins() {
             var input = @"
-@selector: ~"".col, .col2"";
-@{selector} {
+@a: 1;
+@b: 2;
+.col@{a}, .col@{b} {
   width: 120px;
 }
 
 .test {
-  .col;
+  .col1;
 }
 .test2 {
   .col2;
@@ -1851,7 +1852,7 @@ fieldset[disabled] .test {
 ";
 
             var expected = @"
-.col,
+.col1,
 .col2 {
   width: 120px;
 }
