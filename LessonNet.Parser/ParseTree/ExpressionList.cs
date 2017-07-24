@@ -43,7 +43,15 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			context.Append(string.Join(GetSeparatorString(), Values.Select(v => v.ToCss())));
+			string sep = GetSeparatorString();
+			for (var index = 0; index < Values.Count; index++) {
+				var expression = Values[index];
+				context.Append(expression);
+
+				if (index < Values.Count - 1) {
+					context.Append(sep);
+				}
+			}
 		}
 
 		private string GetSeparatorString() {

@@ -27,7 +27,10 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			context.Append($"{Property}: {Value.ToCss()}");
+			context.Append(Property);
+			context.Append(':');
+			context.Append(' ');
+			context.Append(Value);
 		}
 
 		protected override string GetStringRepresentation() {

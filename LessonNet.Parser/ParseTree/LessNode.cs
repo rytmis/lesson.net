@@ -13,14 +13,6 @@ namespace LessonNet.Parser.ParseTree {
 
 		public virtual void WriteOutput(OutputContext context) { }
 
-		public string ToCss() {
-			var outputContext = new OutputContext(' ', 4);
-			WriteOutput(outputContext);
-
-			return outputContext.GetCss();
-		}
-
-
 		public override string ToString() => GetStringRepresentation();
 
 		public IEnumerable<LessNode> Evaluate(EvaluationContext context) {
