@@ -291,6 +291,7 @@ InterpolationEnd_ID    : BlockEnd -> popMode, type(BlockEnd);
 IdentifierAfter        : Identifier;
 Ellipsis_ID            : Ellipsis -> popMode, type(Ellipsis);
 DOT_ID                 : DOT -> popMode, type(DOT);
+HASH_ID                : HASH -> popMode, type(HASH);
 
 LPAREN_ID                 : LPAREN -> popMode, type(LPAREN);
 RPAREN_ID                 : RPAREN -> popMode, type(RPAREN);
