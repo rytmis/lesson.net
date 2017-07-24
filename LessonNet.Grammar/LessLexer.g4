@@ -63,7 +63,7 @@ FALSE           : 'false';
 URL : 'url';
 
 UrlStart
-  : URL LPAREN
+  : URL LPAREN -> pushMode(URL_STARTED)
   ;
 
 MEDIA           : '@media';
