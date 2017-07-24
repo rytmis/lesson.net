@@ -506,17 +506,17 @@ audio:not([controls]) {
 		[Fact]
 		public void Css3FilterFunctionsPassThrough()
 		{
-			AssertLessUnchanged("filter: url(resources.svg#c1);");
-			AssertLessUnchanged("filter: blur(5px);");
-			AssertLessUnchanged("filter: brightness(0.5);");
-			AssertLessUnchanged("filter: contrast(200%);");
-			AssertLessUnchanged("filter: drop-shadow(16px 16px 10px black);");
-			AssertLessUnchanged("filter: grayscale(100%);");
-			AssertLessUnchanged("filter: hue-rotate(90deg);");
-			AssertLessUnchanged("filter: invert(100%);");
-			AssertLessUnchanged("filter: opacity(50%);");
-			AssertLessUnchanged("filter: saturate(200%);");
-			AssertLessUnchanged("filter: sepia(100%);");
+			AssertRuleUnchanged("filter: url(resources.svg#c1)");
+			AssertRuleUnchanged("filter: blur(5px)");
+			AssertRuleUnchanged("filter: brightness(0.5)");
+			AssertRuleUnchanged("filter: contrast(200%)");
+			AssertRuleUnchanged("filter: drop-shadow(16px 16px 10px black)");
+			AssertRuleUnchanged("filter: grayscale(100%)");
+			AssertRuleUnchanged("filter: hue-rotate(90deg)");
+			AssertRuleUnchanged("filter: invert(100%)");
+			AssertRuleUnchanged("filter: opacity(50%)");
+			AssertRuleUnchanged("filter: saturate(200%)");
+			AssertRuleUnchanged("filter: sepia(100%)");
 		}
 
 		[Fact]
@@ -540,21 +540,21 @@ audio:not([controls]) {
 		[Fact]
 		public void Css3FilterVendorPrefixes()
 		{
-			AssertLessUnchanged("-webkit-filter: saturate(200%);");
-			AssertLessUnchanged("-moz-filter: saturate(200%);");
+			AssertRuleUnchanged("-webkit-filter: saturate(200%)");
+			AssertRuleUnchanged("-moz-filter: saturate(200%)");
 		}
 
 		[Fact]
 		public void Css3FilterMultipleFunctions()
 		{
-			AssertLessUnchanged("filter: invert(100%) opacity(50%) saturate(200%);");
-			AssertLess("filter: /* test */ invert(100%) /* test */ opacity(50%) /* test */ saturate(200%);", "filter: /* test */invert(100%)/* test */ opacity(50%)/* test */ saturate(200%);");
+			AssertRuleUnchanged("filter: invert(100%) opacity(50%) saturate(200%)");
+			AssertRule("filter: /* test */ invert(100%) /* test */ opacity(50%) /* test */ saturate(200%);", "filter: /* test */invert(100%)/* test */ opacity(50%)/* test */ saturate(200%)");
 		}
 
 		[Fact]
 		public void Css3FilterWithEvaluatedValues()
 		{
-			AssertLess("filter: blur(10px + 5);", "filter: blur(15px);");
+			AssertRule("filter: blur(10px + 5)", "filter: blur(15px)");
 		}
 
 		[Fact]

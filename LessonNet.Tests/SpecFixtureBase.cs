@@ -35,6 +35,18 @@ namespace LessonNet.Tests
 			Assert.Equal(expected, actualResult);
 		}
 
+		protected void AssertRuleUnchanged(string input) {
+			AssertRule(input, input);
+		}
+
+		protected void AssertRule(string expected, string input) {
+			string evaluated = Evaluate($".rule {{ {input} }} ");
+
+			string actualResult = evaluated.Replace(".rule", "").Trim('{', '}', '\r', '\n', '\t', ' ', ';');
+
+			Assert.Equal(expected, actualResult);
+		}
+
 		protected void AssertExpression(string expected, string input, IDictionary<string, string> localVariables) {
 			var actualResult = EvaluateExpression(input, localVariables);
 

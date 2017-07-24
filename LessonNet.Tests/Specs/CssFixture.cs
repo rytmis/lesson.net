@@ -499,8 +499,8 @@ image: url(http://); }";
 
             var expected = @"
 .test {
-  background: none;
   color: red;
+  background: none;
 }";
             AssertLess(input, expected);
         }
