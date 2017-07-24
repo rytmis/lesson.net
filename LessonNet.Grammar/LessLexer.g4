@@ -73,7 +73,6 @@ NAMESPACE       : '@namespace';
 SUPPORTS        : '@supports';
 DOCUMENT        : '@document';
 PAGE            : '@page';
-KEYFRAMES       : '@keyframes';
 FROM            : 'from';
 TO              : 'to';
 COUNTERSTYLE    : '@counter-style';
@@ -83,8 +82,19 @@ ARGUMENTS       : '@arguments';
 REST            : '@rest';
 ALL             : 'all';
 
-fragment MediaQueryModifier
-  : (NOT|ONLY)
+fragment Vendor
+  : 'o'
+  | 'moz'
+  | 'ms'
+  | 'webkit'
+  ;
+
+fragment VendorPrefix
+  : MINUS Vendor MINUS
+  ;
+
+KEYFRAMES
+  : VendorPrefix? 'keyframes'
   ;
 
 /* media options */

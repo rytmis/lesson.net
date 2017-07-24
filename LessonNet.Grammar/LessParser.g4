@@ -84,13 +84,14 @@ pageAtRule
   : PAGE selector? block;
 
 keyframesAtRule
-  : KEYFRAMES identifier keyframesBlock;
+  : AT KEYFRAMES identifier keyframesBlock;
 
 keyframesBlock
   : BlockStart keyframe* BlockEnd;
 
 keyframe
-  : (FROM | TO | (Number PERC)) block;
+  : singleValuedExpression (COMMA singleValuedExpression)* block
+  ;
 
 genericAtRule
   : AT identifier expression? block?
@@ -108,7 +109,7 @@ variableName
   | SUPPORTS
   | DOCUMENT
   | PAGE
-  | KEYFRAMES
+  | Keyframes
   | COUNTERSTYLE
   | ARGUMENTS
   | REST
@@ -483,10 +484,14 @@ measurement
   : Number Unit?
   ;
 
+mediaQueryModifier
+  : (NOT|ONLY)
+  ;
+
 featureQuery
-  : MediaQueryModifier? LPAREN property RPAREN
-  | MediaQueryModifier? LPAREN (identifier|variableName) RPAREN
-  | MediaQueryModifier? (identifier|variableName)
+  : mediaQueryModifier? LPAREN property RPAREN
+  | mediaQueryModifier? LPAREN (identifier|variableName) RPAREN
+  | mediaQueryModifier? (identifier|variableName)
   ;
 
 mediaQuery

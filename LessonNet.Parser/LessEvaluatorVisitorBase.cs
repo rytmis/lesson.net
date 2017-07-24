@@ -355,6 +355,10 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
+		public virtual LessNode VisitMediaQueryModifier(LessParser.MediaQueryModifierContext context) {
+			throw new System.NotImplementedException();
+		}
+
 		public virtual LessNode VisitFeatureQuery(LessParser.FeatureQueryContext context) {
 			throw new System.NotImplementedException();
 		}

@@ -134,22 +134,17 @@ namespace LessonNet.Parser {
 
 			var keyframes = context.keyframesBlock().keyframe().Select(f => (Keyframe)f.Accept(this));
 
-			return new KeyframesAtRule(identifier, keyframes);
+			var ruleIdentifier = context.KEYFRAMES().GetText();
+
+			return new KeyframesAtRule(ruleIdentifier, identifier, keyframes);
 		}
 
 		public override LessNode VisitKeyframe(LessParser.KeyframeContext context) {
-			string keyword = context.FROM()?.GetText()
-				?? context.TO()?.GetText();
+			var expressions = context.singleValuedExpression().Select(GetSingleValuedExpression);
 
 			var block = (RuleBlock) context.block().Accept(this);
 
-			if (!string.IsNullOrEmpty(keyword)) {
-				return new Keyframe(keyword, block);
-			}
-
-			var percentage = new Measurement(decimal.Parse(context.Number().GetText()), "%");
-
-			return new Keyframe(percentage, block);
+			return new Keyframe(expressions, block);
 		}
 
 		public override LessNode VisitGenericAtRule(LessParser.GenericAtRuleContext context) {
@@ -657,7 +652,7 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitFeatureQuery(LessParser.FeatureQueryContext context) {
-			var modifier = (MediaQueryModifier) Enum.Parse(typeof(MediaQueryModifier), context.MediaQueryModifier()?.GetText() ?? "None", ignoreCase: true);
+			var modifier = (MediaQueryModifier) Enum.Parse(typeof(MediaQueryModifier), context.mediaQueryModifier()?.GetText() ?? "None", ignoreCase: true);
 			var property = context.property();
 			if (property != null) {
 				return new MediaPropertyQuery(modifier, (Rule) property.Accept(this));

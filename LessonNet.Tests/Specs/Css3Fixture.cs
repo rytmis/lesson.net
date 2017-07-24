@@ -275,7 +275,6 @@ namespace LessonNet.Tests.Specs
 
 			var expected = @"
 @keyframes rotate-this {
-  
 }
 ";
 			AssertLess(input, expected);
