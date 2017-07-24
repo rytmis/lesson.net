@@ -34,7 +34,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 
 			if (str != null) {
 				context.Append(str);
-			} else {
+			} else if (url != null) {
 				context.Append(url);
 			}
 

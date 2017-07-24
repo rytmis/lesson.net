@@ -480,7 +480,7 @@ namespace LessonNet.Parser {
 				return new Url(stringContent);
 			}
 
-			return new Url(context.Url().GetText());
+			return new Url(context.Url()?.GetText());
 		}
 
 		public override LessNode VisitQuotedExpression(LessParser.QuotedExpressionContext context) {

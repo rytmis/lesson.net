@@ -473,7 +473,7 @@ property
   ;
 
 url
-  : UrlStart (string|variableName|Url) RPAREN
+  : UrlStart (string|variableName|Url)? RPAREN
   ;
 
 unit
