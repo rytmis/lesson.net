@@ -436,7 +436,7 @@ keywordAsPseudoclassIdentifier
   | EXCLUSION
   | AVERAGE
   | NEGATION
-  | CHAR_UNIT
+  | Unit
   | KnownColor
   | ALL
   | FROM
@@ -476,12 +476,16 @@ url
   : UrlStart (string|variableName|Url) RPAREN
   ;
 
+unit
+  : (PERC | Unit)
+  ;
+
 fraction
-  : Number DIV Number Unit?
+  : Number DIV Number unit?
   ;
 
 measurement
-  : Number Unit?
+  : Number unit?
   ;
 
 mediaQueryModifier

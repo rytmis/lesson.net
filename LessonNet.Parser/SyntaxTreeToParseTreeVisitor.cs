@@ -416,7 +416,7 @@ namespace LessonNet.Parser {
 
 				var numbers = fraction.Number().Select(n => decimal.Parse(n.GetText())).ToArray();
 
-				return new Fraction(numbers[0], numbers[1], fraction.Unit()?.GetText());
+				return new Fraction(numbers[0], numbers[1], fraction.unit()?.GetText());
 			}
 
 			Expression GetBoolean() {
@@ -667,7 +667,7 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitMeasurement(LessParser.MeasurementContext context) {
-			return new Measurement(decimal.Parse(context.Number().GetText(), CultureInfo.InvariantCulture), context.Unit()?.GetText());
+			return new Measurement(decimal.Parse(context.Number().GetText(), CultureInfo.InvariantCulture), context.unit()?.GetText());
 		}
 
 		public override LessNode VisitFunction(LessParser.FunctionContext context) {

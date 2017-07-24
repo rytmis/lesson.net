@@ -122,7 +122,7 @@ KnownColor
     | 'darkorchid' | 'darkred' | 'darksalmon' | 'darkseagreen' | 'darkslateblue' | 'darkslategray' | 'darkslategrey' 
     | 'darkturquoise' | 'darkviolet' | 'deeppink' | 'deepskyblue' | 'dimgray' | 'dimgrey' | 'dodgerblue' | 'firebrick' 
     | 'floralwhite' | 'forestgreen' | 'fuchsia' | 'gainsboro' | 'ghostwhite' | 'gold' | 'goldenrod' | 'gray' | 'grey' 
-    | 'green' | 'greenyellow' | 'honeydew' | 'hotpink' | 'indianred�' | 'indigo�' | 'ivory' | 'khaki' | 'lavender' 
+    | 'green' | 'greenyellow' | 'honeydew' | 'hotpink' | 'indianred' | 'indigo' | 'ivory' | 'khaki' | 'lavender' 
     | 'lavenderblush' | 'lawngreen' | 'lemonchiffon' | 'lightblue' | 'lightcoral' | 'lightcyan' | 'lightgoldenrodyellow' 
     | 'lightgray' | 'lightgrey' | 'lightgreen' | 'lightpink' | 'lightsalmon' | 'lightseagreen' | 'lightskyblue' 
     | 'lightslategray' | 'lightslategrey' | 'lightsteelblue' | 'lightyellow' | 'lime' | 'limegreen' | 'linen' | 'magenta' 
@@ -264,10 +264,8 @@ EXCLUSION: 'exclusion';
 AVERAGE: 'average';
 NEGATION: 'negation';
 
-fragment CHAR_UNIT
+Unit
   : ('px'|'cm'|'mm'|'in'|'pt'|'pc'|'rem'|'em'|'ex'|'deg'|'rad'|'grad'|'ms'|'s'|'hz'|'khz'|'dpi'|'dpcm'|'vmin'|'vmax'|'vm'|'vw'|'vh');
-
-Unit : ('%'| CHAR_UNIT);
 
 fragment ID_CHAR : ('_' | '-' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' | '0'..'9' | '\\.' | '\\:' );
 
