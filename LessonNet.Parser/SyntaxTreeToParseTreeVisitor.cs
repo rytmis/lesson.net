@@ -694,7 +694,10 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitMeasurement(LessParser.MeasurementContext context) {
-			return new Measurement(decimal.Parse(context.Number().GetText(), CultureInfo.InvariantCulture), context.unit()?.GetText());
+			string unit = context.unit()?.GetText()
+				?? context.identifier()?.GetText();
+
+			return new Measurement(decimal.Parse(context.Number().GetText(), CultureInfo.InvariantCulture), unit);
 		}
 
 		public override LessNode VisitFunction(LessParser.FunctionContext context) {

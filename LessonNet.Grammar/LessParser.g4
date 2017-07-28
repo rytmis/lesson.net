@@ -480,7 +480,7 @@ fraction
   ;
 
 measurement
-  : Number unit?
+  : Number (NUMBER_SPACE|unit|identifier)?
   ;
 
 mediaQueryModifier

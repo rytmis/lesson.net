@@ -333,7 +333,8 @@ ATTRIB_BlockStart	: BlockStart -> popMode, type(BlockStart);
 
 mode NUMBER_STARTED;
 NUMBER_UNIT: Unit -> popMode, type(Unit);
-NUMBER_WS : WS -> popMode, channel(HIDDEN);
+NUMBER_IDENTIFIER : Identifier -> popMode, type(Identifier), pushMode(IDENTIFY);
+NUMBER_SPACE : ' ' -> popMode;
 NUMBER_SEMI : SEMI -> popMode, type(SEMI);
 NUMBER_RPAREN : RPAREN -> popMode, type(RPAREN);
 NUMBER_COMMA : COMMA -> popMode, type(COMMA);
