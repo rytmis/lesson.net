@@ -278,10 +278,11 @@ DQUOT_STRING_START_URL : '"' -> type(DQUOT_STRING_START), pushMode(DQ_STRING);
 SQUOT_STRING_START_URL : '\'' -> type(SQUOT_STRING_START), pushMode(SQ_STRING);
 UrlEnd                 : RPAREN -> type(RPAREN), popMode;
 URL_AT                 : AT -> type(AT), pushMode(IDENTIFY);
-Url                    : (~(')' | '\n' | '\r' | ';' | '@'))+;
+Url                    : ~('\'' | '"' | '@') (~(')' | '\n' | '\r' | '@'))+;
 
 // If we switch modes to identify and then encounter a RPAREN, we pop modes to here, but then never popMode back
 URL_SEMI               : SEMI -> type(SEMI), popMode;
+
 
 mode IDENTIFY;
 BlockStart_ID             : BlockStart -> popMode, type(BlockStart);

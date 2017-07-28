@@ -86,5 +86,33 @@ namespace LessonNet.Tests.Parser {
 			AssertIsSpaceSeparatedList(list.Values[1], 4);
 			AssertIsSpaceSeparatedList(list.Values[2], 5);
 		}
+
+		[Fact]
+		public void UrlWithString() {
+			var parsed = (Url) Parse("url(\"this is a test\")");
+
+			Assert.Equal(LessString.FromString("this is a test"), parsed.StringContent);
+		}
+
+		[Fact]
+		public void UrlWithRawUrl() {
+			var parsed = (Url) Parse("url(this is a test)");
+
+			Assert.Equal("this is a test", parsed.RawUrl);
+		}
+
+		[Fact]
+		public void UrlWithRawUrlAndStringCharacters() {
+			var parsed = (Url) Parse("url(this is \"'a test)");
+
+			Assert.Equal("this is \"'a test", parsed.RawUrl);
+		}
+
+		[Fact]
+		public void UrlWithVariable() {
+			var parsed = (Url) Parse("url(@avar)");
+
+			Assert.Equal(new Variable("avar"), parsed.VariableContent);
+		}
 	}
 }
