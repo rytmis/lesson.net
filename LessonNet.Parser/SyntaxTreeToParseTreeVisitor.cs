@@ -288,7 +288,8 @@ namespace LessonNet.Parser {
 
 		public override LessNode VisitAttribValue(LessParser.AttribValueContext context) {
 			return context.identifier()?.Accept(this)
-				?? context.@string().Accept(this);
+				?? context.@string()?.Accept(this)
+				?? context.measurement().Accept(this);
 		}
 
 		public override LessNode VisitIdentifier(LessParser.IdentifierContext context) {

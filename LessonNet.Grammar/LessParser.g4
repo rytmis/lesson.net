@@ -300,6 +300,7 @@ attrib
 attribValue
   : string 
   | identifier
+  | measurement
   ;
 
 parentSelectorReference

@@ -333,6 +333,7 @@ ATTRIB_STAR_EQUAL	: STAR_EQ -> type(STAR_EQ);
 ATTRIB_RBRACK		: RBRACK -> popMode, type(RBRACK);
 ATTRIB_WS			: WS -> popMode, type(WS), channel(HIDDEN);
 ATTRIB_BlockStart	: BlockStart -> popMode, type(BlockStart);
+ATTRIB_NUMBER		: Number -> type(Number);
 
 mode NUMBER_STARTED;
 NUMBER_UNIT: Unit -> popMode, type(Unit);
