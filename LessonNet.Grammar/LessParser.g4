@@ -133,7 +133,6 @@ expression
 singleValuedExpression
   : quotedExpression
   | parenthesizedExpression
-  | fraction
   | singleValuedExpression op=(DIV|TIMES) singleValuedExpression
   | singleValuedExpression op=(PLUS|MINUS) singleValuedExpression
   | measurement
@@ -473,10 +472,6 @@ url
 
 unit
   : (PERC | Unit)
-  ;
-
-fraction
-  : Number DIV Number unit?
   ;
 
 measurement

@@ -10,11 +10,34 @@ namespace LessonNet.Parser.ParseTree {
 
 		public Rule(string property, Expression value) {
 			this.Property = property;
-			this.Value = value;
+
+			if (IsFontRule()) {
+				this.Value = ProcessFontSizeShorthands(value);
+			} else {
+				this.Value = value;
+			}
+		}
+
+		private bool IsFontRule() => string.Equals("font", Property);
+
+		private Expression ProcessFontSizeShorthands(Expression value) {
+			Expression ReplaceDivisions(Expression val) {
+				if (val is MathOperation math && math.Operator == "/") {
+					return new FontSizeShorthand(math.LeftOperand, math.RightOperand);
+				}
+
+				if (val is ExpressionList list) { 
+					return new ExpressionList(list.Values.Select(ReplaceDivisions), list.Separator);
+				}
+
+				return val;
+			}
+
+
+			return ReplaceDivisions(value);
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-
 			yield return new Rule(Property, Value?.EvaluateSingle<Expression>(context));
 		}
 

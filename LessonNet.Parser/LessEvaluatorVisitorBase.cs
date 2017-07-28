@@ -346,10 +346,6 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
-		public virtual LessNode VisitFraction(LessParser.FractionContext context) {
-			throw new System.NotImplementedException();
-		}
-
 		public virtual LessNode VisitMeasurement(LessParser.MeasurementContext context)
 		{
 			throw new System.NotImplementedException();

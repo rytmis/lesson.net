@@ -435,17 +435,6 @@ namespace LessonNet.Parser {
 				return (LessString) context.@string()?.Accept(this);
 			}
 
-			Expression GetFraction() {
-				var fraction = context.fraction();
-				if (fraction == null) {
-					return null;
-				}
-
-				var numbers = fraction.Number().Select(n => decimal.Parse(n.GetText())).ToArray();
-
-				return new Fraction(numbers[0], numbers[1], fraction.unit()?.GetText());
-			}
-
 			Expression GetBoolean() {
 				var boolean = context.booleanValue();
 				if (boolean == null) {
@@ -466,7 +455,6 @@ namespace LessonNet.Parser {
 				?? context.function()?.Accept(this)
 				?? context.identifier()?.Accept(this)
 				?? context.parenthesizedExpression()?.Accept(this)
-				?? GetFraction()
 				?? GetMathOperation()
 				?? context.url()?.Accept(this)
 				?? context.quotedExpression()?.Accept(this)

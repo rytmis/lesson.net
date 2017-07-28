@@ -315,6 +315,7 @@ CIRC_EQ_ID  : CIRC_EQ -> popMode, type(CIRC_EQ);
 DOLLAR_EQ_ID: DOLLAR_EQ -> popMode, type(DOLLAR_EQ);
 STAR_EQ_ID  : STAR_EQ -> popMode, type(STAR_EQ);
 PARENTREF_ID: PARENTREF -> popMode, type(PARENTREF);
+DIV_ID      : DIV -> popMode, type(DIV);
 
 
 mode ATTRIB;

@@ -7,15 +7,15 @@ using LessonNet.Parser.ParseTree.Expressions;
 
 namespace LessonNet.Parser.ParseTree {
 	public class ExpressionList : Expression {
-		private readonly char separator;
+		public char Separator { get; }
 		public IList<Expression> Values { get; }
 
-		public bool IsCommaSeparated => separator == ',';
+		public bool IsCommaSeparated => Separator == ',';
 
 		public ExpressionList(Expression expr, char separator) : this(new[] {expr}, separator) { }
 
 		public ExpressionList(IEnumerable<Expression> values, char separator) {
-			this.separator = separator;
+			this.Separator = separator;
 			this.Values = values.ToList();
 		}
 
@@ -38,7 +38,7 @@ namespace LessonNet.Parser.ParseTree {
 			// Materializing this enumerable also sets important to true when applicable
 			var expressions = EvaluateExpressions().ToList();
 
-			var list = new ExpressionList(expressions, separator);
+			var list = new ExpressionList(expressions, Separator);
 			yield return important ? (LessNode) new ImportantExpression(list) : list;
 		}
 
@@ -55,7 +55,7 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		private string GetSeparatorString() {
-			return !char.IsWhiteSpace(separator) ? separator + " " : " ";
+			return !char.IsWhiteSpace(Separator) ? Separator + " " : " ";
 		}
 
 		protected override string GetStringRepresentation() {

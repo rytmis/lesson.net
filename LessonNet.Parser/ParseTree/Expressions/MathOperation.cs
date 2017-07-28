@@ -4,26 +4,26 @@ using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
 	public class MathOperation : Expression {
-		private readonly Expression lhs;
-		private readonly string op;
-		private readonly Expression rhs;
+		public Expression LeftOperand { get; }
+		public string Operator { get; }
+		public Expression RightOperand { get; }
 
 		public MathOperation(Expression lhs, string op, Expression rhs) {
-			this.lhs = lhs;
-			this.op = op;
-			this.rhs = rhs;
+			this.LeftOperand = lhs;
+			this.Operator = op;
+			this.RightOperand = rhs;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			if (context.StrictMath) {
-				yield return new MathOperation(EvaluateSingleValue(lhs, context), op, EvaluateSingleValue(rhs, context));
+				yield return new MathOperation(EvaluateSingleValue(LeftOperand, context), Operator, EvaluateSingleValue(RightOperand, context));
 			} else {
 				yield return ForceEvaluateExpression(context);
 			}
 		}
 
 		public Expression ForceEvaluateExpression(EvaluationContext context) {
-			return MathOperations.Operate(op, EvaluateSingleValue(lhs, context), EvaluateSingleValue(rhs, context));
+			return MathOperations.Operate(Operator, EvaluateSingleValue(LeftOperand, context), EvaluateSingleValue(RightOperand, context));
 		}
 
 		private static Expression EvaluateSingleValue(Expression expr, EvaluationContext context) {
@@ -31,21 +31,21 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			context.Append(lhs);
+			context.Append(LeftOperand);
 			context.Append(' ');
-			context.Append(op);
+			context.Append(Operator);
 			context.Append(' ');
-			context.Append(rhs);
+			context.Append(RightOperand);
 		}
 
 		protected override string GetStringRepresentation() {
-			return $"{lhs} {op} {rhs}";
+			return $"{LeftOperand} {Operator} {RightOperand}";
 		}
 
 		protected bool Equals(MathOperation other) {
-			return Equals(lhs, other.lhs)
-				&& string.Equals(op, other.op)
-				&& Equals(rhs, other.rhs);
+			return Equals(LeftOperand, other.LeftOperand)
+				&& string.Equals(Operator, other.Operator)
+				&& Equals(RightOperand, other.RightOperand);
 		}
 
 		public override bool Equals(object obj) {
@@ -58,9 +58,9 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		public override int GetHashCode() {
 			unchecked {
 				int hashCode = 397;
-				hashCode = (hashCode * 397) ^ (lhs != null ? lhs.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (op != null ? op.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (rhs != null ? rhs.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (LeftOperand != null ? LeftOperand.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (Operator != null ? Operator.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (RightOperand != null ? RightOperand.GetHashCode() : 0);
 				return hashCode;
 			}
 		}
