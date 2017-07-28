@@ -20,6 +20,10 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 					return null;
 				}
 
+				if (string.Equals("nth-child", identifier) && value is MathOperation op) {
+					return op.EvaluateOperands(context);
+				}
+
 				return value.EvaluateSingle<Expression>(context);
 			}
 

@@ -16,10 +16,14 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			if (context.StrictMath) {
-				yield return new MathOperation(EvaluateSingleValue(LeftOperand, context), Operator, EvaluateSingleValue(RightOperand, context));
+				yield return EvaluateOperands(context);
 			} else {
 				yield return ForceEvaluateExpression(context);
 			}
+		}
+
+		public Expression EvaluateOperands(EvaluationContext context) {
+			return new MathOperation(EvaluateSingleValue(LeftOperand, context), Operator, EvaluateSingleValue(RightOperand, context));
 		}
 
 		public Expression ForceEvaluateExpression(EvaluationContext context) {
@@ -32,14 +36,12 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 
 		public override void WriteOutput(OutputContext context) {
 			context.Append(LeftOperand);
-			context.Append(' ');
 			context.Append(Operator);
-			context.Append(' ');
 			context.Append(RightOperand);
 		}
 
 		protected override string GetStringRepresentation() {
-			return $"{LeftOperand} {Operator} {RightOperand}";
+			return $"{LeftOperand}{Operator}{RightOperand}";
 		}
 
 		protected bool Equals(MathOperation other) {

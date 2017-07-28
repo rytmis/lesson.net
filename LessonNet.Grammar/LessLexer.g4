@@ -319,6 +319,7 @@ STAR_EQ_ID  : STAR_EQ -> popMode, type(STAR_EQ);
 PARENTREF_ID: PARENTREF -> popMode, type(PARENTREF);
 DIV_ID      : DIV -> popMode, type(DIV);
 MINUS_ID    : MINUS -> type(IdentifierAfter);
+PLUS_ID     : PLUS -> popMode, type(PLUS);
 
 
 mode ATTRIB;

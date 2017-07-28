@@ -149,5 +149,18 @@ namespace LessonNet.Tests.Parser {
 			Assert.Equal(1, measurement.Number);
 			Assert.Equal("px", measurement.Unit);
 		}
+
+		[Fact]
+		public void AdditionWithArbitraryUnit() {
+			var parsed = Parse("4n+1");
+
+			Assert.IsType<MathOperation>(parsed);
+
+			var op = (MathOperation) parsed;
+
+			Assert.Equal(new Measurement(4, "n"), op.LeftOperand);
+			Assert.Equal("+", op.Operator);
+			Assert.Equal(new Measurement(1, null), op.RightOperand);
+		}
 	}
 }
