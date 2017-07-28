@@ -33,30 +33,59 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 
 	public static class ComparisonOperations {
 		public static bool Compare(string op, Expression lhs, Expression rhs) {
-			switch (op.ToLowerInvariant()) {
+			if (lhs is Measurement m1 && rhs is Measurement m2) {
+				return NumericCompare(op, m1, m2);
+			}
+
+			if (lhs is Color c1 && rhs is Color c2) {
+				return ColorCompare(op, c1, c2);
+			}
+
+			if (op == "=") {
+				return Equals(lhs, rhs);
+			}
+
+			throw new InvalidOperationException("Comparison only works with comparable operands");
+		}
+
+		private static bool NumericCompare(string op, Measurement lhs, Measurement rhs) {
+			switch (op) {
 				case ">":
-					return NumericCompare(lhs, rhs, (l, r) => l.Number > r.Number);
+					return lhs.Number > rhs.Number;
 				case "<":
-					return NumericCompare(lhs, rhs, (l, r) => l.Number < r.Number);
+					return lhs.Number < rhs.Number;
 				case ">=":
-					return NumericCompare(lhs, rhs, (l, r) => l.Number >= r.Number);
+					return lhs.Number >= rhs.Number;
 				case "<=":
-					return NumericCompare(lhs, rhs, (l, r) => l.Number <= r.Number);
+					return lhs.Number <= rhs.Number;
 				case "=<":
-					return NumericCompare(lhs, rhs, (l, r) => l.Number <= r.Number);
+					return lhs.Number <= rhs.Number;
 				case "=":
-					return Equals(lhs, rhs);
+					return lhs.Number == rhs.Number;
 				default:
 					throw new EvaluationException($"Unexpected operator: {op}");
 			}
 		}
 
-		private static bool NumericCompare(Expression lhs, Expression rhs, Func<Measurement, Measurement, bool> compare) {
-			if (!(lhs is Measurement m1) || !(rhs is Measurement m2)) {
-				throw new InvalidOperationException("Comparison only works with numeric operands");
+		private static bool ColorCompare(string op, Color lhs, Color rhs) {
+			switch (op) {
+				case ">":
+					return lhs > rhs;
+				case "<":
+					return lhs < rhs;
+				case ">=":
+					return lhs >= rhs;
+				case "<=":
+					return lhs <= rhs;
+				case "=<":
+					return lhs <= rhs;
+				case "=":
+					return lhs == rhs;
+				case "!=":
+					return lhs != rhs;
+				default:
+					throw new EvaluationException($"Unexpected operator: {op}");
 			}
-
-			return compare(m1, m2);
 		}
 	}
 }

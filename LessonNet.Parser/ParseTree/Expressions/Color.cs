@@ -6,7 +6,7 @@ using LessonNet.Parser.CodeGeneration;
 using static System.FormattableString;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
-	public class Color : Expression {
+	public class Color : Expression, IComparable<Color> {
 		public static readonly Color Transparent = new Color(0, 0, 0, 0, "transparent");
 
 		public byte R { get; }
@@ -134,6 +134,22 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 				&& string.Equals(Keyword, other.Keyword);
 		}
 
+		public int CompareTo(Color other) {
+			if (other == null) {
+				return -1;
+			}
+
+			if (other.R == R && other.G == G && other.B == B && other.Alpha == Alpha) {
+				return 0;
+			}
+
+			return other.ToComparable() < ToComparable() ? 1 : -1;
+		}
+
+		private decimal ToComparable() {
+			return (256 * 3 - (R + G + B)) * (Alpha ?? 1);
+		}
+
 		public override bool Equals(object obj) {
 			if (ReferenceEquals(null, obj)) return false;
 			if (ReferenceEquals(this, obj)) return true;
@@ -184,6 +200,28 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 				(byte) (c1.B / c2.B)
 			);
 		}
+
+		public static bool operator <(Color c1, Color c2) {
+			return c1.CompareTo(c2) == -1;
+		}
+		public static bool operator >(Color c1, Color c2) {
+			return c1.CompareTo(c2) == 1;
+		}
+
+		public static bool operator <=(Color c1, Color c2) {
+			return c1.CompareTo(c2) <= 0;
+		}
+		public static bool operator >=(Color c1, Color c2) {
+			return c1.CompareTo(c2) >= 0;
+		}
+		public static bool operator ==(Color c1, Color c2) {
+			return Equals(c1, c2);
+		}
+
+		public static bool operator !=(Color c1, Color c2) {
+			return !(c1 == c2);
+		}
+
 	}
 
 	public static class KnownColors {
