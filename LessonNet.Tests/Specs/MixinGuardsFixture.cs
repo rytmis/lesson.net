@@ -589,8 +589,8 @@ namespace LessonNet.Tests.Specs
 }
 
 .light1 { .light(transparent) }
-.light2 { .light(alpha(black, -10)) }
-.light3 { .light(alpha(black, -90)) }
+.light2 { .light(fadein(black, -10)) }
+.light3 { .light(fadein(black, -90)) }
 
 ";
 

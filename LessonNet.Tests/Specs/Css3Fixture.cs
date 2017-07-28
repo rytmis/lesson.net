@@ -554,7 +554,7 @@ audio:not([controls]) {
 		[Fact]
 		public void Css3FilterWithEvaluatedValues()
 		{
-			AssertRule("filter: blur(10px + 5)", "filter: blur(15px)");
+			AssertRule("filter: blur(15px)", "filter: blur(10px + 5)");
 		}
 
 		[Fact]
