@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using LessonNet.Parser.CodeGeneration;
 using LessonNet.Parser.ParseTree.Expressions;
 
 namespace LessonNet.Parser.ParseTree {
@@ -10,7 +11,13 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			throw new System.NotImplementedException();
+			yield return new CharsetAtRule(charset.EvaluateSingle<LessString>(context));
+		}
+
+		public override void WriteOutput(OutputContext context) {
+			context.Append("@charset ");
+			context.Append(charset);
+			context.AppendLine(";");
 		}
 	}
 }
