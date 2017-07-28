@@ -15,7 +15,7 @@ namespace LessonNet.Parser.ParseTree {
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 
-			yield return new Rule(Property, this.Value.EvaluateSingle<Expression>(context));
+			yield return new Rule(Property, Value?.EvaluateSingle<Expression>(context));
 		}
 
 		public override Statement ForceImportant() {
@@ -30,7 +30,9 @@ namespace LessonNet.Parser.ParseTree {
 			context.Append(Property);
 			context.Append(':');
 			context.Append(' ');
-			context.Append(Value);
+			if (Value != null) {
+				context.Append(Value);
+			}
 		}
 
 		protected override string GetStringRepresentation() {

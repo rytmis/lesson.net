@@ -631,7 +631,7 @@ namespace LessonNet.Parser {
 		public override LessNode VisitProperty(LessParser.PropertyContext context) {
 			string name = context.identifier().GetText();
 
-			var expr = GetValue(context.expression());
+			var expr = (Expression) context.expression()?.Accept(this);
 			var important = context.IMPORTANT() != null;
 			if (important) {
 				return new Rule(name, new ImportantExpression(expr));

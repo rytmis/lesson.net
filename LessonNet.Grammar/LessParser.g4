@@ -464,7 +464,7 @@ identifierVariableName
   ;
 
 property
-  : identifier COLON expression+ IMPORTANT?
+  : identifier COLON expression? IMPORTANT?
   ;
 
 url
