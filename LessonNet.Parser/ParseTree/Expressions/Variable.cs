@@ -47,17 +47,27 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			return $"@{Name}";
 		}
 
-
 		protected bool Equals(Variable other) {
-			return string.Equals(Name, other.Name);
+			return Equals(variable, other.variable) 
+				&& string.Equals(Name, other.Name) 
+				&& Important == other.Important;
 		}
 
 		public override bool Equals(object obj) {
-			return ReferenceEquals(this, obj);
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((Variable) obj);
 		}
 
 		public override int GetHashCode() {
-			return 397 ^ (Name != null ? Name.GetHashCode() : 0);
+			unchecked {
+				int hashCode = 396;
+				hashCode = (hashCode * 397) ^ (variable != null ? variable.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (Name != null ? Name.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ Important.GetHashCode();
+				return hashCode;
+			}
 		}
 	}
 }
