@@ -48,7 +48,6 @@ namespace LessonNet.Tests.Specs
             var expected =
                 @"
 .someClass {
-  
   font-weight: bold;
 }
 .someClass #someId1 {
