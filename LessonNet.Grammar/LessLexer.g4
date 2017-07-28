@@ -280,6 +280,9 @@ UrlEnd                 : RPAREN -> type(RPAREN), popMode;
 URL_AT                 : AT -> type(AT), pushMode(IDENTIFY);
 Url                    : (~(')' | '\n' | '\r' | ';' | '@'))+;
 
+// If we switch modes to identify and then encounter a RPAREN, we pop modes to here, but then never popMode back
+URL_SEMI               : SEMI -> type(SEMI), popMode;
+
 mode IDENTIFY;
 BlockStart_ID             : BlockStart -> popMode, type(BlockStart);
 SPACE                  : WS -> popMode, type(WS), channel(HIDDEN);
