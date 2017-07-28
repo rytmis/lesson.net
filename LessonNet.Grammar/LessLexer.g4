@@ -114,6 +114,7 @@ MULTIPLE: 'multiple';
 WHEN : 'when';
 NOT : 'not';
 AND : 'and';
+OR : 'or';
 
 KnownColor
   : ( 'aliceblue' | 'antiquewhite' | 'aqua' | 'aquamarine' | 'azure' | 'beige' | 'bisque' | 'black'

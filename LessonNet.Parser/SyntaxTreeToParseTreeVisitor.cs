@@ -91,10 +91,10 @@ namespace LessonNet.Parser {
 		public override LessNode VisitSupportsAtRule(LessParser.SupportsAtRuleContext context) {
 			SupportsCondition GetConditionList(LessParser.SupportsConditionListContext list, bool negate) {
 				var conditions = list?.supportsCondition().Select(GetCondition);
-				if (list?.AND() != null) {
+				if (list?.AND().Length > 0) {
 					return new ConjunctionSupportsCondition(negate, conditions);
 				}
-				if (list?.OR() != null) {
+				if (list?.OR().Length > 0) {
 					return new DisjunctionSupportsCondition(negate, conditions);
 				}
 				return null;

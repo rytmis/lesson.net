@@ -108,16 +108,10 @@ namespace LessonNet.Tests.Specs
 			// example from http://www.w3.org/TR/2011/WD-css3-conditional-20110901/
 			var input =
 				@"
-@supports ( box-shadow: 2px 2px 2px black ) or
-          ( -moz-box-shadow: 2px 2px 2px black ) or
-          ( -webkit-box-shadow: 2px 2px 2px black ) or
-          ( -o-box-shadow: 2px 2px 2px black ) {
+@supports (box-shadow: 2px 2px 2px black) or (-moz-box-shadow: 2px 2px 2px black) {
   .outline {
-    color: white;
     box-shadow: 2px 2px 2px black;
     -moz-box-shadow: 2px 2px 2px black;
-    -webkit-box-shadow: 2px 2px 2px black;
-    -o-box-shadow: 2px 2px 2px black;
   }
 }";
 
