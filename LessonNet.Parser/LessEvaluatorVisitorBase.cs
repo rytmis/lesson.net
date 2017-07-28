@@ -135,6 +135,18 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
+		public virtual LessNode VisitIeFilter(LessParser.IeFilterContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitIeFilterIdentifier(LessParser.IeFilterIdentifierContext context) {
+			throw new System.NotImplementedException();
+		}
+
+		public virtual LessNode VisitIeFilterExpression(LessParser.IeFilterExpressionContext context) {
+			throw new System.NotImplementedException();
+		}
+
 		public virtual LessNode VisitBooleanValue(LessParser.BooleanValueContext context) {
 			throw new System.NotImplementedException();
 		}

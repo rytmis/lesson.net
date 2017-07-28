@@ -81,6 +81,7 @@ IMPORTANT       : '!important';
 ARGUMENTS       : '@arguments';
 REST            : '@rest';
 ALL             : 'all';
+IE_FILTER_PROGID: 'progid:';
 
 fragment Vendor
   : 'o'

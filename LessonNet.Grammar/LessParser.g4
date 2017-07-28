@@ -146,6 +146,18 @@ singleValuedExpression
   | selector
   ;
 
+ieFilter
+  : IE_FILTER_PROGID ieFilterIdentifier LPAREN (ieFilterExpression (COMMA ieFilterExpression)*) RPAREN
+  ;
+
+ieFilterIdentifier
+  : identifier (DOT identifier)*
+  ;
+
+ieFilterExpression
+  : identifier EQ singleValuedExpression
+  ;
+
 booleanValue : (TRUE | FALSE);
 
 string
@@ -463,7 +475,7 @@ identifierVariableName
   ;
 
 property
-  : identifier COLON expression? IMPORTANT?
+  : identifier COLON (expression|ieFilter)? IMPORTANT?
   ;
 
 url

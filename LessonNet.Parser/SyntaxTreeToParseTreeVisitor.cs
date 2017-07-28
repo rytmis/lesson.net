@@ -619,12 +619,30 @@ namespace LessonNet.Parser {
 		public override LessNode VisitProperty(LessParser.PropertyContext context) {
 			string name = context.identifier().GetText();
 
-			var expr = (Expression) context.expression()?.Accept(this);
+			var expr = (Expression) context.expression()?.Accept(this)
+				?? (Expression) context.ieFilter()?.Accept(this);
+
 			var important = context.IMPORTANT() != null;
 			if (important) {
 				return new Rule(name, new ImportantExpression(expr));
 			}
 			return new Rule(name, expr);
+		}
+
+		public override LessNode VisitIeFilter(LessParser.IeFilterContext context) {
+			var identifier = context.ieFilterIdentifier().GetText();
+
+			var expressions = context.ieFilterExpression().Select(fe => (IeFilterExpression)fe.Accept(this));
+
+			return new IeFilter(identifier, expressions);
+		}
+
+		public override LessNode VisitIeFilterExpression(LessParser.IeFilterExpressionContext context) {
+			var identifier = (Identifier) context.identifier().Accept(this);
+
+			var value = GetSingleValuedExpression(context.singleValuedExpression());
+
+			return new IeFilterExpression(identifier, value);
 		}
 
 		public override LessNode VisitMixinCall(LessParser.MixinCallContext context) {
