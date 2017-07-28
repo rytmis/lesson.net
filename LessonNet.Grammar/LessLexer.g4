@@ -272,7 +272,7 @@ fragment ID_CHAR : ('_' | '-' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' | '0'..'
 
 Identifier
   : ( ('_' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' ) ID_CHAR*
-	|  '-' ('_' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' )* ID_CHAR*) -> pushMode(IDENTIFY);
+	|  '-' ('_' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' )+ ID_CHAR*) -> pushMode(IDENTIFY);
 
 
 mode URL_STARTED;
@@ -317,6 +317,7 @@ DOLLAR_EQ_ID: DOLLAR_EQ -> popMode, type(DOLLAR_EQ);
 STAR_EQ_ID  : STAR_EQ -> popMode, type(STAR_EQ);
 PARENTREF_ID: PARENTREF -> popMode, type(PARENTREF);
 DIV_ID      : DIV -> popMode, type(DIV);
+MINUS_ID    : MINUS -> type(IdentifierAfter);
 
 
 mode ATTRIB;

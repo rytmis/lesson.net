@@ -114,5 +114,40 @@ namespace LessonNet.Tests.Parser {
 
 			Assert.Equal(new Variable("avar"), parsed.VariableContent);
 		}
+
+		[Fact]
+		public void NegativeNumber() {
+			var parsed = Parse("-1");
+
+			Assert.IsType<Measurement>(parsed);
+
+			var measurement = (Measurement) parsed;
+
+			Assert.Equal(-1, measurement.Number);
+		}
+
+		[Fact]
+		public void NegativeNumberWithUnit() {
+			var parsed = Parse("-1px");
+
+			Assert.IsType<Measurement>(parsed);
+
+			var measurement = (Measurement) parsed;
+
+			Assert.Equal(-1, measurement.Number);
+			Assert.Equal("px", measurement.Unit);
+		}
+
+		[Fact]
+		public void NumberWithUnit() {
+			var parsed = Parse("1px");
+
+			Assert.IsType<Measurement>(parsed);
+
+			var measurement = (Measurement) parsed;
+
+			Assert.Equal(1, measurement.Number);
+			Assert.Equal("px", measurement.Unit);
+		}
 	}
 }
