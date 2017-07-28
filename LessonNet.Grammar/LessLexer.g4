@@ -277,7 +277,8 @@ mode URL_STARTED;
 DQUOT_STRING_START_URL : '"' -> type(DQUOT_STRING_START), pushMode(DQ_STRING);
 SQUOT_STRING_START_URL : '\'' -> type(SQUOT_STRING_START), pushMode(SQ_STRING);
 UrlEnd                 : RPAREN -> type(RPAREN), popMode;
-Url                    : (~(')' | '\n' | '\r' | ';'))+;
+URL_AT                 : AT -> type(AT), pushMode(IDENTIFY);
+Url                    : (~(')' | '\n' | '\r' | ';' | '@'))+;
 
 mode IDENTIFY;
 BlockStart_ID             : BlockStart -> popMode, type(BlockStart);

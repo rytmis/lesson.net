@@ -358,20 +358,47 @@ namespace LessonNet.Parser {
 		}
 
 		private Expression GetExpression(LessParser.ExpressionContext context) {
+			Expression GetExpressionOrList(int start, int end) {
+				int itemCount = end - start;
+				if (itemCount == 1) {
+					return GetSingleValuedExpression((LessParser.SingleValuedExpressionContext) context.GetChild(start));
+				}
+
+				var childExpressions = context.children
+					.Skip(start)
+					.Take(itemCount)
+					.Select(c => GetSingleValuedExpression((LessParser.SingleValuedExpressionContext) c));
+
+				return new ExpressionList(childExpressions, ' ');
+			}
+
+			IEnumerable<Expression> GetCommaSeparatedExpressions() {
+				var commaStops = context.children
+					.Select((t, i) => (Node: t, Index: i))
+					.Where(p => p.Node is ITerminalNode)
+					.Select(p => p.Index);
+
+				int current = 0;
+				foreach (var commaStop in commaStops) {
+					yield return GetExpressionOrList(current, commaStop);
+					current = commaStop + 1;
+				}
+
+				yield return GetExpressionOrList(current, context.children.Count);
+			}
+
 			if (context == null) {
 				return null;
 			}
 
-			var expressions = context.singleValuedExpression();
-
-			if (expressions.Length > 1) {
-				return new ExpressionList(expressions.Select(GetSingleValuedExpression), ' ');
+			var commas = context.COMMA();
+			if (commas.Length > 0) {
+				return new ExpressionList(GetCommaSeparatedExpressions(), ',');
 			}
 
-			var commaExpressions = context.commaExpression();
-			if (commaExpressions.Length > 0) {
-				var allExpressions = expressions.Concat(commaExpressions.Select(c => c.singleValuedExpression()));
-				return new ExpressionList(allExpressions.Select(GetSingleValuedExpression), ',');
+			var expressions = context.singleValuedExpression();
+			if (expressions.Length > 1) {
+				return new ExpressionList(expressions.Select(GetSingleValuedExpression), ' ');
 			}
 
 			return GetSingleValuedExpression(expressions[0]);

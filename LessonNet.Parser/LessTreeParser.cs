@@ -3,6 +3,7 @@ using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
 using LessonNet.Grammar;
 using LessonNet.Parser.ParseTree;
+using LessonNet.Parser.ParseTree.Expressions;
 
 namespace LessonNet.Parser {
 	public class LessTreeParser {
@@ -16,7 +17,6 @@ namespace LessonNet.Parser {
 				ErrorHandler = new BailErrorStrategy()
 			};
 
-
 			try {
 				var lessStylesheet = parser.stylesheet();
 
@@ -27,6 +27,14 @@ namespace LessonNet.Parser {
 			} catch (ParseCanceledException ex) when (ex.InnerException is NoViableAltException nvae) {
 				throw ParserException.FromToken(fileName, nvae.OffendingToken);
 			}
+		}
+
+		public Expression ParseExpression(string input) {
+			var lexer = new LessLexer(new AntlrInputStream(input));
+			var tokenStream = new CommonTokenStream(lexer);
+			var parser = new LessParser(tokenStream);
+
+			return (Expression) parser.expression().Accept(new SyntaxTreeToParseTreeVisitor(tokenStream));
 		}
 	}
 }

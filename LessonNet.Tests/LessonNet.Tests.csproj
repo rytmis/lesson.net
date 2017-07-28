@@ -74,6 +74,7 @@
   <ItemGroup>
     <Compile Include="CompressedSpecFixtureBase.cs" />
     <Compile Include="InMemoryFileResolver.cs" />
+    <Compile Include="Parser\ExpressionTests.cs" />
     <Compile Include="SpecFixtureBase.cs" />
     <Compile Include="Specs\AccessorsFixture.cs" />
     <Compile Include="Specs\ColorsFixture.cs" />

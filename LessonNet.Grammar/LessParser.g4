@@ -126,8 +126,8 @@ color
   ;
 
 expression
-  : { matchCommaSeparatedLists }? singleValuedExpression commaExpression+
-  | singleValuedExpression+ 
+  : { matchCommaSeparatedLists }? singleValuedExpression+ (COMMA singleValuedExpression+)+
+  | singleValuedExpression+
   ;
 
 singleValuedExpression
@@ -145,11 +145,6 @@ singleValuedExpression
   | booleanValue
   | identifier
   | selector
-  ;
-
-/* The intent here is to direct parsing to not create nested expressions from lists, e.g. 1, 2, 3 -> (1, (2, 3)) */
-commaExpression
-  : COMMA singleValuedExpression
   ;
 
 booleanValue : (TRUE | FALSE);
