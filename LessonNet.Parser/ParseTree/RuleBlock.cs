@@ -53,20 +53,29 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			context.IncreaseIndentLevel();
+			using (var scope = context.BeginUndoableScope()) {
+				context.IncreaseIndentLevel();
 
-			foreach (var statement in Statements) {
-				if (statement is Rule r) {
-					// Rules may exist within media queries, but are only indented and semicolon-terminated within rule blocks
-					context.Indent();
-					context.Append(r);
-					context.AppendLine(";");
-				} else {
-					context.Append(statement);
+				bool hasOutput = false;
+				foreach (var statement in Statements) {
+					if (statement is Rule r) {
+						// Rules may exist within media queries, but are only indented and semicolon-terminated within rule blocks
+						context.Indent();
+
+						hasOutput |= context.Append(r);
+
+						context.AppendLine(";");
+					} else {
+						hasOutput |= context.Append(statement);
+					}
 				}
-			}
 
-			context.DecreaseIndentLevel();
+				if (hasOutput) {
+					scope.KeepChanges();
+				}
+
+				context.DecreaseIndentLevel();
+			}
 		}
 
 		public static RuleBlock Combine(IEnumerable<RuleBlock> blocks) {

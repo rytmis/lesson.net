@@ -9,14 +9,19 @@ namespace LessonNet.Parser.ParseTree
 {
 	public class Stylesheet : Statement
 	{
+		private readonly bool isReference;
+
 		public IList<Statement> Statements { get; }
 
-		public Stylesheet(IEnumerable<Statement> statements) {
+		public Stylesheet(IEnumerable<Statement> statements, bool isReference) {
+			this.isReference = isReference;
 			Statements = statements.ToList();
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new Stylesheet(EvaluateStatements(context));
+			using (context.BeginReferenceScope(isReference)) {
+				yield return new Stylesheet(EvaluateStatements(context), isReference);
+			}
 		}
 
 		private IEnumerable<Statement> EvaluateStatements(EvaluationContext context) {
@@ -47,8 +52,12 @@ namespace LessonNet.Parser.ParseTree
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			foreach (var childNode in Statements) {
-				context.Append(childNode);
+			using (context.BeginReferenceScope(isReference)) {
+				foreach (var childNode in Statements) {
+					if (!isReference || childNode is MediaBlock || childNode is Ruleset) {
+						childNode.WriteOutput(context);
+					} 
+				}
 			}
 		}
 	}

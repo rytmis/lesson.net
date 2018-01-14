@@ -38,9 +38,9 @@ namespace LessonNet.Parser
 			};
 		}
 
-		public Stylesheet ParseCurrentStylesheet() {
+		public Stylesheet ParseCurrentStylesheet(bool isReference) {
 			using (var stream = FileResolver.GetContent()) {
-				return Parser.Parse(FileResolver.CurrentFile, stream);
+				return Parser.Parse(FileResolver.CurrentFile, stream, isReference);
 			}
 		}
 
@@ -70,6 +70,25 @@ namespace LessonNet.Parser
 			public void Dispose() {
 				stack.Pop();
 			}
+		}
+
+		public bool IsReference { get; private set; }
+		public IDisposable BeginReferenceScope(bool isReference) {
+			return new ReferenceScope(this, isReference);
+		}
+
+		private class ReferenceScope : IDisposable {
+			private readonly EvaluationContext ctx;
+			private readonly bool wasReference;
+
+			public ReferenceScope(EvaluationContext ctx, bool isReference) {
+				this.ctx = ctx;
+				this.wasReference = ctx.IsReference;
+
+				ctx.IsReference = isReference;
+			}
+
+			public void Dispose() => ctx.IsReference = wasReference;
 		}
 	}
 

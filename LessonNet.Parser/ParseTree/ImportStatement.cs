@@ -34,7 +34,9 @@ namespace LessonNet.Parser.ParseTree
 
 			var importContext = context.GetImportContext(EvaluateFilePath());
 
-			return importContext.ParseCurrentStylesheet().Evaluate(importContext);
+			return importContext
+				.ParseCurrentStylesheet(isReference: options.HasFlag(ImportOptions.Reference))
+				.Evaluate(importContext);
 		}
 	}
 

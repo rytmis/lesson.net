@@ -76,7 +76,7 @@ namespace LessonNet.Tests
 		{
 			EvaluationContext context = new EvaluationContext(new LessTreeParser(), new InMemoryFileResolver(input));
 
-			var currentStylesheet = context.ParseCurrentStylesheet();
+			var currentStylesheet = context.ParseCurrentStylesheet(isReference: false);
 			var evaluated = currentStylesheet.EvaluateSingle<Stylesheet>(context);
 
 			var output = new OutputContext(' ', 2);
@@ -103,7 +103,7 @@ namespace LessonNet.Tests
 		protected string Evaluate(string input) {
 			var context = CreateContext(input);
 
-			var stylesheet = context.ParseCurrentStylesheet();
+			var stylesheet = context.ParseCurrentStylesheet(isReference: false);
 			var evaluated = stylesheet.EvaluateSingle<Stylesheet>(context);
 
 			var output = context.GetOutputContext(' ', 2);

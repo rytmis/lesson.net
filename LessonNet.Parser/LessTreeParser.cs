@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
@@ -7,7 +8,7 @@ using LessonNet.Parser.ParseTree.Expressions;
 
 namespace LessonNet.Parser {
 	public class LessTreeParser {
-		public Stylesheet Parse(string fileName, Stream input) {
+		public Stylesheet Parse(string fileName, Stream input, bool isReference) {
 			var charStream = new AntlrInputStream(input);
 			var lexer = new LessLexer(charStream);
 
@@ -20,7 +21,7 @@ namespace LessonNet.Parser {
 			try {
 				var lessStylesheet = parser.stylesheet();
 
-				return (Stylesheet) lessStylesheet.Accept(new SyntaxTreeToParseTreeVisitor(tokenStream));
+				return (Stylesheet) lessStylesheet.Accept(new SyntaxTreeToParseTreeVisitor(tokenStream, isReference));
 
 			} catch (ParseCanceledException ex) when (ex.InnerException is InputMismatchException ime) {
 				throw ParserException.FromToken(fileName, ime.OffendingToken);
@@ -30,11 +31,19 @@ namespace LessonNet.Parser {
 		}
 
 		public Expression ParseExpression(string input) {
+			return (Expression) Parse(input, parser => parser.expression());
+		}
+
+		public SelectorList ParseSelectorList(string input) {
+			return (SelectorList) Parse(input, parser => parser.selectors());
+		}
+
+		private LessNode Parse(string input, Func<LessParser, RuleContext> parseFunc) {
 			var lexer = new LessLexer(new AntlrInputStream(input));
 			var tokenStream = new CommonTokenStream(lexer);
 			var parser = new LessParser(tokenStream);
 
-			return (Expression) parser.expression().Accept(new SyntaxTreeToParseTreeVisitor(tokenStream));
+			return parseFunc(parser).Accept(new SyntaxTreeToParseTreeVisitor(tokenStream, isReference: false));
 		}
 	}
 }

@@ -53,22 +53,26 @@ namespace LessonNet.Parser.ParseTree
 
 
 		public override void WriteOutput(OutputContext context) {
-			if (Block.Statements.Count == 0) {
-				return;
-			}
+			using (var scope = context.BeginUndoableScope()) {
 
-			context.Append("@media ");
-			for (var index = 0; index < mediaQueries.Count; index++) {
-				if (index > 0) {
-					context.Append(", ");
+				context.Append("@media ");
+				for (var index = 0; index < mediaQueries.Count; index++) {
+					if (index > 0) {
+						context.Append(", ");
+					}
+
+					var mediaQuery = mediaQueries[index];
+					context.Append(mediaQuery);
 				}
-				var mediaQuery = mediaQueries[index];
-				context.Append(mediaQuery);
-			}
 
-			context.AppendLine(" {");
-			context.Append(Block);
-			context.AppendLine("}");
+				context.AppendLine(" {");
+
+				if (context.Append(Block)) {
+					scope.KeepChanges();
+				}
+
+				context.AppendLine("}");
+			}
 		}
 
 		protected override string GetStringRepresentation() {

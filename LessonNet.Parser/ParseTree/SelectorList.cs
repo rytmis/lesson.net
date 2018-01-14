@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using LessonNet.Parser.CodeGeneration;
+using LessonNet.Parser.ParseTree.Expressions;
 
 namespace LessonNet.Parser.ParseTree {
 	public class SelectorList : LessNode {
@@ -34,9 +36,26 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
+			bool ShouldReparse(Selector selector) {
+				return selector.Elements
+					.OfType<IdentifierSelectorElement>()
+					.Any(ise => ise.Identifier.Parts.OfType<ConstantIdentifierPart>().Any(cip => Regex.IsMatch(cip.Value, "[,\\s]")));
+			}
+
 			IEnumerable<Selector> EvaluateSelectors() {
 				foreach (var selector in selectors) {
-					yield return selector.EvaluateSingle<Selector>(context);
+
+					var evaluatedSelector = selector.EvaluateSingle<Selector>(context);
+
+					if (!ShouldReparse(evaluatedSelector)) {
+						yield return evaluatedSelector;
+					} else {
+						var parsedSelectorList = context.Parser.ParseSelectorList(evaluatedSelector.ToString());
+
+						foreach (var generatedSelector in parsedSelectorList.Selectors) {
+							yield return generatedSelector.EvaluateSingle<Selector>(context);
+						}
+					}
 				}
 			}
 
@@ -55,7 +74,7 @@ namespace LessonNet.Parser.ParseTree {
 
 		public override void WriteOutput(OutputContext context) {
 			var outputSelectors = Selectors
-				.Concat(Selectors.SelectMany(s => context.Extensions.GetExtensions(s)))
+				.Concat(Selectors.SelectMany(s => context.Extensions.GetExtensions(s, includeReferences: true)))
 				.Distinct()
 				.ToList();
 

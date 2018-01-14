@@ -12,7 +12,7 @@ namespace LessonNet.Parser
 		public void Compile(string inputFileName)
 		{
 			var context = new EvaluationContext(new LessTreeParser(), new FileResolver(inputFileName));
-			var rootNode = context.ParseCurrentStylesheet();
+			var rootNode = context.ParseCurrentStylesheet(isReference: false);
 
 			var evaluated = rootNode.EvaluateSingle<Stylesheet>(context);
 

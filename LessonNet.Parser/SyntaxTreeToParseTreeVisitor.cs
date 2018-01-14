@@ -16,9 +16,11 @@ using LessonNet.Parser.Util;
 namespace LessonNet.Parser {
 	internal class SyntaxTreeToParseTreeVisitor : LessEvaluatorVisitorBase {
 		private readonly ITokenStream tokenStream;
+		private readonly bool isReference;
 
-		public SyntaxTreeToParseTreeVisitor(ITokenStream tokenStream) {
+		public SyntaxTreeToParseTreeVisitor(ITokenStream tokenStream, bool isReference) {
 			this.tokenStream = tokenStream;
+			this.isReference = isReference;
 		}
 
 		public override LessNode VisitStylesheet(LessParser.StylesheetContext context) {
@@ -33,7 +35,7 @@ namespace LessonNet.Parser {
 				}
 			}
 
-			return new Stylesheet(GetStatements());
+			return new Stylesheet(GetStatements(), isReference);
 		}
 
 		public override LessNode VisitStatement(LessParser.StatementContext context) {

@@ -87,7 +87,18 @@ namespace LessonNet.Parser.ParseTree
 				return;
 			}
 
-			context.Append(Selectors);
+			
+			if (context.IsReference) {
+				var extenderSelectorList = new SelectorList(Selectors.Selectors.SelectMany(s => context.Extensions.GetExtensions(s, includeReferences: false)));
+				if (extenderSelectorList.IsEmpty()) {
+					return;
+				}
+
+				context.Append(extenderSelectorList);
+			} else {
+				context.Append(Selectors);
+			}
+
 			context.AppendLine(" {");
 			context.Append(Block);
 			context.Indent();

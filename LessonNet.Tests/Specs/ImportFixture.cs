@@ -1164,7 +1164,7 @@ body { background-color: foo; invalid ""; }
 
 			var expected = @"
 .caller {
-  background-color: #000000;
+  background-color: black;
 }
 ";
 
@@ -1252,7 +1252,7 @@ body { background-color: foo; invalid ""; }
 
 			var expected = @"
 .test {
-  background-color: #000000;
+  background-color: black;
 }
 ";
 
@@ -1614,17 +1614,14 @@ body { background-color: foo; invalid ""; }
 			var input = @"
 @import (reference) ""reference-mixin-issue.less"";
 
-/* Styles */
 .my-class
 {
     .mix-me();
 }";
 
 			var expected = @"
-/* Styles */
-
 .my-class {
-  color: #ff0000;
+  color: red;
 }
 @media (min-width: 100px) {
   .my-class {
