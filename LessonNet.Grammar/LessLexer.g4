@@ -69,6 +69,7 @@ UrlStart
 
 MEDIA           : '@media';
 IMPORT          : '@import';
+IMPORT_ONCE     : '@import-once';
 CHARSET         : '@charset';
 NAMESPACE       : '@namespace';
 SUPPORTS        : '@supports';

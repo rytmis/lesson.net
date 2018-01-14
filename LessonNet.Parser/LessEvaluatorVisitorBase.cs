@@ -211,6 +211,10 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
+		public virtual LessNode VisitImportOption(LessParser.ImportOptionContext context) {
+			throw new System.NotImplementedException();
+		}
+
 		public virtual LessNode VisitReferenceUrl(LessParser.ReferenceUrlContext context)
 		{
 			throw new System.NotImplementedException();

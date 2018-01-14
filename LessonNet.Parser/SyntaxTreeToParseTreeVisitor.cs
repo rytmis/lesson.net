@@ -11,6 +11,7 @@ using LessonNet.Grammar;
 using LessonNet.Parser.ParseTree;
 using LessonNet.Parser.ParseTree.Expressions;
 using LessonNet.Parser.ParseTree.Mixins;
+using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser {
 	internal class SyntaxTreeToParseTreeVisitor : LessEvaluatorVisitorBase {
@@ -191,7 +192,12 @@ namespace LessonNet.Parser {
 				return (Url) context.referenceUrl().url().Accept(this);
 			}
 
-			return new ImportStatement(GetImportTarget());
+			var options =
+				context.importOption()
+					.Select(opt => opt.GetText().ParseEnum<ImportOptions>())
+					.Aggregate(ImportOptions.None, (result, opt) => result | opt);
+
+			return new ImportStatement(GetImportTarget(), options);
 		}
 
 		public override LessNode VisitRuleset(LessParser.RulesetContext context) {

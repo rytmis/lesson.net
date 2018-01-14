@@ -6,7 +6,6 @@ using LessonNet.Parser.CodeGeneration;
 namespace LessonNet.Parser.ParseTree {
 	[DebuggerDisplay("{" + nameof(DebuggerDisplay) + "}")]
 	public abstract class LessNode {
-
 		protected virtual string GetStringRepresentation() {
 			return $"{GetType().Name}";
 		}

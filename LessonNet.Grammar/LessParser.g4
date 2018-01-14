@@ -220,8 +220,14 @@ variableDeclaration
 
 /* Imports */
 importDeclaration
-  : IMPORT referenceUrl importMediaTypes?
+  : IMPORT (LPAREN importOption (COMMA importOption)* RPAREN)? referenceUrl importMediaTypes?
+  | IMPORT_ONCE referenceUrl
   ;
+
+importOption
+  : (REFERENCE | INLINE | LESS | CSS | ONCE | MULTIPLE)
+  ;
+
 
 referenceUrl
     : string
