@@ -75,7 +75,7 @@ namespace LessonNet.Tests.Specs
 
 		[Fact]
 		public void DivideNumber_Underflow() {
-			AssertExpression("#ffffff", "#ffffff / -0.5");
+			AssertExpression("#000000", "#ffffff / -0.5");
 		}
 
 		[Fact]
