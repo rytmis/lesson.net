@@ -15,7 +15,7 @@ namespace LessonNet.Tests.Specs
             AssertExpression("'hello world'", "`'hello world'`");
         }
 
-        [Fact]
+        [Fact(Skip = "Script support is a WIP")]
         public void ScriptUnsupported()
         {
             AssertExpression("[script unsupported]", "`42`");
