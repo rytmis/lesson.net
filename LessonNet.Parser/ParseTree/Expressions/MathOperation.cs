@@ -36,7 +36,9 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 
 		public override void WriteOutput(OutputContext context) {
 			context.Append(LeftOperand);
+			context.Append(' ');
 			context.Append(Operator);
+			context.Append(' ');
 			context.Append(RightOperand);
 		}
 
