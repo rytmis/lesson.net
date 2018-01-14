@@ -40,6 +40,7 @@ COLONCOLON      : '::';
 PLUS            : '+';
 TIMES           : '*';
 DIV             : '/';
+BACKSLASH       : '\\';
 MINUS           : '-';
 PERC            : '%';
 
@@ -145,8 +146,12 @@ Number
   :  '-'? (('0'..'9')* '.')? ('0'..'9')+ -> pushMode(NUMBER_STARTED)
   ;
 
+fragment DECIMALDIGIT
+  : '0'..'9'
+  ;
+
 fragment HEXDIGIT
-  : ('0'..'9'|'a'..'f'|'A'..'F')
+  : (DECIMALDIGIT |'a'..'f'|'A'..'F')
   ;
 
 HexColor
@@ -275,6 +280,9 @@ Identifier
   : ( ('_' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' ) ID_CHAR*
 	|  '-' ('_' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' )+ ID_CHAR*) -> pushMode(IDENTIFY);
 
+EscapeSequence
+  : BACKSLASH (~(' '|'\t'|'\n'|'\r'|';'))*
+  ;
 
 mode URL_STARTED;
 DQUOT_STRING_START_URL : '"' -> type(DQUOT_STRING_START), pushMode(DQ_STRING);

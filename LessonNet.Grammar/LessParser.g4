@@ -132,6 +132,7 @@ expression
 
 singleValuedExpression
   : quotedExpression
+  | escapeSequence
   | parenthesizedExpression
   | singleValuedExpression op=(DIV|TIMES) singleValuedExpression
   | singleValuedExpression op=(PLUS|MINUS) singleValuedExpression
@@ -167,6 +168,10 @@ string
 
 quotedExpression
   : TIL string
+  ;
+
+escapeSequence
+  : EscapeSequence
   ;
 
 functionName

@@ -159,6 +159,10 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
+		public virtual LessNode VisitEscapeSequence(LessParser.EscapeSequenceContext context) {
+			throw new System.NotImplementedException();
+		}
+
 		public virtual LessNode VisitFunctionName(LessParser.FunctionNameContext context) {
 			throw new System.NotImplementedException();
 		}

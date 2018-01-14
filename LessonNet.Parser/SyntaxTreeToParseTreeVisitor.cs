@@ -453,6 +453,7 @@ namespace LessonNet.Parser {
 				?? GetColor()
 				?? context.measurement()?.Accept(this)
 				?? GetStringLiteral()
+				?? context.escapeSequence()?.Accept(this)
 				?? context.function()?.Accept(this)
 				?? context.identifier()?.Accept(this)
 				?? context.parenthesizedExpression()?.Accept(this)
@@ -501,6 +502,10 @@ namespace LessonNet.Parser {
 
 		public override LessNode VisitQuotedExpression(LessParser.QuotedExpressionContext context) {
 			return new QuotedExpression((LessString) context.@string().Accept(this));
+		}
+
+		public override LessNode VisitEscapeSequence(LessParser.EscapeSequenceContext context) {
+			return new EscapeSequence(context.EscapeSequence().ToString());
 		}
 
 		public override LessNode VisitMixinDefinition(LessParser.MixinDefinitionContext context) {
