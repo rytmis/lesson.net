@@ -13,7 +13,7 @@ using LessonNet.Parser.ParseTree.Mixins;
 namespace LessonNet.Parser
 {
 	public class EvaluationContext {
-		public ExtenderRegistry Extenders { get; } = new ExtenderRegistry();
+		public ExtenderRegistry Extenders { get; private set; } = new ExtenderRegistry();
 
 		private Stack<Scope> scopeStack = new Stack<Scope>();
 
@@ -31,7 +31,11 @@ namespace LessonNet.Parser
 		}
 
 		public EvaluationContext GetImportContext(string importedLessFileName) {
-			return new EvaluationContext(Parser, FileResolver.GetResolverFor(importedLessFileName));
+			return new EvaluationContext(Parser, FileResolver.GetResolverFor(importedLessFileName), StrictMath) {
+				scopeStack = scopeStack,
+				Extenders = Extenders,
+
+			};
 		}
 
 		public Stylesheet ParseCurrentStylesheet() {

@@ -20,7 +20,7 @@ namespace LessonNet.Tests {
 				throw new InvalidOperationException($"Cannot resolve imports -- no imports defined for {nameof(InMemoryFileResolver)}");
 			}
 			if (Imports.ContainsKey(lessFilePath) == false) {
-				return null;
+				throw new ArgumentException($"Imported file not found: [{lessFilePath}]");
 			}
 
 			return new InMemoryFileResolver(Imports[lessFilePath]) {

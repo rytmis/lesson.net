@@ -12,6 +12,7 @@ namespace LessonNet.Tests
 
 	public abstract class SpecFixtureBase
 	{
+		protected bool StrictMath { get; set; }
 		protected virtual Dictionary<string, string> SetupImports() {
 			// TODO: Actually set up imports in InMemoryFileResolver
 			return null;
@@ -114,7 +115,7 @@ namespace LessonNet.Tests
 		protected virtual EvaluationContext CreateContext(string input) {
 			return new EvaluationContext(new LessTreeParser(), new InMemoryFileResolver(input) {
 				Imports = SetupImports()
-			});
+			}, StrictMath);
 		}
 	}
 }

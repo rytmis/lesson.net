@@ -4,12 +4,9 @@ using System.Reflection;
 using LessonNet.Parser;
 using Xunit;
 
-namespace LessonNet.Tests.Specs
-{
-	public class ImportFixture : SpecFixtureBase
-	{
-		protected override Dictionary<string, string> SetupImports()
-		{
+namespace LessonNet.Tests.Specs {
+	public class ImportFixture : SpecFixtureBase {
+		protected override Dictionary<string, string> SetupImports() {
 			var imports = new Dictionary<string, string>();
 
 			imports[@"c:/absolute/file.less"] = @"
@@ -334,8 +331,7 @@ body { background-color: blue; }
 		}
 
 		[Fact]
-		public void Test247()
-		{
+		public void Test247() {
 			var input = @"
 @import '247-1.less';
 #nsTwo {
@@ -350,8 +346,7 @@ body { background-color: blue; }
 		}
 
 		[Fact]
-		public void Imports()
-		{
+		public void Imports() {
 			var input =
 				@"
 @import url(""import/import-test-a.less"");
@@ -386,8 +381,7 @@ body { background-color: blue; }
 		}
 
 		[Fact]
-		public void OtherProtocolImportTest1()
-		{
+		public void OtherProtocolImportTest1() {
 			var input = @"
 @import 'import/other-protocol-test.less';
 ";
@@ -403,8 +397,7 @@ body { background-color: blue; }
 		}
 
 		[Fact]
-		public void OtherProtocolImportTest2()
-		{
+		public void OtherProtocolImportTest2() {
 			var input = @"
 @import url(http://fonts.googleapis.com/css?family=Open+Sans:regular,bold);";
 
@@ -413,8 +406,7 @@ body { background-color: blue; }
 		}
 
 		[Fact]
-		public void OtherProtocolImportTest3()
-		{
+		public void OtherProtocolImportTest3() {
 			var input = @"
 @import url('c:/absolute/file.less');";
 			var expected = @"
@@ -460,8 +452,7 @@ body { background-color: blue; }
 //		}
 
 		[Fact]
-		public void RelativeUrls()
-		{
+		public void RelativeUrls() {
 			var input =
 				@"
 @import url(""import/first.less"");
@@ -487,8 +478,7 @@ body { background-color: blue; }
 		}
 
 		[Fact]
-		public void RelativeUrlsWithRewritingOff()
-		{
+		public void RelativeUrlsWithRewritingOff() {
 			var input =
 				@"
 @import url(""import/first.less"");
@@ -514,8 +504,7 @@ body { background-color: blue; }
 		}
 
 		[Fact]
-		public void AbsoluteUrls()
-		{
+		public void AbsoluteUrls() {
 			var input =
 				@"
 @import url(""/import/absolute.less"");
@@ -529,8 +518,7 @@ body { background-color: blue; }
 		}
 
 		[Fact]
-		public void RelativeUrlWithParentDirReference()
-		{
+		public void RelativeUrlWithParentDirReference() {
 			var input =
 				@"
 @import url(""../import/relative-with-parent-dir.less"");
@@ -544,8 +532,7 @@ body { background-color: blue; }
 		}
 
 		[Fact]
-		public void ImportFileExtensionNotNecessary()
-		{
+		public void ImportFileExtensionNotNecessary() {
 			var input = @"@import url(""import/import-test-c"");";
 
 			var expected = @"
@@ -558,8 +545,7 @@ body { background-color: blue; }
 		}
 
 		[Fact]
-		public void ImportForUrlGetsOutput()
-		{
+		public void ImportForUrlGetsOutput() {
 			var input =
 				@"
 @import url(""http://www.someone.com/external1.css"");
@@ -610,8 +596,7 @@ body { background-color: blue; }
 		//}
 
 		[Fact]
-		public void ImportForMissingLessFileThrowsExceptionThatIncludesFileName()
-		{
+		public void ImportForMissingLessFileThrowsExceptionThatIncludesFileName() {
 			var input = @"@import ""external1.less"";";
 
 			// TODO: Verify file name
@@ -619,8 +604,7 @@ body { background-color: blue; }
 		}
 
 		[Fact]
-		public void ImportCanNavigateIntoAndOutOfSubDirectory()
-		{
+		public void ImportCanNavigateIntoAndOutOfSubDirectory() {
 			// Testing https://github.com/cloudhead/less.js/pull/514
 
 			var input = @"@import ""foo.less"";";
@@ -631,8 +615,7 @@ body { background-color: blue; }
 		}
 
 		[Fact]
-		public void ImportCanNavigateIntoAndOutOfSubDirectoryWithImport()
-		{
+		public void ImportCanNavigateIntoAndOutOfSubDirectoryWithImport() {
 			var input = @"@import url(""foourl.less"");";
 			var expected = @"body {
   background-color: foo;
@@ -641,8 +624,7 @@ body { background-color: blue; }
 		}
 
 		[Fact]
-		public void ImportWithMediaSpecificationsSupported()
-		{
+		public void ImportWithMediaSpecificationsSupported() {
 			var input = @"
 @import url(something.css) screen and (color) and (max-width: 600px);";
 
@@ -650,8 +632,7 @@ body { background-color: blue; }
 		}
 
 		[Fact]
-		public void ImportInlinedWithMediaSpecificationsSupported()
-		{
+		public void ImportInlinedWithMediaSpecificationsSupported() {
 			var input = @"
 @import url(something.css) screen and (color) and (max-width: 600px);";
 
@@ -665,8 +646,7 @@ body { background-color: blue; }
 		}
 
 		[Fact]
-		public void CanImportCssFilesAsLess()
-		{
+		public void CanImportCssFilesAsLess() {
 			var input = @"
 @import url(""isless.css"");
 ";
@@ -679,8 +659,7 @@ body {
 		}
 
 		[Fact]
-		public void LessImportWithMediaSpecificationsConverted()
-		{
+		public void LessImportWithMediaSpecificationsConverted() {
 			var input = @"
 @import url(foo.less) screen and (color) and (max-width: 600px);";
 
@@ -695,8 +674,7 @@ body {
 		}
 
 		[Fact]
-		public void LessImportWithMediaSpecificationsConvertedWithOnce()
-		{
+		public void LessImportWithMediaSpecificationsConvertedWithOnce() {
 			var input = @"
 @import-once url(foo.less) screen and (color) and (max-width: 600px);";
 
@@ -711,8 +689,7 @@ body {
 		}
 
 		[Fact]
-		public void LessImportWithMediaSpecificationsConvertedMultipleRequirements()
-		{
+		public void LessImportWithMediaSpecificationsConvertedMultipleRequirements() {
 			var input = @"
 @import url(foo.less) screen and (color) and (max-width: 600px), handheld and (min-width: 20em);";
 
@@ -727,8 +704,7 @@ body {
 		}
 
 		[Fact]
-		public void ImportWithMediaSpecificationsSupportedWithVariable()
-		{
+		public void ImportWithMediaSpecificationsSupportedWithVariable() {
 			var input = @"
 @maxWidth: 600px;
 @requirement1: color;
@@ -741,8 +717,7 @@ body {
 		}
 
 		[Fact]
-		public void LessImportWithMediaSpecificationsConvertedWithVariable()
-		{
+		public void LessImportWithMediaSpecificationsConvertedWithVariable() {
 			var input = @"
 @maxWidth: 600px;
 @requirement1: color;
@@ -759,8 +734,7 @@ body {
 		}
 
 		[Fact]
-		public void LessImportFromEmbeddedResource()
-		{
+		public void LessImportFromEmbeddedResource() {
 			var input = @"
 @import ""dll://dotless.Test.dll#dotless.Test.Resource.Embedded.less"";
 @import ""dll://dotless.Test.dll#dotless.Test.Resource.Embedded2.less"";";
@@ -797,9 +771,8 @@ body {
 		//	}
 		//}
 
-		[Fact]
-		public void CssImportFromEmbeddedResource()
-		{
+		[Fact(Skip = "Embedded resources are still WIP")]
+		public void CssImportFromEmbeddedResource() {
 			var input = @"
 @import ""dll://dotless.Test.dll#dotless.Test.Resource.Embedded.css"";";
 
@@ -812,8 +785,7 @@ body {
 		}
 
 		[Fact]
-		public void ImportTwiceImportsOnce()
-		{
+		public void ImportTwiceImportsOnce() {
 			var input = @"
 @import ""lib/color.less"";
 @import ""lib/color.less"";";
@@ -828,8 +800,7 @@ body {
 		}
 
 		[Fact]
-		public void ImportOnceTwiceImportsOnce()
-		{
+		public void ImportOnceTwiceImportsOnce() {
 			var input = @"
 @import-once ""lib/color.less"";
 @import-once ""lib/color.less"";";
@@ -844,8 +815,7 @@ body {
 		}
 
 		[Fact]
-		public void ImportTwiceWithDifferentRelativePathsImportsOnce()
-		{
+		public void ImportTwiceWithDifferentRelativePathsImportsOnce() {
 			var input = @"
 @import-once ""import/twice/with/different/paths.less"";";
 
@@ -859,8 +829,7 @@ body {
 		}
 
 		[Fact]
-		public void VariablesFromImportedFileAreAvailableToAnotherImportedFileWithinMediaBlock()
-		{
+		public void VariablesFromImportedFileAreAvailableToAnotherImportedFileWithinMediaBlock() {
 			var input = @"
 @import ""import/define-variables.less"";
 
@@ -881,8 +850,7 @@ body {
 		}
 
 		[Fact]
-		public void EmptyImportDoesNotBreakSubsequentImports()
-		{
+		public void EmptyImportDoesNotBreakSubsequentImports() {
 			var input = @"
 @import ""empty.less"";
 @import ""rule.less"";
@@ -897,7 +865,7 @@ body {
   color: black;
 }
 .test {
-  color: #000000;
+  color: black;
 }
 ";
 
@@ -905,8 +873,7 @@ body {
 		}
 
 		[Fact]
-		public void ExtendingNestedRulesFromReferenceImportsWorks()
-		{
+		public void ExtendingNestedRulesFromReferenceImportsWorks() {
 			var input = @"
 @import (reference) ""nested-rules.less"";
 
@@ -923,8 +890,7 @@ body {
 		}
 
 		[Fact]
-		public void ExtendingNestedReferenceRulesIgnoresRulesFromParentRuleset()
-		{
+		public void ExtendingNestedReferenceRulesIgnoresRulesFromParentRuleset() {
 			var input = @"
 @import (reference) ""reference/ruleset-with-child-ruleset-and-rules.less"";
 
@@ -941,8 +907,7 @@ body {
 		}
 
 		[Fact]
-		public void VariableInterpolationInQuotedCssImport()
-		{
+		public void VariableInterpolationInQuotedCssImport() {
 			var input =
 				@"
 @var: ""foo"";
@@ -958,8 +923,7 @@ body {
 		}
 
 		[Fact]
-		public void VariableInterpolationInQuotedLessImport()
-		{
+		public void VariableInterpolationInQuotedLessImport() {
 			var input =
 				@"
 @component: ""color"";
@@ -977,8 +941,7 @@ body {
 		}
 
 		[Fact]
-		public void VariableInterpolationInNestedLessImport()
-		{
+		public void VariableInterpolationInNestedLessImport() {
 			var input =
 				@"
 @import ""nested-import-interpolation-1.less"";
@@ -994,8 +957,7 @@ body {
 		}
 
 		[Fact]
-		public void ImportMultipleImportsMoreThanOnce()
-		{
+		public void ImportMultipleImportsMoreThanOnce() {
 			var input = @"
 @import ""vardef.less"";
 @var: 10px;
@@ -1013,8 +975,7 @@ body {
 		}
 
 		[Fact]
-		public void ImportOptionalIgnoresFilesThatAreNotFound()
-		{
+		public void ImportOptionalIgnoresFilesThatAreNotFound() {
 			var input = @"
 @var: 10px;
 @import (optional) ""this-file-does-not-exist.less"";
@@ -1031,8 +992,7 @@ body {
 		}
 
 		[Fact]
-		public void ImportCssGeneratesImportDirective()
-		{
+		public void ImportCssGeneratesImportDirective() {
 			var input = @"
 @import (css) ""this-file-does-not-exist.less"";
 ";
@@ -1045,8 +1005,7 @@ body {
 		}
 
 		[Fact]
-		public void ImportLessParsesAnyExtensionAsLess()
-		{
+		public void ImportLessParsesAnyExtensionAsLess() {
 			var input = @"
 @import (less) ""css-as-less.css"";
 @import (less) ""arbitrary-extension-as-less.ext"";
@@ -1067,8 +1026,7 @@ body {
 		}
 
 		[Fact]
-		public void ImportInlineIncludesContentsOfCssFile()
-		{
+		public void ImportInlineIncludesContentsOfCssFile() {
 			var input = @"
 @import (inline) ""something.css"";
 ";
@@ -1081,8 +1039,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void ImportReferenceAloneDoesNotProduceOutput()
-		{
+		public void ImportReferenceAloneDoesNotProduceOutput() {
 			var input = @"
 @import (reference) ""simple-rule.less"";
 ";
@@ -1093,8 +1050,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void ImportReferenceDoesNotOutputMediaBlocks()
-		{
+		public void ImportReferenceDoesNotOutputMediaBlocks() {
 			var input = @"
 @import (reference) ""media-scoped-rules.less"";
 ";
@@ -1106,8 +1062,7 @@ body { background-color: foo; invalid ""; }
 
 
 		[Fact]
-		public void ImportReferenceDoesNotOutputRulesetsThatCallLoopingMixins()
-		{
+		public void ImportReferenceDoesNotOutputRulesetsThatCallLoopingMixins() {
 			var input = @"
 @import (reference) ""mixin-loop.less"";
 ";
@@ -1118,8 +1073,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void PartialReferenceExtenderDoesNotCauseReferenceRulesetToBeOutput()
-		{
+		public void PartialReferenceExtenderDoesNotCauseReferenceRulesetToBeOutput() {
 			var input = @"
 @import (reference) ""partial-reference-extends-another-reference.less"";
 ";
@@ -1128,8 +1082,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void ExactReferenceExtenderDoesNotCauseReferenceRulesetToBeOutput()
-		{
+		public void ExactReferenceExtenderDoesNotCauseReferenceRulesetToBeOutput() {
 			var input = @"
 @import (reference) ""exact-reference-extends-another-reference.less"";
 ";
@@ -1138,8 +1091,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void ImportReferenceDoesNotOutputDirectives()
-		{
+		public void ImportReferenceDoesNotOutputDirectives() {
 			var input = @"
 @import (reference) ""directives.less"";
 ";
@@ -1148,8 +1100,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void ImportReferenceOutputsExtendedRulesFromMediaBlocks()
-		{
+		public void ImportReferenceOutputsExtendedRulesFromMediaBlocks() {
 			var input = @"
 @import (reference) ""media-scoped-rules.less"";
 
@@ -1168,8 +1119,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void ImportReferenceDoesNotOutputMixinCalls()
-		{
+		public void ImportReferenceDoesNotOutputMixinCalls() {
 			var input = @"
 @import (reference) ""reference/main.less"";
 ";
@@ -1178,8 +1128,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void ExtendingReferencedImportOnlyOutputsExtendedSelector()
-		{
+		public void ExtendingReferencedImportOnlyOutputsExtendedSelector() {
 			var input = @"
 @import (reference) ""reference-with-multiple-selectors.less"";
 
@@ -1195,8 +1144,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void ImportReferenceDoesNotOutputComments()
-		{
+		public void ImportReferenceDoesNotOutputComments() {
 			var input = @"
 @import (reference) ""comments.less"";
 ";
@@ -1205,8 +1153,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void ImportReferenceWithMixinCallProducesOutput()
-		{
+		public void ImportReferenceWithMixinCallProducesOutput() {
 			var input = @"
 @import (reference) ""simple-rule.less"";
 
@@ -1225,8 +1172,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void ImportReferenceDoesNotPreventNonReferenceImport()
-		{
+		public void ImportReferenceDoesNotPreventNonReferenceImport() {
 			var input = @"
 @import (reference) ""simple-rule.less"";
 @import  ""simple-rule.less"";
@@ -1242,8 +1188,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void ExtendingReferenceImportsWorks()
-		{
+		public void ExtendingReferenceImportsWorks() {
 			var input = @"
 @import (reference) ""simple-rule.less"";
 .test:extend(.rule all) { }
@@ -1259,8 +1204,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void ImportsFromReferenceImportsAreTreatedAsReferences()
-		{
+		public void ImportsFromReferenceImportsAreTreatedAsReferences() {
 			var input = @"
 @import (reference) ""imports-simple-rule.less"";
 
@@ -1279,8 +1223,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void RecursiveImportsFromReferenceImportsAreTreatedAsReferences()
-		{
+		public void RecursiveImportsFromReferenceImportsAreTreatedAsReferences() {
 			var input = @"
 @import (reference) ""two-level-import.less"";
 
@@ -1299,8 +1242,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void ImportingReferenceAsLessWorks()
-		{
+		public void ImportingReferenceAsLessWorks() {
 			var input = @"
 @import (reference, less) ""simple-rule.css"";
 .test {
@@ -1431,8 +1373,7 @@ body { background-color: foo; invalid ""; }
 
 
 		[Fact]
-		public void ImportProtocolCssInsideMixinsWithNestedGuards()
-		{
+		public void ImportProtocolCssInsideMixinsWithNestedGuards() {
 			var input = @"
 .generateImports(@fontFamily) {
   & when (@fontFamily = Lato) {
@@ -1457,8 +1398,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void ImportProtocolCssInsideMixinsWithGuards()
-		{
+		public void ImportProtocolCssInsideMixinsWithGuards() {
 			var input = @"
 .generateImports(@fontFamily) when (@fontFamily = Lato) {
   @import url(https://fonts.googleapis.com/css?family=Lato);
@@ -1479,8 +1419,9 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void StrictMathIsHonoredInImports()
-		{
+		public void StrictMathIsHonoredInImports() {
+			StrictMath = true;
+
 			var input = @"
 @import ""math.less"";
 ";
@@ -1495,8 +1436,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void ImportsWithinRulesets()
-		{
+		public void ImportsWithinRulesets() {
 			var input = @"
 .test {
   @import ""math.less"";
@@ -1512,8 +1452,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void ImportsWithGeneratedSelectorsWithinRulesets()
-		{
+		public void ImportsWithGeneratedSelectorsWithinRulesets() {
 			var input = @"
 .namespace {
   @import ""generated-selector.less"";
@@ -1529,8 +1468,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void NestedImportsWithinRulesets()
-		{
+		public void NestedImportsWithinRulesets() {
 			var input =
 				@"
 .namespace {
@@ -1567,8 +1505,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void ImportsWithinRulesetsGenerateCallableMixins()
-		{
+		public void ImportsWithinRulesetsGenerateCallableMixins() {
 
 			var input = @"
 .namespace {
@@ -1585,8 +1522,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void ExtendedReferenceImportWithMultipleGeneratedSelectorsOnlyOutputsExtendedSelectors()
-		{
+		public void ExtendedReferenceImportWithMultipleGeneratedSelectorsOnlyOutputsExtendedSelectors() {
 
 			var input = @"
 @import (reference) ""multiple-generated-selectors.less"";
@@ -1603,8 +1539,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void RelativeImportsHonorCurrentDirectory()
-		{
+		public void RelativeImportsHonorCurrentDirectory() {
 			var input = @"
 @import ""import-test-a.less"";
 ";
@@ -1625,8 +1560,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void AbsolutePathImportsHonorsCurrentDirectory()
-		{
+		public void AbsolutePathImportsHonorsCurrentDirectory() {
 			var input = @"
 @import 'c:/absolute/file.less';";
 			var expected = @"
@@ -1639,8 +1573,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void CssImportsAreHoistedToBeginningOfFile()
-		{
+		public void CssImportsAreHoistedToBeginningOfFile() {
 			var input = @"
 @font-face {
   font-family: ""Epsilon"";
@@ -1662,8 +1595,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void RelativeImportInMixinDefinition()
-		{
+		public void RelativeImportInMixinDefinition() {
 			var input = @"
 @import ""import-in-mixin/mixin-definition.less"";
 .import();
@@ -1678,8 +1610,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void ReferenceImportDoesNotOutputUnreferencedStyles()
-		{
+		public void ReferenceImportDoesNotOutputUnreferencedStyles() {
 			var input = @"
 @import (reference) ""reference-mixin-issue.less"";
 
@@ -1708,8 +1639,7 @@ body { background-color: foo; invalid ""; }
 		}
 
 		[Fact]
-		public void MixinWithMediaBlock()
-		{
+		public void MixinWithMediaBlock() {
 			var input = @"
 .mixin() {
   @media (min-width: 100px) {

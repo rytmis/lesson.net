@@ -22,8 +22,13 @@ namespace LessonNet.Parser {
 
 		public override LessNode VisitStylesheet(LessParser.StylesheetContext context) {
 			IEnumerable<Statement> GetStatements() {
-				foreach (var child in context.statement()) {
+				foreach (var child in context.terminatedStatement()) {
 					yield return (Statement) child.Accept(this);
+				}
+
+				var unterminatedStatement = context.statement();
+				if (unterminatedStatement != null) {
+					yield return (Statement) unterminatedStatement.Accept(this);
 				}
 			}
 
@@ -31,6 +36,12 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitStatement(LessParser.StatementContext context) {
+			return context.blockStatement()?.Accept(this)
+				?? context.lineStatement()?.Accept(this)
+				?? throw new ParserException($"Unexpected statement type: [{context.GetText()}]");
+		}
+
+		public override LessNode VisitTerminatedStatement(LessParser.TerminatedStatementContext context) {
 			return context.blockStatement()?.Accept(this)
 				?? context.lineStatement()?.Accept(this)
 				?? throw new ParserException($"Unexpected statement type: [{context.GetText()}]");
@@ -171,11 +182,16 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitImportDeclaration(LessParser.ImportDeclarationContext context) {
-			var referenceUrlContext = context.referenceUrl();
+			Expression GetImportTarget() {
+				var str = context.referenceUrl().@string();
+				if (str != null) {
+					return (Expression) str.Accept(this);
+				}
 
-			string url = referenceUrlContext.GetText().Trim('"');
+				return (Url) context.referenceUrl().url().Accept(this);
+			}
 
-			return new ImportStatement(url);
+			return new ImportStatement(GetImportTarget());
 		}
 
 		public override LessNode VisitRuleset(LessParser.RulesetContext context) {
@@ -610,16 +626,19 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitBlock(LessParser.BlockContext context) {
-			IEnumerable<T> GetChildren<T>(IEnumerable<IParseTree> nodes) where T : LessNode {
-				foreach (var child in nodes) {
-					if (child is LessParser.StatementContext || child is LessParser.LineStatementContext) {
-						yield return (T) child.Accept(this);
-					}
+			IEnumerable<Statement> GetStatements() {
+				foreach (var statement in context.terminatedStatement()) {
+					yield return (Statement) statement.Accept(this);
+				}
+
+				var unterminatedStatement = context.statement();
+				if (unterminatedStatement != null) {
+					yield return (Statement) unterminatedStatement.Accept(this);
 				}
 			}
 
 
-			return new RuleBlock(GetChildren<Statement>(context.children));
+			return new RuleBlock(GetStatements());
 		}
 
 		private Expression GetValue(LessParser.ExpressionContext[] expressions) {

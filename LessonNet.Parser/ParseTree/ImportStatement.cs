@@ -1,15 +1,16 @@
 using System.Collections.Generic;
+using LessonNet.Parser.ParseTree.Expressions;
 
 namespace LessonNet.Parser.ParseTree
 {
 	public class ImportStatement : Statement
 	{
-		public ImportStatement(string url)
+		public ImportStatement(Expression url)
 		{
 			Url = url;
 		}
 
-		public string Url { get; }
+		public Expression Url { get; }
 
 		protected override string GetStringRepresentation()
 		{
@@ -17,7 +18,18 @@ namespace LessonNet.Parser.ParseTree
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			var importContext = context.GetImportContext(Url);
+			string EvaluateFilePath() {
+				var expr = Url.EvaluateSingle<Expression>(context);
+				if (expr is LessString str) {
+					return str.GetUnquotedValue();
+				}
+
+				var url = (Url) expr;
+
+				return url.StringContent.GetUnquotedValue();
+			}
+
+			var importContext = context.GetImportContext(EvaluateFilePath());
 
 			return importContext.ParseCurrentStylesheet().Evaluate(importContext);
 		}

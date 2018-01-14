@@ -9,10 +9,15 @@ parser grammar LessParser;
 options { tokenVocab=LessLexer; }
 
 stylesheet
-  : statement*
+  : terminatedStatement* statement?
   ;
 
 statement
+  : lineStatement
+  | blockStatement
+  ;
+
+terminatedStatement
   : lineStatement SEMI
   | blockStatement SEMI?
   ;
@@ -219,8 +224,8 @@ importDeclaration
   ;
 
 referenceUrl
-    : StringLiteral
-    | UrlStart Url RPAREN
+    : string
+    | url
     ;
 
 importMediaTypes
@@ -237,7 +242,7 @@ rulesetGuard
   ;
 
 block
-  : BlockStart statement* (lineStatement SEMI?)? BlockEnd
+  : BlockStart terminatedStatement* statement? BlockEnd
   ;
 
 mixinDefinition

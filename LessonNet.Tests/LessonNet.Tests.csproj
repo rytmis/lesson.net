@@ -102,7 +102,6 @@
     <Compile Include="Specs\Functions\LengthFixture.cs" />
     <Compile Include="Specs\GuardedRulesetsFixture.cs" />
     <Compile Include="Specs\ImportFixture.cs" />
-    <Compile Include="Specs\LineNumbersFixture.cs" />
     <Compile Include="Specs\MathFixture.cs" />
     <Compile Include="Specs\MediaFixture.cs" />
     <Compile Include="Specs\MixinGuardsFixture.cs" />

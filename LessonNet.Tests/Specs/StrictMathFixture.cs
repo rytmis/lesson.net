@@ -5,15 +5,6 @@ namespace LessonNet.Tests.Specs
 {
     public class StrictMathFixture : SpecFixtureBase
     {
-		
-		protected override EvaluationContext CreateContext(string input) {
-			return new EvaluationContext(new LessTreeParser(), new InMemoryFileResolver(input) {
-				Imports = SetupImports()
-			}, StrictMath);
-		}
-
-	    private bool StrictMath { get; set; }
-
         [Fact]
         public void StrictMathNoParenthesesLeavesExpressionUntouched() {
 	        StrictMath = true;
@@ -33,6 +24,8 @@ namespace LessonNet.Tests.Specs
         [Fact]
         public void NonStrictMathWithoutParenthesesEvaluatesExpression()
         {
+	        StrictMath = false;
+
             AssertExpression("1.2px", "12px / 10px");
             AssertExpression("0.6px", "(12px / 10px) / (8px / 4px)");
         }
