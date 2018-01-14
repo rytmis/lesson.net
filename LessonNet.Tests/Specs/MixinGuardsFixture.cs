@@ -754,14 +754,12 @@ namespace LessonNet.Tests.Specs
             var expected =
                 @"
 .light1 {
-  
   margin: 1px;
 }
 .light1 {
   color: white;
 }
 .light2 {
-  
   margin: 1px;
 }
 .light2 {
