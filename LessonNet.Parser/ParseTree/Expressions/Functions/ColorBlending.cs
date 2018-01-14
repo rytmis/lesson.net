@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 	public abstract class ColorBlendingFunction : LessFunction {
@@ -20,6 +21,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 
 	public class MultiplyFunction : ColorBlendingFunction {
 		public MultiplyFunction(Expression arguments) : base(arguments) { }
+
 		protected override Color Operate(Color backdrop, Color source) {
 			return backdrop.BlendWith(source, (c1, c2) => (byte) (c1 * c2 / 255));
 		}
@@ -27,6 +29,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 
 	public class ScreenFunction : ColorBlendingFunction {
 		public ScreenFunction(Expression arguments) : base(arguments) { }
+
 		protected override Color Operate(Color backdrop, Color source) {
 			return backdrop.BlendWith(source, (c1, c2) => (byte) (255 - (255 - c1) * (255 - c2) / 255));
 		}
@@ -34,17 +37,20 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 
 	public class OverlayFunction : ColorBlendingFunction {
 		public OverlayFunction(Expression arguments) : base(arguments) { }
+
 		protected override Color Operate(Color backdrop, Color source) {
-			return backdrop.BlendWith(source, (c1, c2) => (byte) (c1 < 128 ? 2 * c1 * c2 / 255 : 255 - 2 * (255 - c1) * (255 - c2) / 255));
+			return backdrop.BlendWith(source,
+				(c1, c2) => (byte) (c1 < 128 ? 2 * c1 * c2 / 255 : 255 - 2 * (255 - c1) * (255 - c2) / 255));
 		}
 	}
 
 
 	public class SoftlightFunction : ColorBlendingFunction {
 		public SoftlightFunction(Expression arguments) : base(arguments) { }
+
 		protected override Color Operate(Color backdrop, Color source) {
 			return backdrop.BlendWith(source, (c1, c2) => {
-				decimal t = c1 * (decimal)c2 / 255;
+				decimal t = c1 * (decimal) c2 / 255;
 				return (byte) Math.Ceiling(t + c1 * (255 - (255 - c1) * (255 - c2) / 255 - t) / 255);
 			});
 		}
@@ -52,6 +58,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 
 	public class HardlightFunction : ColorBlendingFunction {
 		public HardlightFunction(Expression arguments) : base(arguments) { }
+
 		protected override Color Operate(Color backdrop, Color source) {
 			return backdrop.BlendWith(source, (c1, c2) =>
 				(byte) (c2 < 128 ? 2 * c2 * c1 / 255 : 255 - 2 * (255 - c2) * (255 - c1) / 255)
@@ -61,6 +68,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 
 	public class DifferenceFunction : ColorBlendingFunction {
 		public DifferenceFunction(Expression arguments) : base(arguments) { }
+
 		protected override Color Operate(Color backdrop, Color source) {
 			return backdrop.BlendWith(source, (c1, c2) =>
 				(byte) Math.Abs(c1 - c2)
@@ -70,6 +78,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 
 	public class ExclusionFunction : ColorBlendingFunction {
 		public ExclusionFunction(Expression arguments) : base(arguments) { }
+
 		protected override Color Operate(Color backdrop, Color source) {
 			return backdrop.BlendWith(source, (c1, c2) =>
 				(byte) (c1 + c2 * (255 - c1 - c1) / 255)
@@ -79,55 +88,21 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 
 	public class AverageFunction : ColorBlendingFunction {
 		public AverageFunction(Expression arguments) : base(arguments) { }
+
 		protected override Color Operate(Color backdrop, Color source) {
 			return backdrop.BlendWith(source, (c1, c2) =>
-					(byte) ((c1 + c2) / 2)
+				(byte) ((c1 + c2) / 2)
 			);
 		}
 	}
 
 	public class NegationFunction : ColorBlendingFunction {
 		public NegationFunction(Expression arguments) : base(arguments) { }
+
 		protected override Color Operate(Color backdrop, Color source) {
 			return backdrop.BlendWith(source, (c1, c2) =>
 				(byte) (255 - Math.Abs(255 - c2 - c1))
 			);
 		}
-	}
-
-	public abstract class LightnessFunctionBase : LessFunction {
-		protected LightnessFunctionBase(Expression arguments) : base(arguments) { }
-
-		protected override Expression EvaluateFunction(Expression arguments) {
-			if (arguments is ExpressionList list
-				&& list.Values.Count == 2
-				&& list.Values[0] is Color color
-				&& list.Values[1] is Measurement amount) {
-				return EditHsl(color, GetAdjustment(amount));
-			}
-
-			throw new EvaluationException($"Unexpected arguments: {arguments}");
-		}
-
-		protected Color EditHsl(Color color, decimal amount) {
-			var hslColor = HslColor.FromRgbColor(color);
-			hslColor.Lightness += amount/100;
-			return hslColor.ToRgbColor();
-		}
-
-		protected abstract decimal GetAdjustment(Measurement amount);
-	}
-
-	
-	public class DarkenFunction : LightnessFunctionBase
-	{
-		public DarkenFunction(Expression arguments) : base(arguments) { }
-		protected override decimal GetAdjustment(Measurement amount) => -amount.Number;
-	}
-
-	public class LightnessFunction : LightnessFunctionBase
-	{
-		public LightnessFunction(Expression arguments) : base(arguments) { }
-		protected override decimal GetAdjustment(Measurement amount) => amount.Number;
 	}
 }
