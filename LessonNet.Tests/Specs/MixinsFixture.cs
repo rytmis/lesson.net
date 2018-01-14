@@ -486,7 +486,7 @@ namespace LessonNet.Tests.Specs {
 
             var expected = @"
 .test {
-  background: -moz-linear-gradient(#aaaaaa, #909090);
+  background: -moz-linear-gradient(#aaaaaa, #919191);
 }
 ";
             AssertLess(input, expected);
