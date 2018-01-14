@@ -4,11 +4,13 @@ using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
 	public class MathOperation : Expression {
+		private readonly bool keepSpaces;
 		public Expression LeftOperand { get; }
 		public string Operator { get; }
 		public Expression RightOperand { get; }
 
-		public MathOperation(Expression lhs, string op, Expression rhs) {
+		public MathOperation(Expression lhs, string op, Expression rhs, bool keepSpaces = false) {
+			this.keepSpaces = keepSpaces;
 			this.LeftOperand = lhs;
 			this.Operator = op;
 			this.RightOperand = rhs;
@@ -23,7 +25,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		public Expression EvaluateOperands(EvaluationContext context) {
-			return new MathOperation(EvaluateSingleValue(LeftOperand, context), Operator, EvaluateSingleValue(RightOperand, context));
+			return new MathOperation(EvaluateSingleValue(LeftOperand, context), Operator, EvaluateSingleValue(RightOperand, context), keepSpaces);
 		}
 
 		public Expression ForceEvaluateExpression(EvaluationContext context) {
@@ -36,9 +38,17 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 
 		public override void WriteOutput(OutputContext context) {
 			context.Append(LeftOperand);
-			context.Append(' ');
+
+			if (keepSpaces) {
+				context.Append(' ');
+			}
+
 			context.Append(Operator);
-			context.Append(' ');
+
+			if (keepSpaces) {
+				context.Append(' ');
+			}
+
 			context.Append(RightOperand);
 		}
 

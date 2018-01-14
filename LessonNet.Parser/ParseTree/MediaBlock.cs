@@ -158,7 +158,16 @@ namespace LessonNet.Parser.ParseTree
 			this.rule = rule;
 		}
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return new MediaPropertyQuery(Modifier, rule.EvaluateSingle<Rule>(context));
+			// For ratio queries where the value is a fraction, don't evaluate the division
+			var actualRule = IsFractionalRatio()
+				? rule
+				: rule.EvaluateSingle<Rule>(context);
+
+			yield return new MediaPropertyQuery(Modifier, actualRule);
+
+			bool IsFractionalRatio() {
+				return rule.Property.EndsWith("ratio") && rule.Value is MathOperation op && op.Operator == "/";
+			}
 		}
 
 		protected override string GetStringRepresentation() {

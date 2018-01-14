@@ -94,9 +94,11 @@ namespace LessonNet.Parser {
 				if (list?.AND().Length > 0) {
 					return new ConjunctionSupportsCondition(negate, conditions);
 				}
+
 				if (list?.OR().Length > 0) {
 					return new DisjunctionSupportsCondition(negate, conditions);
 				}
+
 				return null;
 			}
 
@@ -117,7 +119,7 @@ namespace LessonNet.Parser {
 
 		public override LessNode VisitDocumentAtRule(LessParser.DocumentAtRuleContext context) {
 			var specifiers = context.documentSpecifierList().documentSpecifier().Select(d => (Expression) d.Accept(this));
-			var block = (RuleBlock)context.block().Accept(this);
+			var block = (RuleBlock) context.block().Accept(this);
 
 			return new DocumentAtRule(specifiers, block);
 		}
@@ -132,7 +134,7 @@ namespace LessonNet.Parser {
 		public override LessNode VisitKeyframesAtRule(LessParser.KeyframesAtRuleContext context) {
 			var identifier = (Identifier) context.identifier().Accept(this);
 
-			var keyframes = context.keyframesBlock().keyframe().Select(f => (Keyframe)f.Accept(this));
+			var keyframes = context.keyframesBlock().keyframe().Select(f => (Keyframe) f.Accept(this));
 
 			var ruleIdentifier = context.KEYFRAMES().GetText();
 
@@ -238,7 +240,8 @@ namespace LessonNet.Parser {
 					?? pseudo.COLONCOLON()?.GetText()
 					?? "";
 
-				return new Identifier(new PseudoclassIdentifierPart(prefix, pseudo.pseudoclassIdentifier().GetText(), (Expression) pseudo.expression()?.Accept(this)));
+				return new Identifier(new PseudoclassIdentifierPart(prefix, pseudo.pseudoclassIdentifier().GetText(),
+					(Expression) pseudo.expression()?.Accept(this)));
 			}
 
 			Identifier GetIdentifier() {
@@ -265,14 +268,17 @@ namespace LessonNet.Parser {
 
 					var op = attrib.attribRelate();
 					if (op != null) {
-						return new AttributeSelectorElement(identifier, op.GetText(), (Expression) attrib.attribValue().Accept(this), hasTrailingWhitespace);
+						return new AttributeSelectorElement(identifier, op.GetText(), (Expression) attrib.attribValue().Accept(this),
+							hasTrailingWhitespace);
 					}
+
 					return new AttributeSelectorElement(identifier, hasTrailingWhitespace);
 				}
 
 				// The lexer rules might match an ID selector as a color, so we account for that here
 				if (context.HexColor() != null) {
-					return new IdentifierSelectorElement(new Identifier(new ConstantIdentifierPart(context.HexColor().GetText())), hasTrailingWhitespace);
+					return new IdentifierSelectorElement(new Identifier(new ConstantIdentifierPart(context.HexColor().GetText())),
+						hasTrailingWhitespace);
 				}
 
 				return new CombinatorSelectorElement(context.combinator().GetText(), hasTrailingWhitespace);
@@ -340,13 +346,14 @@ namespace LessonNet.Parser {
 
 		public override LessNode VisitVariableDeclaration(LessParser.VariableDeclarationContext context) {
 
-			string name = ((Variable)context.variableName().Accept(this)).Name;
+			string name = ((Variable) context.variableName().Accept(this)).Name;
 
 			var value = GetValue(context.expression());
 			var important = context.IMPORTANT() != null;
 			if (important) {
 				return new VariableDeclaration(name, new ImportantExpression(value));
 			}
+
 			return new VariableDeclaration(name, value);
 		}
 
@@ -415,7 +422,7 @@ namespace LessonNet.Parser {
 				var lhs = GetSingleValuedExpression(context.singleValuedExpression(0));
 				var rhs = GetSingleValuedExpression(context.singleValuedExpression(1));
 
-				return new MathOperation(lhs, mathOperation.Text, rhs);
+				return new MathOperation(lhs, mathOperation.Text, rhs, keepSpaces: HasLeadingWhitespace(mathOperation) && HasTrailingWhitespace(mathOperation));
 			}
 
 			Expression GetColor() {
@@ -551,6 +558,7 @@ namespace LessonNet.Parser {
 				if (parameters == null) {
 					yield break;
 				}
+
 				foreach (var param in parameters) {
 					yield return GetParameter(param);
 				}
@@ -596,7 +604,7 @@ namespace LessonNet.Parser {
 				var rhs = (Expression) comparison.expression(1).Accept(this);
 
 				return new ComparisonCondition(negate, lhs, op, rhs);
-			} 
+			}
 
 			return new BooleanExpressionCondition(negate, (Expression) conditionStatement.expression().Accept(this));
 		}
@@ -619,6 +627,7 @@ namespace LessonNet.Parser {
 			if (values.Count == 1) {
 				return values[0];
 			}
+
 			return new ExpressionList(values, ' ');
 		}
 
@@ -632,13 +641,14 @@ namespace LessonNet.Parser {
 			if (important) {
 				return new Rule(name, new ImportantExpression(expr));
 			}
+
 			return new Rule(name, expr);
 		}
 
 		public override LessNode VisitIeFilter(LessParser.IeFilterContext context) {
 			var identifier = context.ieFilterIdentifier().GetText();
 
-			var expressions = context.ieFilterExpression().Select(fe => (IeFilterExpression)fe.Accept(this));
+			var expressions = context.ieFilterExpression().Select(fe => (IeFilterExpression) fe.Accept(this));
 
 			return new IeFilter(identifier, expressions);
 		}
@@ -668,7 +678,7 @@ namespace LessonNet.Parser {
 
 			bool important = context.IMPORTANT() != null;
 
-			var selector = (Selector)context.selector().Accept(this);
+			var selector = (Selector) context.selector().Accept(this);
 
 			if (context.LPAREN() != null) {
 				return new MixinCall(selector, GetArguments(), important);
@@ -691,7 +701,8 @@ namespace LessonNet.Parser {
 		}
 
 		public override LessNode VisitFeatureQuery(LessParser.FeatureQueryContext context) {
-			var modifier = (MediaQueryModifier) Enum.Parse(typeof(MediaQueryModifier), context.mediaQueryModifier()?.GetText() ?? "None", ignoreCase: true);
+			var modifier = (MediaQueryModifier) Enum.Parse(typeof(MediaQueryModifier),
+				context.mediaQueryModifier()?.GetText() ?? "None", ignoreCase: true);
 			var property = context.property();
 			if (property != null) {
 				return new MediaPropertyQuery(modifier, (Rule) property.Accept(this));
@@ -716,5 +727,15 @@ namespace LessonNet.Parser {
 			return FunctionResolver.Resolve(context.functionName().GetText(), GetExpression(context.expression()));
 		}
 
+		private bool IsWhitespace(IToken token, int relativePosition) {
+				int possibleWhitespaceIndex = token.TokenIndex + relativePosition;
+
+			return possibleWhitespaceIndex <= tokenStream.Size
+				&& tokenStream.Get(possibleWhitespaceIndex).Type == LessLexer.WS;
+		}
+
+		private bool HasLeadingWhitespace(IToken token) => IsWhitespace(token, -1);
+		private bool HasTrailingWhitespace(IToken token) => IsWhitespace(token, 1);
 	}
+
 }
