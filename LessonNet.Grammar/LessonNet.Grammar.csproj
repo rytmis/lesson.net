@@ -30,4 +30,7 @@
     </Antlr4>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="obj\$(Configuration)\$(TargetFramework)\*.cs" />
+  </ItemGroup>
 </Project>
