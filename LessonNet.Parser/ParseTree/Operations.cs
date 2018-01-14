@@ -14,7 +14,7 @@ namespace LessonNet.Parser.ParseTree
 			}
 
 			if (lhs is Color lc && rhs is Measurement rm) {
-				return Operate(op, lc, new Color(rm));
+				return Operate(op, lc, rm.Number);
 			}
 
 			if (lhs is Measurement lm && rhs is Color rc) {
@@ -25,6 +25,21 @@ namespace LessonNet.Parser.ParseTree
 		}
 
 		public static Expression Operate(string op, Color c1, Color c2) {
+			switch (op) {
+				case "-":
+					return c1 - c2;
+				case "+":
+					return c1 + c2;
+				case "*":
+					return c1 * c2;
+				case "/":
+					return c1 / c2;
+				default:
+					throw new EvaluationException($"Unsupported operation: {c1} {op} {c2}");
+			}
+		}
+
+		public static Expression Operate(string op, Color c1, decimal c2) {
 			switch (op) {
 				case "-":
 					return c1 - c2;

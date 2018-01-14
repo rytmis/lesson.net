@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using LessonNet.Parser.CodeGeneration;
+using LessonNet.Parser.Util;
 using static System.FormattableString;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
@@ -169,35 +170,70 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			}
 		}
 
+		private static byte EnsureRange(decimal value) {
+			return (byte) value.Clamp(255, 0);
+		}
+
 		public static Color operator +(Color c1, Color c2) {
 			return new Color(
-				(byte) (c1.R + c2.R),
-				(byte) (c1.G + c2.G),
-				(byte) (c1.B + c2.B)
+				EnsureRange(c1.R + c2.R),
+				EnsureRange(c1.G + c2.G),
+				EnsureRange(c1.B + c2.B)
 			);
 		}
 
 		public static Color operator -(Color c1, Color c2) {
 			return new Color(
-				(byte) (c1.R - c2.R),
-				(byte) (c1.G - c2.G),
-				(byte) (c1.B - c2.B)
+				EnsureRange(c1.R - c2.R),
+				EnsureRange(c1.G - c2.G),
+				EnsureRange(c1.B - c2.B)
 			);
 		}
 
 		public static Color operator *(Color c1, Color c2) {
 			return new Color(
-				(byte) (c1.R * c2.R),
-				(byte) (c1.G * c2.G),
-				(byte) (c1.B * c2.B)
+				EnsureRange(c1.R * c2.R),
+				EnsureRange(c1.G * c2.G),
+				EnsureRange(c1.B * c2.B)
 			);
 		}
 
 		public static Color operator /(Color c1, Color c2) {
 			return new Color(
-				(byte) (c1.R / c2.R),
-				(byte) (c1.G / c2.G),
-				(byte) (c1.B / c2.B)
+				EnsureRange(c1.R / c2.R),
+				EnsureRange(c1.G / c2.G),
+				EnsureRange(c1.B / c2.B)
+			);
+		}
+		public static Color operator +(Color c1, decimal addend) {
+			return new Color(
+				EnsureRange(c1.R + addend),
+				EnsureRange(c1.G + addend),
+				EnsureRange(c1.B + addend)
+			);
+		}
+
+		public static Color operator -(Color c1, decimal subtrahend) {
+			return new Color(
+				EnsureRange(c1.R - subtrahend),
+				EnsureRange(c1.G - subtrahend),
+				EnsureRange(c1.B - subtrahend)
+			);
+		}
+
+		public static Color operator *(Color c1, decimal multiplier) {
+			return new Color(
+				EnsureRange(c1.R * multiplier),
+				EnsureRange(c1.G * multiplier),
+				EnsureRange(c1.B * multiplier)
+			);
+		}
+
+		public static Color operator /(Color c1, decimal divisor) {
+			return new Color(
+				EnsureRange(c1.R / divisor),
+				EnsureRange(c1.G / divisor),
+				EnsureRange(c1.B / divisor)
 			);
 		}
 
