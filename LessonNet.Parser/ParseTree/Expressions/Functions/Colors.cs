@@ -56,6 +56,20 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 		}
 	}
 
+	public class LightnessFunction : LessFunction {
+		public LightnessFunction(Expression arguments) : base(arguments) { }
+		protected override Expression EvaluateFunction(Expression arguments) {
+			var color = arguments as Color;
+			if (color == null) {
+				throw new EvaluationException("Argument must be a color");
+			}
+
+			var hsl = HslColor.FromRgbColor(color);
+
+			return new Measurement(hsl.Lightness, "");
+		}
+	}
+
 	public class RgbFunction : LessFunction {
 		public RgbFunction(Expression arguments) : base(arguments) { }
 		protected override Expression EvaluateFunction(Expression arguments) {

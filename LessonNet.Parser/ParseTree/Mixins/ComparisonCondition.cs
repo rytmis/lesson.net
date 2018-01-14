@@ -51,17 +51,17 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		private static bool NumericCompare(string op, Measurement lhs, Measurement rhs) {
 			switch (op) {
 				case ">":
-					return lhs.Number > rhs.Number;
+					return lhs > rhs;
 				case "<":
-					return lhs.Number < rhs.Number;
+					return lhs < rhs;
 				case ">=":
-					return lhs.Number >= rhs.Number;
+					return lhs >= rhs;
 				case "<=":
-					return lhs.Number <= rhs.Number;
+					return lhs <= rhs;
 				case "=<":
-					return lhs.Number <= rhs.Number;
+					return lhs <= rhs;
 				case "=":
-					return lhs.Number == rhs.Number;
+					return Measurement.NumberEquals(lhs, rhs);
 				default:
 					throw new EvaluationException($"Unexpected operator: {op}");
 			}

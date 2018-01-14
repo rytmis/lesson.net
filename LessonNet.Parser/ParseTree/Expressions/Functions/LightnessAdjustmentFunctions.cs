@@ -1,6 +1,6 @@
 ﻿namespace LessonNet.Parser.ParseTree.Expressions.Functions {
-	public abstract class LightnessFunctionBase : LessFunction {
-		protected LightnessFunctionBase(Expression arguments) : base(arguments) { }
+	public abstract class LightnessAdjustmentFunctionBase : LessFunction {
+		protected LightnessAdjustmentFunctionBase(Expression arguments) : base(arguments) { }
 
 		protected override Expression EvaluateFunction(Expression arguments) {
 			if (arguments is ExpressionList list
@@ -23,13 +23,8 @@
 	}
 
 
-	public class DarkenFunction : LightnessFunctionBase {
+	public class DarkenFunction : LightnessAdjustmentFunctionBase {
 		public DarkenFunction(Expression arguments) : base(arguments) { }
 		protected override decimal GetAdjustment(Measurement amount) => -amount.Number;
-	}
-
-	public class LightnessFunction : LightnessFunctionBase {
-		public LightnessFunction(Expression arguments) : base(arguments) { }
-		protected override decimal GetAdjustment(Measurement amount) => amount.Number;
 	}
 }

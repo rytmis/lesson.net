@@ -32,6 +32,20 @@ namespace LessonNet.Parser.ParseTree
 			context.Append(GetStringRepresentation());
 		}
 
+		public static bool operator <(Measurement lhs, Measurement rhs) => lhs.ToNum() < rhs.ToNum();
+		public static bool operator <=(Measurement lhs, Measurement rhs) => lhs.ToNum() <= rhs.ToNum();
+		public static bool operator >(Measurement lhs, Measurement rhs) => lhs.ToNum() > rhs.ToNum();
+		public static bool operator >=(Measurement lhs, Measurement rhs) => lhs.ToNum() >= rhs.ToNum();
+		public static bool NumberEquals(Measurement lhs, Measurement rhs) => lhs?.ToNum() == rhs?.ToNum();
+
+		private decimal ToNum() {
+			if (Unit == "%") {
+				return Number / 100;
+			}
+
+			return Number;
+		}
+
 		protected bool Equals(Measurement other) {
 			return Number == other.Number && string.Equals(Unit, other.Unit);
 		}
