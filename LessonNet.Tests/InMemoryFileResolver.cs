@@ -20,18 +20,6 @@ namespace LessonNet.Tests {
 		}
 
 		public IFileResolver GetResolverFor(string lessFilePath) {
-			string ResolvePath(string path) {
-				Stack<string> pathStack = new Stack<string>();
-				foreach (var pathComponent in path.Split('\\', '/')) {
-					if (pathComponent == ".." && pathStack.Count > 0) {
-						pathStack.Pop();
-					} else if (pathComponent != ".") {
-						pathStack.Push(pathComponent);
-					}
-				}
-
-				return string.Join("/", pathStack.Reverse());
-			}
 
 			if (Imports == null) {
 				throw new InvalidOperationException($"Cannot resolve imports -- no imports defined for {nameof(InMemoryFileResolver)}");
@@ -47,6 +35,19 @@ namespace LessonNet.Tests {
 
 				basePath = Path.Combine(basePath, Path.GetDirectoryName(lessFilePath))
 			};
+		}
+
+		private string ResolvePath(string path) {
+			Stack<string> pathStack = new Stack<string>();
+			foreach (var pathComponent in path.Split('\\', '/')) {
+				if (pathComponent == ".." && pathStack.Count > 0) {
+					pathStack.Pop();
+				} else if (pathComponent != ".") {
+					pathStack.Push(pathComponent);
+				}
+			}
+
+			return string.Join("/", pathStack.Reverse());
 		}
 
 		public string CurrentFile { get; }

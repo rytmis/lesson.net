@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using LessonNet.Parser.CodeGeneration;
 using LessonNet.Parser.ParseTree.Expressions;
 
@@ -34,9 +35,7 @@ namespace LessonNet.Parser.ParseTree
 					?? url.RawUrl;
 			}
 
-			bool IsImportableUri(string uri, out Uri importableUri) {
-				importableUri = null;
-
+			bool IsImportableUri(string uri) {
 				if (uri.StartsWith("//")) {
 					// Protocol-relative URI
 					return false;
@@ -46,19 +45,31 @@ namespace LessonNet.Parser.ParseTree
 					return false;
 				}
 
-				if (parsedUri.IsAbsoluteUri) {
+				if (parsedUri.IsAbsoluteUri && parsedUri.Scheme != "file") {
 					return false;
 				}
 
-				importableUri = parsedUri;
 				return true;
 			}
 
-			if (!IsImportableUri(EvaluateFilePath(), out Uri importUri)) {
+			var isExplicitCssImport = options.HasFlag(ImportOptions.Css);
+			var filePath = EvaluateFilePath();
+			if (isExplicitCssImport || !IsImportableUri(filePath)) {
 				return new[] {this};
 			}
 
-			var importContext = context.GetImportContext(importUri.ToString());
+			var extension = Path.GetExtension(filePath);
+
+			if (extension == ".css" && !options.HasFlag(ImportOptions.Less)) {
+				return new[] {this};
+			}
+
+
+			var actualImportPath = string.IsNullOrEmpty(extension)
+				? Path.ChangeExtension(filePath, "less")
+				: filePath;
+
+			var importContext = context.GetImportContext(actualImportPath);
 
 			return importContext
 				.ParseCurrentStylesheet(isReference: options.HasFlag(ImportOptions.Reference))

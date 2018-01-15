@@ -648,7 +648,7 @@ body { background-color: blue; }
 		[Fact]
 		public void CanImportCssFilesAsLess() {
 			var input = @"
-@import url(""isless.css"");
+@import (less) url(""isless.css"");
 ";
 			var expected = @"
 body {
