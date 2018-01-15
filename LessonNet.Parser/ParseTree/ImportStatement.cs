@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using LessonNet.Parser.CodeGeneration;
 using LessonNet.Parser.ParseTree.Expressions;
 
 namespace LessonNet.Parser.ParseTree
@@ -29,14 +30,46 @@ namespace LessonNet.Parser.ParseTree
 
 				var url = (Url) expr;
 
-				return url.StringContent.GetUnquotedValue();
+				return url.StringContent?.GetUnquotedValue()
+					?? url.RawUrl;
 			}
 
-			var importContext = context.GetImportContext(EvaluateFilePath());
+			bool IsImportableUri(string uri, out Uri importableUri) {
+				importableUri = null;
+
+				if (uri.StartsWith("//")) {
+					// Protocol-relative URI
+					return false;
+				}
+
+				if (!Uri.TryCreate(uri, UriKind.RelativeOrAbsolute, out Uri parsedUri)) {
+					return false;
+				}
+
+				if (parsedUri.IsAbsoluteUri) {
+					return false;
+				}
+
+				importableUri = parsedUri;
+				return true;
+			}
+
+			if (!IsImportableUri(EvaluateFilePath(), out Uri importUri)) {
+				return new[] {this};
+			}
+
+			var importContext = context.GetImportContext(importUri.ToString());
 
 			return importContext
 				.ParseCurrentStylesheet(isReference: options.HasFlag(ImportOptions.Reference))
 				.Evaluate(importContext);
+		}
+
+		public override void WriteOutput(OutputContext context) {
+			context.Indent();
+			context.Append("@import ");
+			context.Append(Url);
+			context.AppendLine(";");
 		}
 	}
 

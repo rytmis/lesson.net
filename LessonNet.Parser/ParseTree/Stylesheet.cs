@@ -53,7 +53,14 @@ namespace LessonNet.Parser.ParseTree
 
 		public override void WriteOutput(OutputContext context) {
 			using (context.BeginReferenceScope(isReference)) {
-				foreach (var childNode in Statements) {
+				var (imports, otherStatements) = Statements.Split<ImportStatement, Statement>();
+				foreach (var import in imports) {
+					if (!isReference) {
+						import.WriteOutput(context);
+					} 
+				}
+
+				foreach (var childNode in otherStatements) {
 					if (!isReference || childNode is MediaBlock || childNode is Ruleset) {
 						childNode.WriteOutput(context);
 					} 
