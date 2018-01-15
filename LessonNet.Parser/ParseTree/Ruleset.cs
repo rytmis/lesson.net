@@ -66,6 +66,8 @@ namespace LessonNet.Parser.ParseTree
 						yield return rs;
 					} else if (statement is MediaBlock media) {
 						yield return media.Bubble(context);
+					} else if (statement is Stylesheet stylesheet) {
+						yield return stylesheet;
 					} else {
 						throw new EvaluationException($"Unexpected statement type after evaluating rule block: {statement.GetType()}");
 					}
