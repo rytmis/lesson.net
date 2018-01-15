@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using LessonNet.Parser.CodeGeneration;
 using LessonNet.Parser.ParseTree.Expressions;
 
@@ -9,9 +10,11 @@ namespace LessonNet.Parser.ParseTree
 	public class ImportStatement : Statement
 	{
 		private readonly ImportOptions options;
+		private readonly List<MediaQuery> mediaQueries;
 
-		public ImportStatement(Expression url, ImportOptions options) {
+		public ImportStatement(Expression url, ImportOptions options, IEnumerable<MediaQuery> mediaQueries) {
 			this.options = options;
+			this.mediaQueries = mediaQueries.ToList();
 			Url = url;
 		}
 
@@ -66,7 +69,12 @@ namespace LessonNet.Parser.ParseTree
 			bool isInlineImport = options.HasFlag(ImportOptions.Inline);
 
 			if (isCssFile && !isExplicitLessImport && !isInlineImport) {
-				return new[] {this};
+				return new[] {
+					new ImportStatement(
+						Url.EvaluateSingle<Expression>(context),
+						options,
+						mediaQueries.Select(mq => mq.EvaluateSingle<MediaQuery>(context))),
+				};
 			}
 
 			var actualImportPath = string.IsNullOrEmpty(extension)
@@ -74,26 +82,40 @@ namespace LessonNet.Parser.ParseTree
 				: filePath;
 
 
-			try {
-				var importContext = context.GetImportContext(actualImportPath);
+			IEnumerable<Statement> GetImportResults() {
+				try {
+					var importContext = context.GetImportContext(actualImportPath);
+					if (isCssFile && isInlineImport) {
+						return new Statement[] {new InlineCssImportStatement(importContext.GetFileContent())};
+					}
 
-				if (isCssFile && isInlineImport) {
-					return new[] {new InlineCssImportStatement(importContext.GetFileContent())};
+					return importContext
+						.ParseCurrentStylesheet(isReference: options.HasFlag(ImportOptions.Reference))
+						.Evaluate(importContext)
+						.OfType<Statement>();
+
+				} catch (Exception ex) {
+					throw new EvaluationException($"Failed to import {filePath}", ex);
 				}
-
-				return importContext
-					.ParseCurrentStylesheet(isReference: options.HasFlag(ImportOptions.Reference))
-					.Evaluate(importContext);
-
-			} catch (Exception ex) {
-				throw new EvaluationException($"Failed to import {filePath}", ex);
 			}
+
+			var importResults = GetImportResults();
+
+			if (mediaQueries.Any()) {
+				return new[] {new MediaBlock(mediaQueries, new RuleBlock(importResults)).EvaluateSingle<MediaBlock>(context)};
+			}
+
+			return importResults;
 		}
 
 		public override void WriteOutput(OutputContext context) {
 			context.Indent();
 			context.Append("@import ");
 			context.Append(Url);
+			if (mediaQueries.Any()) {
+				context.Append(' ');
+				context.Append(mediaQueries, ", ");
+			}
 			context.AppendLine(";");
 		}
 	}

@@ -220,10 +220,6 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
-		public virtual LessNode VisitImportMediaTypes(LessParser.ImportMediaTypesContext context) {
-			throw new System.NotImplementedException();
-		}
-
 		public virtual LessNode VisitRuleset(LessParser.RulesetContext context)
 		{
 			throw new System.NotImplementedException();

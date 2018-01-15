@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using LessonNet.Parser.CodeGeneration;
 
@@ -14,7 +15,11 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			context.AppendLine(content);
+			var lines = content.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+			foreach (var line in lines) {
+				context.Indent();
+				context.AppendLine(line);
+			}
 		}
 
 		protected bool Equals(InlineCssImportStatement other) {

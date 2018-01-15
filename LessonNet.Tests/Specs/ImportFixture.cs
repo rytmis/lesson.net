@@ -634,7 +634,7 @@ body { background-color: blue; }
 		[Fact]
 		public void ImportInlinedWithMediaSpecificationsSupported() {
 			var input = @"
-@import url(something.css) screen and (color) and (max-width: 600px);";
+@import (inline) url(something.css) screen and (color) and (max-width: 600px);";
 
 			var expected = @"
 @media screen and (color) and (max-width: 600px) {

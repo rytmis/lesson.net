@@ -220,8 +220,8 @@ variableDeclaration
 
 /* Imports */
 importDeclaration
-  : IMPORT (LPAREN importOption (COMMA importOption)* RPAREN)? referenceUrl importMediaTypes?
-  | IMPORT_ONCE referenceUrl
+  : IMPORT (LPAREN importOption (COMMA importOption)* RPAREN)? referenceUrl  (mediaQuery (COMMA mediaQuery)*)?
+  | IMPORT_ONCE referenceUrl (mediaQuery (COMMA mediaQuery)*)?
   ;
 
 importOption
@@ -233,10 +233,6 @@ referenceUrl
     : string
     | url
     ;
-
-importMediaTypes
-  : (Identifier (COMMA Identifier)*)
-  ;
 
 /* Rules */
 ruleset

@@ -194,12 +194,15 @@ namespace LessonNet.Parser {
 				return (Url) context.referenceUrl().url().Accept(this);
 			}
 
-			var options =
-				context.importOption()
+			var options = context.IMPORT_ONCE() != null
+				? ImportOptions.Once
+				: context.importOption()
 					.Select(opt => opt.GetText().ParseEnum<ImportOptions>())
 					.Aggregate(ImportOptions.None, (result, opt) => result | opt);
 
-			return new ImportStatement(GetImportTarget(), options);
+			var mediaQueries = context.mediaQuery().Select(mq => (MediaQuery) mq.Accept(this));
+
+			return new ImportStatement(GetImportTarget(), options, mediaQueries);
 		}
 
 		public override LessNode VisitRuleset(LessParser.RulesetContext context) {
