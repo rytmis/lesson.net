@@ -32,10 +32,11 @@ namespace LessonNet.Parser
 		}
 
 		public EvaluationContext GetImportContext(string importedLessFileName) {
-			return new EvaluationContext(Parser, FileResolver.GetResolverFor(importedLessFileName), StrictMath) {
+			var basePath = (CurrentScope as ClosureScope)?.ImportBasePath;
+
+			return new EvaluationContext(Parser, FileResolver.GetResolverFor(importedLessFileName, basePath), StrictMath) {
 				scopeStack = scopeStack,
 				Extenders = Extenders,
-
 			};
 		}
 
@@ -51,6 +52,8 @@ namespace LessonNet.Parser
 			}
 		}
 
+		public string GetImportBasePath() => FileResolver.BasePath;
+
 		public OutputContext GetOutputContext(char indent, int indentationCount) {
 			return new OutputContext(Extenders, indent, indentationCount);
 		}
@@ -61,8 +64,8 @@ namespace LessonNet.Parser
 			return new ScopeGuard(scopeStack);
 		}
 
-		public IDisposable EnterClosureScope(Scope closure, IEnumerable<VariableDeclaration> localVariables = null) {
-			scopeStack.Push(new ClosureScope(this, closure, CurrentScope, localVariables));
+		public IDisposable EnterClosureScope(Scope closure, IEnumerable<VariableDeclaration> localVariables = null, string importBasePath = null) {
+			scopeStack.Push(new ClosureScope(this, closure, CurrentScope, localVariables, importBasePath));
 
 			return new ScopeGuard(scopeStack);
 		}
@@ -107,7 +110,7 @@ namespace LessonNet.Parser
 
 		public bool IsRoot => Parent == null;
 
-		private readonly EvaluationContext context;
+		public EvaluationContext Context { get; }
 
 		private IList<Scope> children = new List<Scope>();
 		private IDictionary<string, VariableDeclaration> variables = new Dictionary<string, VariableDeclaration>();
@@ -117,7 +120,7 @@ namespace LessonNet.Parser
 
 
 		public Scope(EvaluationContext context, SelectorList selectors = null, Scope parent = null) {
-			this.context = context;
+			this.Context = context;
 			this.Selectors = selectors ?? SelectorList.Empty;
 			this.SelectorsWithoutCombinators = selectors?.DropCombinators() ?? SelectorList.Empty;
 			Parent = parent;
@@ -175,7 +178,7 @@ namespace LessonNet.Parser
 			var guardScope = new MixinGuardScope();
 
 			var matchingMixins = mixinDefinitions
-				.Where(mixin => call.Matches(mixin.Mixin, context))
+				.Where(mixin => call.Matches(mixin.Mixin, Context))
 				.OrderBy(mixin => mixin.Mixin.IsDefaultOverload)
 				.Select(m => new MixinEvaluationResult(m.Mixin, call, m.Closure ?? this, guardScope))
 				.Concat(ResolveInChildContexts(call));
@@ -259,7 +262,7 @@ namespace LessonNet.Parser
 		}
 
 		public Scope CreateChildScope(SelectorList scopeSelectors) {
-			var childScope = new Scope(context, scopeSelectors, this);
+			var childScope = new Scope(Context, scopeSelectors, this);
 			children.Add(childScope);
 			return childScope;
 		}
@@ -274,9 +277,13 @@ namespace LessonNet.Parser
 	}
 
 	public class ClosureScope : Scope {
+		public string ImportBasePath { get; }
 		private readonly Scope closure;
 
-		public ClosureScope(EvaluationContext context, Scope closure, Scope overlay, IEnumerable<VariableDeclaration> localVariables) : base(context, overlay.Selectors) {
+		public ClosureScope(EvaluationContext context, Scope closure, Scope overlay, IEnumerable<VariableDeclaration> localVariables, string importBasePath) 
+			: base(context, overlay.Selectors) {
+			ImportBasePath = importBasePath;
+
 			this.closure = closure;
 
 			Parent = overlay;

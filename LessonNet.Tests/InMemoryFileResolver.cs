@@ -9,8 +9,6 @@ namespace LessonNet.Tests {
 	public class InMemoryFileResolver : IFileResolver {
 		private readonly string input;
 
-		private string basePath = "";
-
 		public InMemoryFileResolver(string input) {
 			this.input = input;
 		}
@@ -19,13 +17,16 @@ namespace LessonNet.Tests {
 			return new MemoryStream(Encoding.UTF8.GetBytes(input));
 		}
 
-		public IFileResolver GetResolverFor(string lessFilePath) {
+		public IFileResolver GetResolverFor(string lessFilePath, string basePathOverride = null) {
+			string currentBasePath = !string.IsNullOrEmpty(basePathOverride)
+				? basePathOverride
+				: BasePath;
 
 			if (Imports == null) {
 				throw new InvalidOperationException($"Cannot resolve imports -- no imports defined for {nameof(InMemoryFileResolver)}");
 			}
 
-			var resolvedPath = ResolvePath(Path.Combine(basePath, lessFilePath).Replace('\\', '/'));
+			var resolvedPath = ResolvePath(Path.Combine(currentBasePath, lessFilePath).Replace('\\', '/'));
 			if (Imports.ContainsKey(resolvedPath) == false) {
 				throw new ArgumentException($"Imported file not found: [{lessFilePath} -- tried {resolvedPath}]");
 			}
@@ -33,7 +34,7 @@ namespace LessonNet.Tests {
 			return new InMemoryFileResolver(Imports[resolvedPath]) {
 				Imports = Imports,
 
-				basePath = Path.Combine(basePath, Path.GetDirectoryName(lessFilePath))
+				BasePath = Path.Combine(currentBasePath, Path.GetDirectoryName(lessFilePath))
 			};
 		}
 
@@ -51,6 +52,7 @@ namespace LessonNet.Tests {
 		}
 
 		public string CurrentFile { get; }
+		public string BasePath { get; private set; } = "";
 		public Dictionary<string, string> Imports { get; set; }
 	}
 }

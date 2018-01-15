@@ -12,12 +12,13 @@ namespace LessonNet.Parser {
 		}
 
 		public string CurrentFile => lessFilePath;
+		public string BasePath { get; private set; }
 
 		public Stream GetContent() {
 			return File.OpenRead(lessFilePath);
 		}
 
-		public IFileResolver GetResolverFor(string lessFilePath) {
+		public IFileResolver GetResolverFor(string lessFilePath, string basePathOverride = null) {
 			string path = Path.GetFullPath(Path.Combine(rootPath, lessFilePath));
 
 			return new FileResolver(path);
