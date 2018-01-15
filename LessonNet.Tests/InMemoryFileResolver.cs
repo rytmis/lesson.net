@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using LessonNet.Parser;
 
@@ -19,11 +20,24 @@ namespace LessonNet.Tests {
 		}
 
 		public IFileResolver GetResolverFor(string lessFilePath) {
+			string ResolvePath(string path) {
+				Stack<string> pathStack = new Stack<string>();
+				foreach (var pathComponent in path.Split('\\', '/')) {
+					if (pathComponent == ".." && pathStack.Count > 0) {
+						pathStack.Pop();
+					} else if (pathComponent != ".") {
+						pathStack.Push(pathComponent);
+					}
+				}
+
+				return string.Join("/", pathStack.Reverse());
+			}
+
 			if (Imports == null) {
 				throw new InvalidOperationException($"Cannot resolve imports -- no imports defined for {nameof(InMemoryFileResolver)}");
 			}
 
-			var resolvedPath = Path.Combine(basePath, lessFilePath).Replace('\\', '/');
+			var resolvedPath = ResolvePath(Path.Combine(basePath, lessFilePath).Replace('\\', '/'));
 			if (Imports.ContainsKey(resolvedPath) == false) {
 				throw new ArgumentException($"Imported file not found: [{lessFilePath} -- tried {resolvedPath}]");
 			}
