@@ -34,8 +34,14 @@ namespace LessonNet.Tests.Specs {
 			imports["import/other-protocol-test.less"] = @"
 .first {
     background-image: url('http://some.com/file.gif');
+}
+.second {
     background-image: url('https://some.com/file.gif');
+}
+.third {
     background-image: url('ftp://some.com/file.gif');
+}
+.fourth {
     background-image: url('data:xxyhjgjshgjs');
 }
 ";
@@ -388,8 +394,14 @@ body { background-color: blue; }
 			var expected = @"
 .first {
   background-image: url('http://some.com/file.gif');
+}
+.second {
   background-image: url('https://some.com/file.gif');
+}
+.third {
   background-image: url('ftp://some.com/file.gif');
+}
+.fourth {
   background-image: url('data:xxyhjgjshgjs');
 }
 ";
@@ -1494,7 +1506,7 @@ body { background-color: foo; invalid ""; }
 }
 .namespace #import-test {
   height: 10px;
-  color: #ff0000;
+  color: red;
   width: 10px;
   height: 30%;
 }
