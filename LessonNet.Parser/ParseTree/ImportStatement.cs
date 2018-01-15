@@ -52,28 +52,42 @@ namespace LessonNet.Parser.ParseTree
 				return true;
 			}
 
-			var isExplicitCssImport = options.HasFlag(ImportOptions.Css);
 			var filePath = EvaluateFilePath();
+
+			bool isExplicitCssImport = options.HasFlag(ImportOptions.Css);
 			if (isExplicitCssImport || !IsImportableUri(filePath)) {
 				return new[] {this};
 			}
 
 			var extension = Path.GetExtension(filePath);
 
-			if (extension == ".css" && !options.HasFlag(ImportOptions.Less)) {
+			bool isCssFile = extension == ".css";
+			bool isExplicitLessImport = options.HasFlag(ImportOptions.Less);
+			bool isInlineImport = options.HasFlag(ImportOptions.Inline);
+
+			if (isCssFile && !isExplicitLessImport && !isInlineImport) {
 				return new[] {this};
 			}
-
 
 			var actualImportPath = string.IsNullOrEmpty(extension)
 				? Path.ChangeExtension(filePath, "less")
 				: filePath;
 
-			var importContext = context.GetImportContext(actualImportPath);
 
-			return importContext
-				.ParseCurrentStylesheet(isReference: options.HasFlag(ImportOptions.Reference))
-				.Evaluate(importContext);
+			try {
+				var importContext = context.GetImportContext(actualImportPath);
+
+				if (isCssFile && isInlineImport) {
+					return new[] {new InlineCssImportStatement(importContext.GetFileContent())};
+				}
+
+				return importContext
+					.ParseCurrentStylesheet(isReference: options.HasFlag(ImportOptions.Reference))
+					.Evaluate(importContext);
+
+			} catch (Exception ex) {
+				throw new EvaluationException($"Failed to import {filePath}", ex);
+			}
 		}
 
 		public override void WriteOutput(OutputContext context) {

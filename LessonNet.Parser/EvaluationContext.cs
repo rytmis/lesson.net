@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,6 +42,12 @@ namespace LessonNet.Parser
 		public Stylesheet ParseCurrentStylesheet(bool isReference) {
 			using (var stream = FileResolver.GetContent()) {
 				return Parser.Parse(FileResolver.CurrentFile, stream, isReference);
+			}
+		}
+
+		public string GetFileContent() {
+			using (var reader =  new StreamReader(FileResolver.GetContent())) {
+				return reader.ReadToEnd();
 			}
 		}
 
