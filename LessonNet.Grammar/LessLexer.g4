@@ -111,6 +111,7 @@ LESS : 'less';
 CSS : 'css';
 ONCE : 'once';
 MULTIPLE: 'multiple';
+OPTIONAL: 'optional';
 
 /* Mixin Guards */
 WHEN : 'when';

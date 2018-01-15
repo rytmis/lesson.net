@@ -82,24 +82,32 @@ namespace LessonNet.Parser.ParseTree
 				: filePath;
 
 
-			IEnumerable<Statement> GetImportResults() {
+			IEnumerable<Statement> GetImportResults(bool optional) {
+				EvaluationContext importContext;
 				try {
-					var importContext = context.GetImportContext(actualImportPath);
-					if (isCssFile && isInlineImport) {
-						return new Statement[] {new InlineCssImportStatement(importContext.GetFileContent())};
+					importContext = context.GetImportContext(actualImportPath);
+				} catch (Exception ex) {
+					if (optional) {
+						return null;
 					}
 
-					return importContext
-						.ParseCurrentStylesheet(isReference: options.HasFlag(ImportOptions.Reference))
-						.Evaluate(importContext)
-						.OfType<Statement>();
-
-				} catch (Exception ex) {
 					throw new EvaluationException($"Failed to import {filePath}", ex);
 				}
+
+				if (isCssFile && isInlineImport) {
+					return new Statement[] {new InlineCssImportStatement(importContext.GetFileContent())};
+				}
+
+				return importContext
+					.ParseCurrentStylesheet(isReference: options.HasFlag(ImportOptions.Reference))
+					.Evaluate(importContext)
+					.OfType<Statement>();
 			}
 
-			var importResults = GetImportResults();
+			var importResults = GetImportResults(options.HasFlag(ImportOptions.Optional));
+			if (importResults == null) {
+				return Enumerable.Empty<LessNode>();
+			}
 
 			if (mediaQueries.Any()) {
 				return new[] {new MediaBlock(mediaQueries, new RuleBlock(importResults)).EvaluateSingle<MediaBlock>(context)};
@@ -128,6 +136,7 @@ namespace LessonNet.Parser.ParseTree
 		Less = 4,
 		Css = 8,
 		Once = 16,
-		Multiple = 32
+		Multiple = 32,
+		Optional = 64
 	}
 }

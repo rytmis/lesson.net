@@ -225,7 +225,7 @@ importDeclaration
   ;
 
 importOption
-  : (REFERENCE | INLINE | LESS | CSS | ONCE | MULTIPLE)
+  : (REFERENCE | INLINE | LESS | CSS | ONCE | MULTIPLE | OPTIONAL)
   ;
 
 
@@ -375,6 +375,7 @@ keywordAsPseudoclassIdentifier
   | CSS
   | ONCE
   | MULTIPLE
+  | OPTIONAL
   | WHEN
   | NOT
   | AND
