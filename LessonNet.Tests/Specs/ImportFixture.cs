@@ -371,7 +371,7 @@ body { background-color: blue; }
 }
 #import-test {
   height: 10px;
-  color: #ff0000;
+  color: red;
   width: 10px;
   height: 30%;
 }
@@ -733,7 +733,7 @@ body {
 			AssertLess(input, expected);
 		}
 
-		[Fact]
+		[Fact(Skip = "Embedded resources are still WIP")]
 		public void LessImportFromEmbeddedResource() {
 			var input = @"
 @import ""dll://dotless.Test.dll#dotless.Test.Resource.Embedded.less"";
@@ -1215,7 +1215,7 @@ body { background-color: foo; invalid ""; }
 
 			var expected = @"
 .test {
-  background-color: #0000ff;
+  background-color: blue;
 }
 ";
 
