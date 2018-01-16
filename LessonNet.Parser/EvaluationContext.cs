@@ -19,34 +19,28 @@ namespace LessonNet.Parser
 		private Stack<Scope> scopeStack = new Stack<Scope>();
 
 		public LessTreeParser Parser { get; }
-		public IFileResolver FileResolver { get; }
 		public bool StrictMath { get; }
 		public Scope CurrentScope => scopeStack.Peek();
 
 		public EvaluationContext(LessTreeParser parser, IFileResolver fileResolver, bool strictMath = false) {
 			Parser = parser;
-			FileResolver = fileResolver;
 			StrictMath = strictMath;
 
-			scopeStack.Push(new Scope(this));
+			scopeStack.Push(new Scope(this, fileResolver));
 		}
 
-		public EvaluationContext GetImportContext(string importedLessFileName) {
-			return new EvaluationContext(Parser, FileResolver.GetResolverFor(importedLessFileName), StrictMath) {
-				scopeStack = scopeStack,
-				Extenders = Extenders,
-				RewriteRelativeUrls = RewriteRelativeUrls
-			};
+		public IDisposable EnterImportScope(string importedLessFileName) {
+			return EnterScope(CurrentScope.CreateImportScope(importedLessFileName));
 		}
 
 		public Stylesheet ParseCurrentStylesheet(bool isReference) {
-			using (var stream = FileResolver.GetContent()) {
-				return Parser.Parse(FileResolver.CurrentFile, stream, isReference);
+			using (var stream = CurrentScope.FileResolver.GetContent()) {
+				return Parser.Parse(CurrentScope.FileResolver.CurrentFile, stream, isReference);
 			}
 		}
 
 		public string GetFileContent() {
-			using (var reader =  new StreamReader(FileResolver.GetContent())) {
+			using (var reader =  new StreamReader(CurrentScope.FileResolver.GetContent())) {
 				return reader.ReadToEnd();
 			}
 		}
@@ -56,13 +50,15 @@ namespace LessonNet.Parser
 		}
 
 		public IDisposable EnterScope(SelectorList selectors) {
-			scopeStack.Push(CurrentScope.CreateChildScope(selectors));
-
-			return new ScopeGuard(scopeStack);
+			return EnterScope(CurrentScope.CreateChildScope(selectors));
 		}
 
 		public IDisposable EnterClosureScope(Scope closure, IEnumerable<VariableDeclaration> localVariables = null) {
-			scopeStack.Push(new ClosureScope(this, closure, CurrentScope, localVariables ));
+			return EnterScope(new ClosureScope(this, closure.FileResolver, closure, CurrentScope, localVariables));
+		}
+
+		private IDisposable EnterScope(Scope newScope) {
+			scopeStack.Push(newScope);
 
 			return new ScopeGuard(scopeStack);
 		}
@@ -102,8 +98,9 @@ namespace LessonNet.Parser
 	}
 
 	public class Scope {
+		public IFileResolver FileResolver { get; }
 		public SelectorList Selectors { get; }
-		private SelectorList SelectorsWithoutCombinators;
+		protected virtual SelectorList ResolutionScopeSelectors { get; }
 
 		public Scope Parent { get; protected set; }
 
@@ -118,10 +115,11 @@ namespace LessonNet.Parser
 		private IList<Ruleset> rulesets = new List<Ruleset>();
 
 
-		public Scope(EvaluationContext context, SelectorList selectors = null, Scope parent = null) {
+		public Scope(EvaluationContext context, IFileResolver fileFileResolver, SelectorList selectors = null, Scope parent = null) {
+			this.FileResolver = fileFileResolver;
 			this.Context = context;
 			this.Selectors = selectors ?? SelectorList.Empty;
-			this.SelectorsWithoutCombinators = selectors?.DropCombinators() ?? SelectorList.Empty;
+			this.ResolutionScopeSelectors = selectors?.DropCombinators() ?? SelectorList.Empty;
 			Parent = parent;
 		}
 
@@ -191,7 +189,15 @@ namespace LessonNet.Parser
 
 		private IEnumerable<MixinEvaluationResult> ResolveInChildContexts(MixinCall call) {
 			foreach (var child in children) {
-				foreach (var childSelector in child.SelectorsWithoutCombinators.Selectors) {
+				if (child is ImportScope) {
+					foreach (var result in child.ResolveMixinsCore(call, resolveFromParents: false)) {
+						yield return result;
+					}
+
+					continue;
+				}
+
+				foreach (var childSelector in child.ResolutionScopeSelectors.Selectors) {
 					if (childSelector.IsPrefixOf(call.Selector)) {
 						var remainingSelectors = call.Selector.RemovePrefix(childSelector);
 
@@ -227,13 +233,20 @@ namespace LessonNet.Parser
 
 		private IEnumerable<InvocationResult> ResolveInChildContexts(RulesetCall call) {
 			foreach (var child in children) {
-				foreach (var childSelector in child.SelectorsWithoutCombinators.Selectors) {
+				if (child is ImportScope) {
+					foreach (var result in child.ResolveRulesetsCore(call, resolveFromParents: false)) {
+						yield return result;
+					}
+
+					continue;
+				}
+
+				foreach (var childSelector in child.ResolutionScopeSelectors.Selectors) {
 					if (childSelector.IsPrefixOf(call.Selector)) {
 						var remainingSelectors = call.Selector.RemovePrefix(childSelector);
 
 						if (remainingSelectors != null && !remainingSelectors.IsEmpty()) {
-							foreach (var result in child.ResolveRulesetsCore(new RulesetCall(remainingSelectors, call.Important),
-								resolveFromParents: false)) {
+							foreach (var result in child.ResolveRulesetsCore(new RulesetCall(remainingSelectors, call.Important), resolveFromParents: false)) {
 								yield return result;
 							}
 						}
@@ -260,26 +273,55 @@ namespace LessonNet.Parser
 			return null;
 		}
 
-		public Scope CreateChildScope(SelectorList scopeSelectors) {
-			var childScope = new Scope(Context, scopeSelectors, this);
+		public Scope CreateChildScope(SelectorList scopeSelectors = null) {
+			var childScope = new Scope(Context, FileResolver, scopeSelectors, this);
+			children.Add(childScope);
+			return childScope;
+		}
+		public Scope CreateImportScope(string fileName) {
+			var childScope = new ImportScope(Context, FileResolver.GetResolverFor(fileName), this);
 			children.Add(childScope);
 			return childScope;
 		}
 
 		public override string ToString() {
 			if (Parent == null) {
-				return "[root]";
+				return FileResolver.CurrentFile;
 			}
 
-			return $"{Parent} -> {this.Selectors}";
+			string scopeDesc = Selectors?.IsEmpty()  == true
+				? FileResolver.CurrentFile
+				: Selectors?.ToString();
+
+			return $"{Parent} -> {scopeDesc}";
+		}
+	}
+
+	public class ImportScope : Scope {
+		private readonly Scope caller;
+
+		public ImportScope(EvaluationContext context, IFileResolver fileResolver, Scope caller) 
+			: base(context, fileResolver, caller.Selectors, null) {
+			this.caller = caller;
+		}
+
+		public override void DeclareVariable(VariableDeclaration variable) {
+			caller.DeclareVariable(variable);
+
+			base.DeclareVariable(variable);
+		}
+
+		public override VariableDeclaration ResolveVariable(string name, bool throwOnError = true) {
+			return caller.ResolveVariable(name, false)
+				?? base.ResolveVariable(name, throwOnError);
 		}
 	}
 
 	public class ClosureScope : Scope {
 		private readonly Scope closure;
 
-		public ClosureScope(EvaluationContext context, Scope closure, Scope overlay, IEnumerable<VariableDeclaration> localVariables) 
-			: base(context, overlay.Selectors) {
+		public ClosureScope(EvaluationContext context, IFileResolver fileFileResolver, Scope closure, Scope overlay, IEnumerable<VariableDeclaration> localVariables) 
+			: base(context, fileFileResolver, overlay.Selectors) {
 			this.closure = closure;
 
 			Parent = overlay;

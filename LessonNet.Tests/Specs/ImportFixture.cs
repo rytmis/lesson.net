@@ -299,46 +299,6 @@ body { background-color: blue; }
 "
 			};
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 			return imports;
 		}
 
@@ -1559,7 +1519,7 @@ body { background-color: foo; invalid ""; }
 		[Fact]
 		public void RelativeImportsHonorCurrentDirectory() {
 			var input = @"
-@import ""import-test-a.less"";
+@import ""import/import-test-a.less"";
 ";
 
 

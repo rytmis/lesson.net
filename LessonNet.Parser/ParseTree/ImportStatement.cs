@@ -72,25 +72,25 @@ namespace LessonNet.Parser.ParseTree
 
 
 			IEnumerable<Statement> GetImportResults(bool optional) {
-				EvaluationContext importContext;
-				try {
-					importContext = context.GetImportContext(actualImportPath);
+				using (context.EnterImportScope(actualImportPath)) {
+					try {
+						if (isCssFile && isInlineImport) {
+							return new Statement[] {new InlineCssImportStatement(context.GetFileContent())};
+						}
 
-					if (isCssFile && isInlineImport) {
-						return new Statement[] {new InlineCssImportStatement(importContext.GetFileContent())};
+						return context
+							.ParseCurrentStylesheet(isReference: options.HasFlag(ImportOptions.Reference))
+							.Evaluate(context)
+							.OfType<Statement>()
+							.ToList();
+
+					} catch (IOException ex) {
+						if (optional) {
+							return null;
+						}
+
+						throw new EvaluationException($"Failed to import {filePath}", ex);
 					}
-
-					return importContext
-						.ParseCurrentStylesheet(isReference: options.HasFlag(ImportOptions.Reference))
-						.Evaluate(importContext)
-						.OfType<Statement>();
-
-				} catch (IOException ex) {
-					if (optional) {
-						return null;
-					}
-
-					throw new EvaluationException($"Failed to import {filePath}", ex);
 				}
 			}
 
