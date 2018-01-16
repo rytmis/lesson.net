@@ -11,6 +11,8 @@ namespace LessonNet.Parser {
 			this.fileSystem = fileSystem;
 
 			CurrentFile = fileName;
+
+			BasePath = Path.GetDirectoryName(fileName);
 		}
 
 		public Stream GetContent() {
@@ -20,20 +22,12 @@ namespace LessonNet.Parser {
 			return fileSystem.File.OpenRead(fixedPath);
 		}
 
-		public IFileResolver GetResolverFor(string lessFilePath, string basePathOverride = null) {
-			string currentBasePath = !string.IsNullOrEmpty(basePathOverride)
-				? basePathOverride
-				: BasePath;
-
-			var resolvedPath = ResolvePath(currentBasePath, lessFilePath);
-
-			return new FileResolver(fileSystem, resolvedPath) {
-				BasePath = Path.Combine(currentBasePath, Path.GetDirectoryName(lessFilePath))
-			};
+		public IFileResolver GetResolverFor(string lessFilePath) {
+			return new FileResolver(fileSystem, ResolvePath(lessFilePath));
 		}
 
-		public string ResolvePath(string basePath, string relativePath) {
-			var path = Path.Combine(basePath ?? "", relativePath).Replace('\\', '/');
+		public string ResolvePath(string relativePath) {
+			var path = Path.Combine(BasePath, relativePath).Replace('\\', '/');
 
 			Stack<string> pathStack = new Stack<string>();
 			foreach (var pathComponent in path.Split('\\', '/')) {
@@ -48,6 +42,6 @@ namespace LessonNet.Parser {
 		}
 
 		public string CurrentFile { get; }
-		public string BasePath { get; private set; } = "";
+		public string BasePath { get; }
 	}
 }

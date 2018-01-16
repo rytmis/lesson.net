@@ -607,7 +607,7 @@ namespace LessonNet.Parser {
 
 			var guard = (MixinGuard) context.mixinGuard()?.Accept(this);
 
-			return new MixinDefinition(selector, GetParameters(declaration), ruleBlock, guard, null);
+			return new MixinDefinition(selector, GetParameters(declaration), ruleBlock, guard);
 		}
 
 		public override LessNode VisitMixinGuard(LessParser.MixinGuardContext context) {

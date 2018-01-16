@@ -29,7 +29,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 					return url;
 				}
 
-				var resolved = context.FileResolver.ResolvePath(context.GetImportBasePath(), urlAsString);
+				var resolved = context.FileResolver.ResolvePath(urlAsString);
 
 				if (url is LessString str) {
 					return new LessString(str.QuoteChar, new[] {new LessStringLiteral(resolved)});

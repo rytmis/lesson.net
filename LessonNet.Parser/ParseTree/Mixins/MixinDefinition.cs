@@ -4,7 +4,6 @@ using LessonNet.Parser.ParseTree.Expressions;
 
 namespace LessonNet.Parser.ParseTree.Mixins {
 	public class MixinDefinition : Declaration {
-		public string ImportBasePath { get; }
 		private readonly List<MixinParameterBase> parameters;
 		private readonly RuleBlock block;
 		private readonly MixinGuard guard;
@@ -13,8 +12,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		public int Arity => parameters.Count;
 		public IReadOnlyList<MixinParameterBase> Parameters => parameters.AsReadOnly();
 
-		public MixinDefinition(Selector selector, IEnumerable<MixinParameterBase> parameters, RuleBlock block, MixinGuard guard, string importBasePath) {
-			ImportBasePath = importBasePath;
+		public MixinDefinition(Selector selector, IEnumerable<MixinParameterBase> parameters, RuleBlock block, MixinGuard guard) {
 			// Combinators (descendant selectors etc.) do not count in mixin calls.
 			// E.g. #id > .class is equivalent to #id .class
 			this.Selector = selector.DropCombinators();
@@ -36,12 +34,12 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 		}
 
 		public override Statement ForceImportant() {
-			return new MixinDefinition(Selector, Parameters, block.ForceImportant(), guard, ImportBasePath);
+			return new MixinDefinition(Selector, Parameters, block.ForceImportant(), guard);
 		}
 
 		public override void DeclareIn(EvaluationContext context) {
 			context.CurrentScope.DeclareMixin(
-				new MixinDefinition(Selector.EvaluateSingle<Selector>(context), Parameters, block, guard, context.GetImportBasePath()));
+				new MixinDefinition(Selector.EvaluateSingle<Selector>(context), Parameters, block, guard));
 		}
 
 		public bool Guard(EvaluationContext context, MixinGuardScope guardScope) {

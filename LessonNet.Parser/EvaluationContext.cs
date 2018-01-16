@@ -32,9 +32,7 @@ namespace LessonNet.Parser
 		}
 
 		public EvaluationContext GetImportContext(string importedLessFileName) {
-			var basePath = (CurrentScope as ClosureScope)?.ImportBasePath;
-
-			return new EvaluationContext(Parser, FileResolver.GetResolverFor(importedLessFileName, basePath), StrictMath) {
+			return new EvaluationContext(Parser, FileResolver.GetResolverFor(importedLessFileName), StrictMath) {
 				scopeStack = scopeStack,
 				Extenders = Extenders,
 				RewriteRelativeUrls = RewriteRelativeUrls
@@ -53,8 +51,6 @@ namespace LessonNet.Parser
 			}
 		}
 
-		public string GetImportBasePath() => FileResolver.BasePath;
-
 		public OutputContext GetOutputContext(char indent, int indentationCount) {
 			return new OutputContext(Extenders, indent, indentationCount);
 		}
@@ -65,8 +61,8 @@ namespace LessonNet.Parser
 			return new ScopeGuard(scopeStack);
 		}
 
-		public IDisposable EnterClosureScope(Scope closure, IEnumerable<VariableDeclaration> localVariables = null, string importBasePath = null) {
-			scopeStack.Push(new ClosureScope(this, closure, CurrentScope, localVariables, importBasePath));
+		public IDisposable EnterClosureScope(Scope closure, IEnumerable<VariableDeclaration> localVariables = null) {
+			scopeStack.Push(new ClosureScope(this, closure, CurrentScope, localVariables ));
 
 			return new ScopeGuard(scopeStack);
 		}
@@ -280,13 +276,10 @@ namespace LessonNet.Parser
 	}
 
 	public class ClosureScope : Scope {
-		public string ImportBasePath { get; }
 		private readonly Scope closure;
 
-		public ClosureScope(EvaluationContext context, Scope closure, Scope overlay, IEnumerable<VariableDeclaration> localVariables, string importBasePath) 
+		public ClosureScope(EvaluationContext context, Scope closure, Scope overlay, IEnumerable<VariableDeclaration> localVariables) 
 			: base(context, overlay.Selectors) {
-			ImportBasePath = importBasePath;
-
 			this.closure = closure;
 
 			Parent = overlay;

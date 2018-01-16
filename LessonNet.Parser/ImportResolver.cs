@@ -3,10 +3,10 @@
 namespace LessonNet.Parser {
 	public interface IFileResolver {
 		Stream GetContent();
-		IFileResolver GetResolverFor(string lessFilePath, string basePathOverride = null);
+		IFileResolver GetResolverFor(string lessFilePath);
 
 		string CurrentFile { get; }
 		string BasePath { get; }
-		string ResolvePath(string basePath, string relativePath);
+		string ResolvePath(string basePath);
 	}
 }

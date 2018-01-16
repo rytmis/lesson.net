@@ -65,7 +65,7 @@ namespace LessonNet.Parser.ParseTree.Mixins {
 				}
 			}
 
-			using (context.EnterClosureScope(closure, GetArguments(), mixin.ImportBasePath)) {
+			using (context.EnterClosureScope(closure, GetArguments())) {
 				if (mixin.Guard(context, guardScope)) {
 					foreach (var evaluationResult in mixin.Evaluate(context)) {
 						yield return evaluationResult;
