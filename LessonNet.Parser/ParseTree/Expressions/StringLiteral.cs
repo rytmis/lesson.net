@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
@@ -108,7 +109,11 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		public string GetUnquotedValue() {
-			return string.Join("", parts);
+			return Unescape(string.Join("", parts));
+		}
+
+		private string Unescape(string input) {
+			return Regex.Replace(input, @"\\(""|')", "$1");
 		}
 
 		protected bool Equals(LessString other) {

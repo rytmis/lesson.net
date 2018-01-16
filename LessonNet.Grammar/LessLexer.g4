@@ -363,11 +363,17 @@ NUMBER_PERC : PERC -> popMode, type(PERC);
 
 mode SQ_STRING;
 SQ_INTERPOLATION_START: InterpolationStart -> type(InterpolationStart), pushMode(IDENTIFY);
+SQUOT_ESCAPED_QUOTE   : '\\\'' -> type(SQUOT_STRING_FRAGMENT);
+SQUOT_ESCAPED_DQUOT   : '\\"' -> type(SQUOT_STRING_FRAGMENT);
+SQUOT_ESCAPED_ESCAPE  : '\\\\' -> type(SQUOT_STRING_FRAGMENT);
 SQUOT_STRING_FRAGMENT : (~('\''|'\n'|'\r'|'@'))+;
 SQUOT_STRING_END : ('\''|'\n'|'\r') -> popMode;
 
 mode DQ_STRING;
 DQ_INTERPOLATION_START: InterpolationStart -> type(InterpolationStart), pushMode(IDENTIFY);
+DQUOT_ESCAPED_QUOTE   : '\\"' -> type(DQUOT_STRING_FRAGMENT);
+DQUOT_ESCAPED_SQUOT   : '\\\'' -> type(DQUOT_STRING_FRAGMENT);
+DQUOT_ESCAPED_ESCAPE  : '\\\\' -> type(DQUOT_STRING_FRAGMENT);
 DQUOT_STRING_FRAGMENT : (~('"'|'\n'|'\r'|'@'))+;
 DQUOT_STRING_END : ('"'|'\n'|'\r') -> popMode;
 
