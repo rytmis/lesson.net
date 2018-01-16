@@ -7,6 +7,14 @@ using Xunit;
 
 namespace LessonNet.Tests.Specs {
 	public class ImportFixture : SpecFixtureBase {
+		public bool RewriteRelativeUrls { get; set; }
+
+		protected override EvaluationContext CreateContext(string input) {
+			var evaluationContext = base.CreateContext(input);
+			evaluationContext.RewriteRelativeUrls = RewriteRelativeUrls;
+			return evaluationContext;
+		}
+
 		protected override Dictionary<string, MockFileData> SetupImports() {
 			var imports = new Dictionary<string, MockFileData> {
 				[@"c:/absolute/file.less"] = @"
@@ -489,6 +497,8 @@ body { background-color: blue; }
 
 		[Fact]
 		public void RelativeUrlsWithRewritingOff() {
+			RewriteRelativeUrls = false;
+
 			var input =
 				@"
 @import url(""import/first.less"");
@@ -610,7 +620,7 @@ body { background-color: blue; }
 			var input = @"@import ""external1.less"";";
 
 			// TODO: Verify file name
-			Assert.Throws<FileNotFoundException>(() => Evaluate(input));
+			Assert.Throws<EvaluationException>(() => Evaluate(input));
 		}
 
 		[Fact]

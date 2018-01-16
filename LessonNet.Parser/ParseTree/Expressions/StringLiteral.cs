@@ -78,11 +78,11 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 	}
 
 	public class LessString : Expression {
-		private readonly char quoteChar;
+		public char QuoteChar { get; }
 		private readonly IList<LessStringFragment> parts;
 
 		public LessString(char quoteChar, IEnumerable<LessStringFragment> parts) {
-			this.quoteChar = quoteChar;
+			this.QuoteChar = quoteChar;
 			this.parts = parts.ToList();
 		}
 
@@ -93,19 +93,19 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
 			var evaluatedParts = parts.Select(p => p.EvaluateSingle<LessStringLiteral>(context));
 
-			yield return new LessString(quoteChar, evaluatedParts);
+			yield return new LessString(QuoteChar, evaluatedParts);
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			context.Append(quoteChar);
+			context.Append(QuoteChar);
 			foreach (var lessStringFragment in parts) {
 				context.Append(lessStringFragment);
 			}
-			context.Append(quoteChar);
+			context.Append(QuoteChar);
 		}
 
 		protected override string GetStringRepresentation() {
-			return $"{quoteChar}{GetUnquotedValue()}{quoteChar}";
+			return $"{QuoteChar}{GetUnquotedValue()}{QuoteChar}";
 		}
 
 		public string GetUnquotedValue() {
@@ -117,7 +117,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		protected bool Equals(LessString other) {
-			return quoteChar == other.quoteChar && parts.SequenceEqual(other.parts);
+			return QuoteChar == other.QuoteChar && parts.SequenceEqual(other.parts);
 		}
 
 		public override bool Equals(object obj) {
@@ -130,7 +130,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		public override int GetHashCode() {
 			unchecked {
 				int hashCode = 397;
-				hashCode = (hashCode * 397) ^ quoteChar.GetHashCode();
+				hashCode = (hashCode * 397) ^ QuoteChar.GetHashCode();
 				hashCode = (hashCode * 397) ^ (parts != null ? parts.Aggregate(hashCode, (h, p) => (h * 397) ^ p.GetHashCode()) : 0);
 				return hashCode;
 			}

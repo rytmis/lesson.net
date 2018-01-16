@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using LessonNet.Parser.CodeGeneration;
 using LessonNet.Parser.ParseTree.Expressions;
+using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser.ParseTree
 {
@@ -38,28 +39,15 @@ namespace LessonNet.Parser.ParseTree
 				return expr.ToString();
 			}
 
-			bool IsImportableUri(string uri) {
-				if (uri.StartsWith("//")) {
-					// Protocol-relative URI
-					return false;
-				}
-
-				if (!Uri.TryCreate(uri, UriKind.RelativeOrAbsolute, out Uri parsedUri)) {
-					return false;
-				}
-
-				if (parsedUri.IsAbsoluteUri && parsedUri.Scheme != "file") {
-					return false;
-				}
-
-				return true;
-			}
-
+			bool rewrite = context.RewriteRelativeUrls;
+			context.RewriteRelativeUrls = false;
 			var evaluatedUrl = Url.EvaluateSingle<Expression>(context);
+			context.RewriteRelativeUrls = rewrite;
+
 			var filePath = EvaluateFilePath(evaluatedUrl);
 
 			bool isExplicitCssImport = options.HasFlag(ImportOptions.Css);
-			if (isExplicitCssImport || !IsImportableUri(filePath)) {
+			if (isExplicitCssImport || !filePath.IsLocalFilePath()) {
 				return new[] {this};
 			}
 
@@ -87,22 +75,23 @@ namespace LessonNet.Parser.ParseTree
 				EvaluationContext importContext;
 				try {
 					importContext = context.GetImportContext(actualImportPath);
-				} catch (Exception ex) {
+
+					if (isCssFile && isInlineImport) {
+						return new Statement[] {new InlineCssImportStatement(importContext.GetFileContent())};
+					}
+
+					return importContext
+						.ParseCurrentStylesheet(isReference: options.HasFlag(ImportOptions.Reference))
+						.Evaluate(importContext)
+						.OfType<Statement>();
+
+				} catch (IOException ex) {
 					if (optional) {
 						return null;
 					}
 
 					throw new EvaluationException($"Failed to import {filePath}", ex);
 				}
-
-				if (isCssFile && isInlineImport) {
-					return new Statement[] {new InlineCssImportStatement(importContext.GetFileContent())};
-				}
-
-				return importContext
-					.ParseCurrentStylesheet(isReference: options.HasFlag(ImportOptions.Reference))
-					.Evaluate(importContext)
-					.OfType<Statement>();
 			}
 
 			var importResults = GetImportResults(options.HasFlag(ImportOptions.Optional));

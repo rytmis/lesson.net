@@ -37,6 +37,7 @@ namespace LessonNet.Parser
 			return new EvaluationContext(Parser, FileResolver.GetResolverFor(importedLessFileName, basePath), StrictMath) {
 				scopeStack = scopeStack,
 				Extenders = Extenders,
+				RewriteRelativeUrls = RewriteRelativeUrls
 			};
 		}
 
@@ -83,6 +84,8 @@ namespace LessonNet.Parser
 		}
 
 		public bool IsReference { get; private set; }
+		public bool RewriteRelativeUrls { get; set; } = true;
+
 		public IDisposable BeginReferenceScope(bool isReference) {
 			return new ReferenceScope(this, isReference);
 		}
