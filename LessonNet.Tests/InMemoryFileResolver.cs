@@ -26,7 +26,7 @@ namespace LessonNet.Tests {
 				throw new InvalidOperationException($"Cannot resolve imports -- no imports defined for {nameof(InMemoryFileResolver)}");
 			}
 
-			var resolvedPath = ResolvePath(Path.Combine(currentBasePath, lessFilePath).Replace('\\', '/'));
+			var resolvedPath = ResolvePath(currentBasePath, lessFilePath);
 			if (Imports.ContainsKey(resolvedPath) == false) {
 				throw new ArgumentException($"Imported file not found: [{lessFilePath} -- tried {resolvedPath}]");
 			}
@@ -38,7 +38,9 @@ namespace LessonNet.Tests {
 			};
 		}
 
-		private string ResolvePath(string path) {
+		private string ResolvePath(string basePath, string relativePath) {
+			var path = Path.Combine(basePath ?? "", relativePath).Replace('\\', '/');
+
 			Stack<string> pathStack = new Stack<string>();
 			foreach (var pathComponent in path.Split('\\', '/')) {
 				if (pathComponent == ".." && pathStack.Count > 0) {
