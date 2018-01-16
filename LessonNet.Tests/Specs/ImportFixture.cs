@@ -7,7 +7,7 @@ using Xunit;
 
 namespace LessonNet.Tests.Specs {
 	public class ImportFixture : SpecFixtureBase {
-		public bool RewriteRelativeUrls { get; set; }
+		public bool RewriteRelativeUrls { get; set; } = true;
 
 		protected override EvaluationContext CreateContext(string input) {
 			var evaluationContext = base.CreateContext(input);

@@ -39,6 +39,9 @@ namespace LessonNet.Parser.ParseTree
 				return expr.ToString();
 			}
 
+			// Import resolution takes care of relative paths regardless of the
+			// rewrite setting, so while evaluating the import URL, we turn the
+			// rewrite setting off.
 			bool rewrite = context.RewriteRelativeUrls;
 			context.RewriteRelativeUrls = false;
 			var evaluatedUrl = Url.EvaluateSingle<Expression>(context);
