@@ -1401,8 +1401,6 @@ body { background-color: foo; invalid ""; }
 
 			var expected = @"
 @import url(https://fonts.googleapis.com/css?family=Lato);
-
-
 @import url(https://fonts.googleapis.com/css?family=Cabin);
 ";
 
