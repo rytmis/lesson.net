@@ -7,5 +7,6 @@ namespace LessonNet.Parser {
 
 		string CurrentFile { get; }
 		string BasePath { get; }
+		string ResolvePath(string basePath, string relativePath);
 	}
 }

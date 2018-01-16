@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.IO.Abstractions;
 using Antlr4.Runtime;
 using LessonNet.Grammar;
 using LessonNet.Parser.CodeGeneration;
@@ -11,7 +12,7 @@ namespace LessonNet.Parser
 	{
 		public void Compile(string inputFileName)
 		{
-			var context = new EvaluationContext(new LessTreeParser(), new FileResolver(inputFileName));
+			var context = new EvaluationContext(new LessTreeParser(), new FileResolver(new FileSystem(), inputFileName));
 			var rootNode = context.ParseCurrentStylesheet(isReference: false);
 
 			var evaluated = rootNode.EvaluateSingle<Stylesheet>(context);

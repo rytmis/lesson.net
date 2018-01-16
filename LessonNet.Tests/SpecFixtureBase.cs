@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using LessonNet.Parser;
 using LessonNet.Parser.CodeGeneration;
@@ -13,9 +14,8 @@ namespace LessonNet.Tests
 	public abstract class SpecFixtureBase
 	{
 		protected bool StrictMath { get; set; }
-		protected virtual Dictionary<string, string> SetupImports() {
-			// TODO: Actually set up imports in InMemoryFileResolver
-			return null;
+		protected virtual Dictionary<string, MockFileData> SetupImports() {
+			return new Dictionary<string, MockFileData>();
 		}
 
 		protected void AssertLess(string input, string expected) {
@@ -74,7 +74,7 @@ namespace LessonNet.Tests
 
 		protected void AssertLessUnchanged(string input)
 		{
-			EvaluationContext context = new EvaluationContext(new LessTreeParser(), new InMemoryFileResolver(input));
+			EvaluationContext context = new EvaluationContext(new LessTreeParser(), GetFileResolver(input));
 
 			var currentStylesheet = context.ParseCurrentStylesheet(isReference: false);
 			var evaluated = currentStylesheet.EvaluateSingle<Stylesheet>(context);
@@ -113,9 +113,16 @@ namespace LessonNet.Tests
 		}
 
 		protected virtual EvaluationContext CreateContext(string input) {
-			return new EvaluationContext(new LessTreeParser(), new InMemoryFileResolver(input) {
-				Imports = SetupImports()
-			}, StrictMath);
+			return new EvaluationContext(new LessTreeParser(), GetFileResolver(input), StrictMath);
+		}
+
+		private IFileResolver GetFileResolver(string input) {
+			const string entrypointFileName = "spec-entrypoint.less";
+
+			var fileSystem = new MockFileSystem(SetupImports(), currentDirectory: @"C:\lessonnet-specs\");
+			fileSystem.AddFile(entrypointFileName, input);
+
+			return new FileResolver(fileSystem, entrypointFileName);
 		}
 	}
 }

@@ -1,13 +1,14 @@
 using System.Collections.Generic;
+using System.IO.Abstractions.TestingHelpers;
 using Xunit;
 
 namespace LessonNet.Tests.Specs.Compression
 {
 	public class ImportFixture : CompressedSpecFixtureBase
     {
-        protected override Dictionary<string, string> SetupImports()
+        protected override Dictionary<string, MockFileData> SetupImports()
         {
-            var imports = new Dictionary<string, string>();
+            var imports = new Dictionary<string, MockFileData>();
 
             imports["import/import-test-a.less"] = @"
 @import ""import-test-b.less"";

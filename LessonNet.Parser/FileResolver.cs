@@ -1,27 +1,53 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.IO.Abstractions;
+using System.Linq;
 
 namespace LessonNet.Parser {
 	public class FileResolver : IFileResolver {
-		private readonly string lessFilePath;
-		private readonly string rootPath;
+		private readonly IFileSystem fileSystem;
 
-		public FileResolver(string lessFilePath) {
-			this.lessFilePath = lessFilePath;
+		public FileResolver(IFileSystem fileSystem, string fileName) {
+			this.fileSystem = fileSystem;
 
-			rootPath = Path.GetDirectoryName(lessFilePath);
+			CurrentFile = fileName;
 		}
 
-		public string CurrentFile => lessFilePath;
-		public string BasePath { get; private set; }
-
 		public Stream GetContent() {
-			return File.OpenRead(lessFilePath);
+			var fixedPath =
+				CurrentFile.Replace(fileSystem.Path.AltDirectorySeparatorChar, fileSystem.Path.DirectorySeparatorChar);
+
+			return fileSystem.File.OpenRead(fixedPath);
 		}
 
 		public IFileResolver GetResolverFor(string lessFilePath, string basePathOverride = null) {
-			string path = Path.GetFullPath(Path.Combine(rootPath, lessFilePath));
+			string currentBasePath = !string.IsNullOrEmpty(basePathOverride)
+				? basePathOverride
+				: BasePath;
 
-			return new FileResolver(path);
+			var resolvedPath = ResolvePath(currentBasePath, lessFilePath);
+
+			return new FileResolver(fileSystem, resolvedPath) {
+				BasePath = Path.Combine(currentBasePath, Path.GetDirectoryName(lessFilePath))
+			};
 		}
+
+		public string ResolvePath(string basePath, string relativePath) {
+			var path = Path.Combine(basePath ?? "", relativePath).Replace('\\', '/');
+
+			Stack<string> pathStack = new Stack<string>();
+			foreach (var pathComponent in path.Split('\\', '/')) {
+				if (pathComponent == ".." && pathStack.Count > 0) {
+					pathStack.Pop();
+				} else if (pathComponent != ".") {
+					pathStack.Push(pathComponent);
+				}
+			}
+
+			return string.Join("/", pathStack.Reverse());
+		}
+
+		public string CurrentFile { get; }
+		public string BasePath { get; private set; } = "";
 	}
 }

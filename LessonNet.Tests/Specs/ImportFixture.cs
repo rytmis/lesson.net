@@ -1,37 +1,36 @@
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions.TestingHelpers;
 using System.Reflection;
 using LessonNet.Parser;
 using Xunit;
 
 namespace LessonNet.Tests.Specs {
 	public class ImportFixture : SpecFixtureBase {
-		protected override Dictionary<string, string> SetupImports() {
-			var imports = new Dictionary<string, string>();
-
-			imports[@"c:/absolute/file.less"] = @"
+		protected override Dictionary<string, MockFileData> SetupImports() {
+			var imports = new Dictionary<string, MockFileData> {
+				[@"c:/absolute/file.less"] = @"
 .windowz .dos {
   border: none;
 }
-";
-			imports[@"import/error.less"] = @"
+",
+				[@"import/error.less"] = @"
 .windowz .dos {
   border: none;
 }
 .error_mixin {
   .throw_error();
 }
-";
-			imports[@"import/error2.less"] = @"
+",
+				[@"import/error2.less"] = @"
 .windowz .dos {
   border: none;
 }
 .error_mixin() {
   .throw_error();
 }
-";
-
-			imports["import/other-protocol-test.less"] = @"
+",
+				["import/other-protocol-test.less"] = @"
 .first {
     background-image: url('http://some.com/file.gif');
 }
@@ -44,27 +43,22 @@ namespace LessonNet.Tests.Specs {
 .fourth {
     background-image: url('data:xxyhjgjshgjs');
 }
-";
-			imports["import/twice/with/different/paths.less"] = @"
+",
+				["import/twice/with/different/paths.less"] = @"
 @import-once ""../twice.less"";
 @import-once ""../other.less"";
-";
-
-			imports["import/twice/with/other.less"] = @"
+",
+				["import/twice/with/other.less"] = @"
 @import-once ""twice.less"";
-";
-
-			imports["import/twice/with/twice.less"] = @"
+",
+				["import/twice/with/twice.less"] = @"
 body { background-color: foo; }
-";
-
-			imports["import/import-test-a.less"] = @"
+",
+				["import/import-test-a.less"] = @"
 @import ""import-test-b.less"";
 @a: 20%;
-";
-
-			imports["import/import-test-b.less"] =
-				@"
+",
+				["import/import-test-b.less"] = @"
 @import 'import-test-c';
 
 @b: 100%;
@@ -73,19 +67,16 @@ body { background-color: foo; }
   height: 10px;
   color: @c;
 }
-";
-			imports["import/import-test-c.less"] =
-				@"
+",
+				["import/import-test-c.less"] = @"
 @import ""import-test-d.css"";
 @c: red;
 
 #import {
   color: @c;
 }
-";
-
-			imports["import/first.less"] =
-				@"
+",
+				["import/first.less"] = @"
 @import ""sub1/second.less"";
 
 @path: ""../image.gif"";
@@ -94,9 +85,8 @@ body { background-color: foo; }
   background: url(../image.gif);
   background: url(@path);
 }
-";
-			imports["import/sub1/second.less"] =
-				@"
+",
+				["import/sub1/second.less"] = @"
 @pathsep: '/';
 #second {
   background: url(../image.gif);
@@ -105,85 +95,67 @@ body { background-color: foo; }
   background: url(/sub2/image.gif);
   background: url(~""@{pathsep}sub2/image2.gif"");
 }
-";
-
-			imports["/import/absolute.less"] = @"body { background-color: black; }";
-
-			imports["import/define-variables.less"] = @"@color: 'blue';";
-			imports["import/use-variables.less"] = @".test { background-color: @color; }";
-
-			imports["empty.less"] = @"";
-			imports["rule.less"] = @".rule { color: black; }";
-
-			imports["../import/relative-with-parent-dir.less"] = @"body { background-color: foo; }";
-
-			imports["foo.less"] = @"@import ""foo/bar.less"";";
-			imports["foo/bar.less"] = @"@import ""../lib/color.less"";";
-			imports["lib/color.less"] = "body { background-color: foo; }";
-
-			imports["247-2.less"] = @"
+",
+				["/import/absolute.less"] = @"body { background-color: black; }",
+				["import/define-variables.less"] = @"@color: 'blue';",
+				["import/use-variables.less"] = @".test { background-color: @color; }",
+				["empty.less"] = @"",
+				["rule.less"] = @".rule { color: black; }",
+				["../import/relative-with-parent-dir.less"] = @"body { background-color: foo; }",
+				["foo.less"] = @"@import ""foo/bar.less"";",
+				["foo/bar.less"] = @"@import ""../lib/color.less"";",
+				["lib/color.less"] = "body { background-color: foo; }",
+				["247-2.less"] = @"
 @color: red;
 text {
   color: @color;
-}";
-			imports["247-1.less"] = @"
+}",
+				["247-1.less"] = @"
 #nsTwoCss {
   .css() {
     @import '247-2.less';
   }
-}";
-			imports["foourl.less"] = @"@import url(""foo/barurl.less"");";
-			imports["foo/barurl.less"] = @"@import url(""../lib/colorurl.less"");";
-			imports["lib/colorurl.less"] = "body { background-color: foo; }";
-
-			imports["something.css"] = @"body { background-color: foo; invalid ""; }";
-
-			imports["isless.css"] = @"
+}",
+				["foourl.less"] = @"@import url(""foo/barurl.less"");",
+				["foo/barurl.less"] = @"@import url(""../lib/colorurl.less"");",
+				["lib/colorurl.less"] = "body { background-color: foo; }",
+				["something.css"] = @"body { background-color: foo; invalid ""; }",
+				["isless.css"] = @"
 @a: 9px;
-body { margin-right: @a; }";
-
-			imports["vardef.less"] = @"@var: 9px;";
-
-			imports["css-as-less.css"] = @"@var1: 10px;";
-			imports["arbitrary-extension-as-less.ext"] = @"@var2: 11px;";
-
-			imports["simple-rule.less"] = ".rule { background-color: black; }";
-			imports["simple-rule.css"] = ".rule { background-color: black; }";
-
-			imports["media-scoped-rules.less"] = @"@media (screen) { 
+body { margin-right: @a; }",
+				["vardef.less"] = @"@var: 9px;",
+				["css-as-less.css"] = @"@var1: 10px;",
+				["arbitrary-extension-as-less.ext"] = @"@var2: 11px;",
+				["simple-rule.less"] = ".rule { background-color: black; }",
+				["simple-rule.css"] = ".rule { background-color: black; }",
+				["media-scoped-rules.less"] = @"@media (screen) { 
     .rule { background-color: black; }
     .another-rule { color: white; }
-}";
-
-			imports["nested-rules.less"] = @"
+}",
+				["nested-rules.less"] = @"
 .parent-selector {
     .rule { background-color: black; }
     .another-rule { color: white; }
-}";
-
-			imports["imports-simple-rule.less"] = @"
+}",
+				["imports-simple-rule.less"] = @"
 @import ""simple-rule.less"";
-.rule2 { background-color: blue; }";
-
-			imports["two-level-import.less"] = @"
+.rule2 { background-color: blue; }",
+				["two-level-import.less"] = @"
 @import ""simple-rule.less"";
-.rule3 { background-color: red; }";
-
-			imports["reference/main.less"] = @"
+.rule3 { background-color: red; }",
+				["reference/main.less"] = @"
 @import ""mixins/test.less"";
 
 .mixin(red);
-";
-
-			imports["reference/mixins/test.less"] = @"
+",
+				["reference/mixins/test.less"] = @"
 .mixin(@arg) {
     .test-ruleset {
         background-color: @arg;
     }
 }
-";
-
-			imports["reference/ruleset-with-child-ruleset-and-rules.less"] = @"
+",
+				["reference/ruleset-with-child-ruleset-and-rules.less"] = @"
 .parent {
     .child {
         background-color: black;
@@ -191,19 +163,16 @@ body { margin-right: @a; }";
 
     background-color: blue;
 }
-";
-
-			imports["two-level-import.less"] = @"
+",
+				["two-level-import.less"] = @"
 @import ""simple-rule.less"";
-.rule3 { background-color: red; }";
-
-			imports["directives.less"] = @"
+.rule3 { background-color: red; }",
+				["directives.less"] = @"
 @font-face {
   font-family: 'Glyphicons Halflings';
 }
-";
-
-			imports["mixin-loop.less"] = @"
+",
+				["mixin-loop.less"] = @"
 @grid-columns: 12;
 .float-grid-columns(@class) {
   .col(@index) { // initial    
@@ -227,9 +196,8 @@ body { margin-right: @a; }";
 @media (screen) {
   .make-grid(sm);
 }
-";
-
-			imports["partial-reference-extends-another-reference.less"] = @"
+",
+				["partial-reference-extends-another-reference.less"] = @"
 .parent {
   .test {
     color: black;
@@ -239,9 +207,8 @@ body { margin-right: @a; }";
 .ext {
   &:extend(.test all);
 }
-";
-
-			imports["exact-reference-extends-another-reference.less"] = @"
+",
+				["exact-reference-extends-another-reference.less"] = @"
 .test {
   color: black;
 }
@@ -249,33 +216,28 @@ body { margin-right: @a; }";
 .ext {
   &:extend(.test);
 }
-";
-
-			imports["reference-with-multiple-selectors.less"] = @"
+",
+				["reference-with-multiple-selectors.less"] = @"
 .test,
 .test2 {
   color: black;
 }
-";
-
-			imports["comments.less"] = @"
+",
+				["comments.less"] = @"
 /* This is a comment */
-";
-
-			imports["math.less"] = @"
+",
+				["math.less"] = @"
 .rule {
     width: calc(10px + 2px);
 }
-";
-
-			imports["generated-selector.less"] = @"
+",
+				["generated-selector.less"] = @"
 @selector: ~"".rule"";
 @{selector} {
   color: black;
 }
-";
-
-			imports["multiple-generated-selectors.less"] = @"
+",
+				["multiple-generated-selectors.less"] = @"
 @grid-columns: 12;
 
 .float-grid-columns(@class) {
@@ -296,21 +258,18 @@ body { margin-right: @a; }";
 }
 
 .float-grid-columns(xs);
-";
-
-			imports["import-in-mixin/mixin-definition.less"] = @"
+",
+				["import-in-mixin/mixin-definition.less"] = @"
 .import() {
   @import ""relative-import.less"";
 }
-";
-
-			imports["import-in-mixin/relative-import.less"] = @"
+",
+				["import-in-mixin/relative-import.less"] = @"
 .rule {
   color: black;
 }
-";
-
-			imports["reference-mixin-issue.less"] = @"
+",
+				["reference-mixin-issue.less"] = @"
 .mix-me
 {
     color: red;
@@ -322,16 +281,55 @@ body { margin-right: @a; }";
     {
         background-color: black;
     }
-}";
-
-			imports["nested-import-interpolation-1.less"] = @"
+}",
+				["nested-import-interpolation-1.less"] = @"
 @var: ""2"";
 @import ""nested-import-interpolation-@{var}.less"";
-";
-
-			imports["nested-import-interpolation-2.less"] = @"
+",
+				["nested-import-interpolation-2.less"] = @"
 body { background-color: blue; }
-";
+"
+			};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 			return imports;
 		}
@@ -612,7 +610,7 @@ body { background-color: blue; }
 			var input = @"@import ""external1.less"";";
 
 			// TODO: Verify file name
-			Assert.Throws<EvaluationException>(() => Evaluate(input));
+			Assert.Throws<FileNotFoundException>(() => Evaluate(input));
 		}
 
 		[Fact]
