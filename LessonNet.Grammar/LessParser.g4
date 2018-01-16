@@ -231,6 +231,7 @@ importOption
 
 referenceUrl
     : string
+    | quotedExpression
     | url
     ;
 
@@ -331,7 +332,7 @@ selectorElement
     | pseudoClass
     | attrib
     | identifier
-	| combinator )
+    | combinator )
   ;
 
 extend
@@ -493,7 +494,11 @@ property
   ;
 
 url
-  : UrlStart (string|variableName|Url)? RPAREN
+  : UrlStart (string|quotedExpression|variableName|rawUrl)? RPAREN
+  ;
+
+rawUrl
+  : TIL? Url
   ;
 
 unit

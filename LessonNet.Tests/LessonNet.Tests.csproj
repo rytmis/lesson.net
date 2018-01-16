@@ -113,6 +113,7 @@
     <Compile Include="Specs\ScriptFixture.cs" />
     <Compile Include="Specs\SelectorsFixture.cs" />
     <Compile Include="Specs\StrictMathFixture.cs" />
+    <Compile Include="Specs\StringsFixture.cs" />
     <Compile Include="Specs\VariablesFixture.cs" />
     <Compile Include="Specs\WhitespaceFixture.cs" />
   </ItemGroup>

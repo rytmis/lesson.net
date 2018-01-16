@@ -191,6 +191,11 @@ namespace LessonNet.Parser {
 					return (Expression) str.Accept(this);
 				}
 
+				var quoted = context.referenceUrl().quotedExpression();
+				if (quoted != null) {
+					return (Expression) quoted.Accept(this);
+				}
+
 				return (Url) context.referenceUrl().url().Accept(this);
 			}
 
@@ -531,7 +536,12 @@ namespace LessonNet.Parser {
 				return new Url(stringContent);
 			}
 
-			return new Url(context.Url()?.GetText());
+			var quotedStringContent = (QuotedExpression) context.quotedExpression()?.Accept(this);
+			if (quotedStringContent != null) {
+				return new Url(quotedStringContent);
+			}
+
+			return new Url(new LessStringLiteral(context.rawUrl()?.GetText()));
 		}
 
 		public override LessNode VisitQuotedExpression(LessParser.QuotedExpressionContext context) {

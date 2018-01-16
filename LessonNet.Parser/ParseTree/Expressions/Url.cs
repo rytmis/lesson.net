@@ -3,46 +3,23 @@ using LessonNet.Parser.CodeGeneration;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
 	public class Url : Expression {
-		public LessString StringContent { get; }
-		public Variable VariableContent { get; }
-		public string RawUrl { get; }
-
-		public Url(LessString str) {
-			this.StringContent = str;
-		}
-
-		public Url(Variable var) {
-			this.VariableContent = var;
-		}
-
-		public Url(string url) {
-			this.RawUrl = url;
+		public Expression Content { get; }
+		public Url(Expression content) {
+			Content = content;
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			if (VariableContent != null) {
-				yield return new Url(VariableContent.EvaluateSingle<LessString>(context));
-			} else if (StringContent != null) {
-				yield return new Url(StringContent.EvaluateSingle<LessString>(context));
-			} else {
-				yield return this;
-			}
+			yield return new Url(Content.EvaluateSingle<Expression>(context));
 		}
 
 		public override void WriteOutput(OutputContext context) {
 			context.Append("url(");
-
-			if (StringContent != null) {
-				context.Append(StringContent);
-			} else if (RawUrl != null) {
-				context.Append(RawUrl);
-			}
-
+			context.Append(Content);
 			context.Append(")");
 		}
 
 		protected bool Equals(Url other) {
-			return string.Equals(RawUrl, other.RawUrl);
+			return Equals(Content, other.Content);
 		}
 
 		public override bool Equals(object obj) {
@@ -53,7 +30,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		public override int GetHashCode() {
-			return 397 ^ (RawUrl != null ? RawUrl.GetHashCode() : 0);
+			return Content?.GetHashCode() ?? 0;
 		}
 	}
 }

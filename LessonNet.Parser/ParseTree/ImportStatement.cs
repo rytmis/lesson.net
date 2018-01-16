@@ -26,16 +26,16 @@ namespace LessonNet.Parser.ParseTree
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			string EvaluateFilePath() {
-				var expr = Url.EvaluateSingle<Expression>(context);
+			string EvaluateFilePath(Expression expr) {
 				if (expr is LessString str) {
 					return str.GetUnquotedValue();
 				}
 
-				var url = (Url) expr;
+				if (expr is Url url) {
+					return EvaluateFilePath(url.Content);
+				}
 
-				return url.StringContent?.GetUnquotedValue()
-					?? url.RawUrl;
+				return expr.ToString();
 			}
 
 			bool IsImportableUri(string uri) {
@@ -55,7 +55,8 @@ namespace LessonNet.Parser.ParseTree
 				return true;
 			}
 
-			var filePath = EvaluateFilePath();
+			var evaluatedUrl = Url.EvaluateSingle<Expression>(context);
+			var filePath = EvaluateFilePath(evaluatedUrl);
 
 			bool isExplicitCssImport = options.HasFlag(ImportOptions.Css);
 			if (isExplicitCssImport || !IsImportableUri(filePath)) {
@@ -71,7 +72,7 @@ namespace LessonNet.Parser.ParseTree
 			if (isCssFile && !isExplicitLessImport && !isInlineImport) {
 				return new[] {
 					new ImportStatement(
-						Url.EvaluateSingle<Expression>(context),
+						evaluatedUrl,
 						options,
 						mediaQueries.Select(mq => mq.EvaluateSingle<MediaQuery>(context))),
 				};

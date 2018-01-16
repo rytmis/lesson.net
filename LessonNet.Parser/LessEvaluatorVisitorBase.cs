@@ -362,6 +362,10 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
+		public virtual LessNode VisitRawUrl(LessParser.RawUrlContext context) {
+			throw new System.NotImplementedException();
+		}
+
 		public virtual LessNode VisitUnit(LessParser.UnitContext context) {
 			throw new System.NotImplementedException();
 		}

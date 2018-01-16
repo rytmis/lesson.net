@@ -91,28 +91,28 @@ namespace LessonNet.Tests.Parser {
 		public void UrlWithString() {
 			var parsed = (Url) Parse("url(\"this is a test\")");
 
-			Assert.Equal(LessString.FromString("this is a test"), parsed.StringContent);
+			Assert.Equal("this is a test", parsed.Content.ToString());
 		}
 
 		[Fact]
 		public void UrlWithRawUrl() {
 			var parsed = (Url) Parse("url(this is a test)");
 
-			Assert.Equal("this is a test", parsed.RawUrl);
+			Assert.Equal("this is a test", parsed.Content.ToString());
 		}
 
 		[Fact]
 		public void UrlWithRawUrlAndStringCharacters() {
 			var parsed = (Url) Parse("url(this is \"'a test)");
 
-			Assert.Equal("this is \"'a test", parsed.RawUrl);
+			Assert.Equal("this is \"'a test", parsed.Content.ToString());
 		}
 
 		[Fact]
 		public void UrlWithVariable() {
 			var parsed = (Url) Parse("url(@avar)");
 
-			Assert.Equal(new Variable("avar"), parsed.VariableContent);
+			Assert.Equal("avar", parsed.Content.ToString());
 		}
 
 		[Fact]
