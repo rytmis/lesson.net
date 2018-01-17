@@ -46,12 +46,13 @@ namespace LessonNet.Parser.ParseTree.Expressions
 			Alpha = alpha;
 		}
 
-		public HslColor(Measurement hue, Measurement saturation, Measurement lightness, Measurement alpha)
-		{
-			Hue = (hue.Number / 360m) % 1;
-			Saturation = saturation.Number.Clamp(100m) / 100m;
-			Lightness = lightness.Number.Clamp(100m) / 100m;
-			Alpha = alpha.Number.Clamp(1);
+		public static HslColor FromHslaFunction(decimal hue, decimal saturation, decimal lightness, decimal alpha) {
+			var h = (hue / 360m) % 1;
+			var s = saturation.Clamp(100m) / 100m;
+			var l = lightness.Clamp(100m) / 100m;
+			var a = alpha.Clamp(1);
+
+			return new HslColor(h, s, l, a);
 		}
 
 		public static HslColor FromRgbColor(Color color)

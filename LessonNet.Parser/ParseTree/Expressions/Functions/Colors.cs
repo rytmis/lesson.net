@@ -123,4 +123,31 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 			return ((Measurement)values[0], (Measurement)values[1], (Measurement)values[2], (Measurement)values[3]);
 		}
 	}
+
+	public class HslFunction : LessFunction {
+		public HslFunction(Expression arguments) : base(arguments) { }
+		protected override Expression EvaluateFunction(Expression arguments) {
+			var (h, s, l) = VerifyArguments(arguments);
+
+			return HslColor.FromHslaFunction(h.Number, s.Number, l.Number, 1).ToRgbColor();
+		}
+
+		private static (Measurement, Measurement, Measurement) VerifyArguments(Expression arguments) {
+			var valueList = arguments as ExpressionList;
+			if (valueList?.Values.Count != 3) {
+				throw new EvaluationException($"Unexpected argument count: {valueList?.Values.Count ?? 1}");
+			}
+
+			for (var i = 0; i < valueList.Values.Count; i++) {
+				var value = valueList.Values[0];
+				if (!(value is Measurement)) {
+					throw new EvaluationException($"Unexpected argument: {value}");
+				}
+			}
+
+			var values = valueList.Values;
+
+			return ((Measurement)values[0], (Measurement)values[1], (Measurement)values[2]);
+		}
+	}
 }

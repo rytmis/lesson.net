@@ -21,6 +21,10 @@ namespace LessonNet.Parser.ParseTree
 				return Operate(op, new Color(lm), rc);
 			}
 
+			if (lhs is Color c1 && rhs is Color c2) {
+				return Operate(op, c1, c2);
+			}
+
 			throw new EvaluationException($"Unsupported operation: {lhs} {op} {rhs}");
 		}
 
