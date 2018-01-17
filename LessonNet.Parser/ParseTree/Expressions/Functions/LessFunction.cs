@@ -27,5 +27,35 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		public override int GetHashCode() {
 			return Arguments.GetHashCode();
 		}
+
+		protected (TArg1, TArg2) UnpackArguments<TArg1, TArg2>()
+			where TArg1 : Expression
+			where TArg2 : Expression
+		{
+			if (Arguments is ExpressionList list
+				&& list.Values.Count == 2
+				&& list.Values[0] is TArg1 arg1
+				&& list.Values[1] is TArg2 arg2) {
+				return (arg1, arg2);
+			}
+
+			throw new EvaluationException($"Unexpected arguments: {Arguments}");
+		}
+
+		protected (TArg1, TArg2, TArg3) UnpackArguments<TArg1, TArg2, TArg3>()
+			where TArg1 : Expression
+			where TArg2 : Expression
+			where TArg3 : Expression
+		{
+			if (Arguments is ExpressionList list
+				&& list.Values.Count == 2
+				&& list.Values[0] is TArg1 arg1
+				&& list.Values[1] is TArg2 arg2
+				&& list.Values[2] is TArg3 arg3) {
+				return (arg1, arg2, arg3);
+			}
+
+			throw new EvaluationException($"Unexpected arguments: {Arguments}");
+		}
 	}
 }

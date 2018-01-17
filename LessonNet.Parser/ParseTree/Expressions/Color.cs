@@ -171,7 +171,7 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		private static byte EnsureRange(decimal value) {
-			return (byte) value.Clamp(255, 0);
+			return (byte) value.Clamp(0, 255);
 		}
 
 		public static Color operator +(Color c1, Color c2) {
