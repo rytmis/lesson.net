@@ -25,21 +25,29 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 
 			Expression GetCorrectedPath(Expression url) {
 				var urlAsString = GetStringValue(url);
+				if (urlAsString == null) {
+					return new LessStringLiteral("");
+				}
+
 				if (!urlAsString.IsLocalFilePath()) {
 					return url;
 				}
 
-				var resolved = context.CurrentScope.FileResolver.ResolvePath(urlAsString);
+				var splitUrl = urlAsString.SplitPathAndQuery();
+
+				var resolved = context.CurrentScope.FileResolver.ResolvePath(splitUrl.Path);
+
+				var reconstructed = resolved.AppendQuery(splitUrl.Query);
 
 				if (url is LessString str) {
-					return new LessString(str.QuoteChar, new[] {new LessStringLiteral(resolved)});
+					return new LessString(str.QuoteChar, new[] {new LessStringLiteral(reconstructed)});
 				}
 
 				if (url is QuotedExpression quoted) {
-					return new QuotedExpression(new LessString(quoted.Value.QuoteChar, new[] {new LessStringLiteral(resolved)}));
+					return new QuotedExpression(new LessString(quoted.Value.QuoteChar, new[] {new LessStringLiteral(reconstructed)}));
 				}
 
-				return new LessStringLiteral(resolved);
+				return new LessStringLiteral(reconstructed);
 			}
 
 			var evaluatedValue = Content.EvaluateSingle<Expression>(context);
