@@ -91,7 +91,7 @@ namespace LessonNet.Tests.Parser {
 		public void UrlWithString() {
 			var parsed = (Url) Parse("url(\"this is a test\")");
 
-			Assert.Equal("this is a test", parsed.Content.ToString());
+			Assert.Equal("\"this is a test\"", parsed.Content.ToString());
 		}
 
 		[Fact]
@@ -112,7 +112,7 @@ namespace LessonNet.Tests.Parser {
 		public void UrlWithVariable() {
 			var parsed = (Url) Parse("url(@avar)");
 
-			Assert.Equal("avar", parsed.Content.ToString());
+			Assert.Equal("@avar", parsed.Content.ToString());
 		}
 
 		[Fact]
