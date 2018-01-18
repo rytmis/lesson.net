@@ -19,7 +19,11 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		public override void WriteOutput(OutputContext context) {
 			context.Append(functionName);
 			context.Append('(');
-			context.Append(arguments);
+
+			if (arguments != null) {
+				context.Append(arguments);
+			}
+
 			context.Append(')');
 		}
 

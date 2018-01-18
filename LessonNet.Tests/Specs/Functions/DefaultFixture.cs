@@ -6,7 +6,7 @@ namespace LessonNet.Tests.Specs.Functions
     {
         [Fact]
         public void DefaultFunctionInRuleResultsInText() {
-            AssertLessUnchanged("rule: default();");
+            AssertLessUnchanged("rule: default()");
         }
     }
 }
