@@ -330,6 +330,11 @@ namespace LessonNet.Parser {
 				?? context.measurement().Accept(this);
 		}
 
+		public override LessNode VisitUnicodeRange(LessParser.UnicodeRangeContext context) {
+			var values = context.UnicodeValue().Select(v => v.GetText()).ToArray();
+			return new UnicodeRange(values[0], values.Length > 1 ? values[1] : null);
+		}
+
 		public override LessNode VisitIdentifier(LessParser.IdentifierContext context) {
 			return new Identifier(GetIdentifierParts(null, context));
 		}
@@ -494,6 +499,7 @@ namespace LessonNet.Parser {
 				?? GetStringLiteral()
 				?? context.escapeSequence()?.Accept(this)
 				?? context.function()?.Accept(this)
+				?? context.unicodeRange()?.Accept(this)
 				?? context.identifier()?.Accept(this)
 				?? context.parenthesizedExpression()?.Accept(this)
 				?? GetMathOperation()

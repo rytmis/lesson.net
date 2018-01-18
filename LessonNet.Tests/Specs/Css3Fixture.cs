@@ -542,7 +542,7 @@ audio:not([controls]) {
 		public void Css3FilterMultipleFunctions()
 		{
 			AssertRuleUnchanged("filter: invert(100%) opacity(50%) saturate(200%)");
-			AssertRule("filter: /* test */ invert(100%) /* test */ opacity(50%) /* test */ saturate(200%);", "filter: /* test */invert(100%)/* test */ opacity(50%)/* test */ saturate(200%)");
+			AssertRule("filter: invert(100%) opacity(50%) saturate(200%)", "filter: /* test */invert(100%)/* test */ opacity(50%)/* test */ saturate(200%)");
 		}
 
 		[Fact]

@@ -5,6 +5,11 @@
 */
 
 lexer grammar LessLexer;
+@members {
+	public void less() {
+		_input.Seek(this._tokenStartCharIndex);
+	}
+}
 
 NULL: 'null';
 
@@ -79,7 +84,7 @@ FROM            : 'from';
 TO              : 'to';
 COUNTERSTYLE    : '@counter-style';
 EXTEND          : 'extend';
-IMPORTANT       : '!important';
+IMPORTANT       : '!' (WS)* 'important';
 ARGUMENTS       : '@arguments';
 REST            : '@rest';
 ALL             : 'all';
@@ -160,6 +165,8 @@ HexColor
   :  '#' HEXDIGIT HEXDIGIT HEXDIGIT
   |  '#' HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT
   ;
+
+
 
 /* Whitespace -- ignored */
 WS
@@ -278,6 +285,15 @@ Unit
 
 fragment ID_CHAR : ('_' | '-' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' | '0'..'9' | '\\.' | '\\:' );
 
+fragment UNICODE_DIGIT
+  : HEXDIGIT 
+  | '?'
+  ;
+
+UnicodeValue
+  : ('u'|'U') '+' UNICODE_DIGIT+ -> pushMode(UNICODE)
+  ;
+
 Identifier
   : ( ('_' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' ) ID_CHAR*
 	|  '-' ('_' | 'a'..'z'| 'A'..'Z' | '\u0100'..'\ufffe' )+ ID_CHAR*) -> pushMode(IDENTIFY);
@@ -377,3 +393,7 @@ DQUOT_ESCAPED_ESCAPE  : '\\\\' -> type(DQUOT_STRING_FRAGMENT);
 DQUOT_STRING_FRAGMENT : (~('"'|'\n'|'\r'|'@'))+;
 DQUOT_STRING_END : ('"'|'\n'|'\r') -> popMode;
 
+mode UNICODE;
+UC_DASH               : MINUS -> type(MINUS);
+UC_UNICIDE_DIGIT      : UNICODE_DIGIT+ -> type(UnicodeValue);
+UC_ANYTHING_ELSE      : . { less(); } -> more, popMode;

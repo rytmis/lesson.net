@@ -114,7 +114,7 @@ variableName
   | SUPPORTS
   | DOCUMENT
   | PAGE
-  | Keyframes
+  | KEYFRAMES
   | COUNTERSTYLE
   | ARGUMENTS
   | REST
@@ -148,8 +148,13 @@ singleValuedExpression
   | url
   | variableName
   | booleanValue
+  | unicodeRange
   | identifier
   | selector
+  ;
+
+unicodeRange
+  : UnicodeValue (MINUS UnicodeValue)?
   ;
 
 ieFilter

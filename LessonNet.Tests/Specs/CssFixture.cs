@@ -295,7 +295,7 @@ p {
 #important {
   color: red !important;
   width: 100% !important;
-  height: 20px ! important;
+  height: 20px !important;
 }
 ";
 

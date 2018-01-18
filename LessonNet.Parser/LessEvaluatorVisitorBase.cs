@@ -139,6 +139,10 @@ namespace LessonNet.Parser
 			throw new System.NotImplementedException();
 		}
 
+		public virtual LessNode VisitUnicodeRange(LessParser.UnicodeRangeContext context) {
+			throw new System.NotImplementedException();
+		}
+
 		public virtual LessNode VisitIeFilter(LessParser.IeFilterContext context) {
 			throw new System.NotImplementedException();
 		}
