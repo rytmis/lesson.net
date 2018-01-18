@@ -94,11 +94,15 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		}
 
 		private static Color FromHexStringCore(string hex, string keyword) {
-			uint value = uint.Parse(EnsureSixDigitHex(hex.TrimStart('#')), NumberStyles.HexNumber);
+			uint value = uint.Parse(EnsureValidHexColor(hex.TrimStart('#')), NumberStyles.HexNumber);
 
 			byte[] values = BitConverter.GetBytes(value);
+			decimal? alpha = hex.Length == 8
+				? values[3] / 255m
+				: (decimal?)null;
 
-			return new Color(values[2], values[1], values[0], null, keyword);
+
+			return new Color(values[2], values[1], values[0], alpha, keyword);
 		}
 
 		public static Color FromKeyword(string keyword) {
@@ -108,7 +112,12 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			return FromHexStringCore(KnownColors.GetHexString(keyword), keyword);
 		}
 
-		private static string EnsureSixDigitHex(string input) {
+		private static string EnsureValidHexColor(string input) {
+			// IE ARGB
+			if (input.Length == 8) {
+				return input;
+			}
+
 			if (input.Length == 6) {
 				return input;
 			}
