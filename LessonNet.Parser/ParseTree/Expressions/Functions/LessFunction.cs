@@ -28,6 +28,16 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			return Arguments.GetHashCode();
 		}
 
+		protected TArg UnpackArguments<TArg>()
+			where TArg : Expression
+		{
+			if (Arguments is TArg arg) {
+				return arg;
+			}
+
+			throw new EvaluationException($"Unexpected arguments: {Arguments}");
+		}
+
 		protected (TArg1, TArg2) UnpackArguments<TArg1, TArg2>()
 			where TArg1 : Expression
 			where TArg2 : Expression

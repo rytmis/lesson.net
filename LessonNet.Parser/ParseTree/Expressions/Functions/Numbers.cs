@@ -1,4 +1,5 @@
 ﻿using System;
+using LessonNet.Parser.Util;
 
 namespace LessonNet.Parser.ParseTree.Expressions.Functions
 {
@@ -51,4 +52,14 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 			return new Measurement(Math.Abs(input.Number), input.Unit);
 		}
 	}
+
+	public class HexFunction : LessFunction {
+		public HexFunction(Expression arguments) : base(arguments) { }
+		protected override Expression EvaluateFunction(Expression arguments) {
+			var arg = UnpackArguments<Measurement>();
+
+			return new LessStringLiteral(((byte)arg.Number.Clamp(0, 255)).ToString("X2"));
+		}
+	}
 }
+
