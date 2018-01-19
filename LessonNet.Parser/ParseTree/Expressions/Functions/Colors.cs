@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -148,6 +149,20 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 			var values = valueList.Values;
 
 			return ((Measurement)values[0], (Measurement)values[1], (Measurement)values[2]);
+		}
+	}
+
+	public class GreyscaleFunction : LessFunction
+	{
+		public GreyscaleFunction(Expression arguments) : base(arguments) { }
+		protected override Expression EvaluateFunction(Expression arguments) {
+			var color = UnpackArguments<Color>();
+
+			var channels = new[] {color.R, color.G, color.B};
+
+			var grey = (byte)Math.Ceiling((channels.Max() + channels.Min())/2m);
+
+			return new Color(grey, grey, grey);
 		}
 	}
 }
