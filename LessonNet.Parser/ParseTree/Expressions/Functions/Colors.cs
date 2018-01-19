@@ -9,7 +9,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 	public class ColorFunction : LessFunction
 	{
 		public ColorFunction(Expression arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			var str = (arguments as LessString)?.GetUnquotedValue();
 
 			try {
@@ -31,7 +31,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 	public class ArgbFunction : LessFunction
 	{
 		public ArgbFunction(Expression arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			var color = arguments as Color;
 			if (color != null) {
 				return new Identifier(new ConstantIdentifierPart(color.ToArgbString()));
@@ -43,7 +43,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 
 	public class AlphaFunction : LessFunction {
 		public AlphaFunction(Expression arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			var color = arguments as Color;
 			if (color == null) {
 				throw new EvaluationException("Argument must be a color");
@@ -59,7 +59,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 
 	public class LightnessFunction : LessFunction {
 		public LightnessFunction(Expression arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			var color = arguments as Color;
 			if (color == null) {
 				throw new EvaluationException("Argument must be a color");
@@ -73,7 +73,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 
 	public class RgbFunction : LessFunction {
 		public RgbFunction(Expression arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			var (r, g, b) = VerifyArguments(arguments);
 			
 			return new Color((byte)r.Number, (byte)g.Number, (byte)b.Number, null);
@@ -100,7 +100,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 
 	public class RgbaFunction : LessFunction {
 		public RgbaFunction(Expression arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			var (r, g, b, a) = VerifyArguments(arguments);
 			
 			return new Color((byte)r.Number, (byte)g.Number, (byte)b.Number, a.Number);
@@ -127,7 +127,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 
 	public class HslFunction : LessFunction {
 		public HslFunction(Expression arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			var (h, s, l) = VerifyArguments(arguments);
 
 			return HslColor.FromHslaFunction(h.Number, s.Number, l.Number, 1).ToRgbColor();
@@ -155,7 +155,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 	public class GreyscaleFunction : LessFunction
 	{
 		public GreyscaleFunction(Expression arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			var color = UnpackArguments<Color>();
 
 			var channels = new[] {color.R, color.G, color.B};

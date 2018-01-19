@@ -8,7 +8,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 	public class EFunction : LessFunction {
 		public EFunction(Expression arguments) : base(arguments) { }
 
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			if (arguments is LessString str) {
 				return new Identifier(new ConstantIdentifierPart(str.GetUnquotedValue()));
 			}
@@ -20,7 +20,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 	[FunctionName("formatString")]
 	public class FormatStringFunction : LessFunction {
 		public FormatStringFunction(Expression arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			if (arguments is LessString onlyStr) {
 				var formatted = string.Format(onlyStr.GetUnquotedValue());
 

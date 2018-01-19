@@ -2,7 +2,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 
 	public class IsColorFunction : LessFunction {
 		public IsColorFunction(Expression arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			var argumentMatch = arguments as Color;
 
 			return new BooleanValue(argumentMatch != null);
@@ -11,7 +11,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 
 	public class IsEmFunction : LessFunction {
 		public IsEmFunction(Expression arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			var measurement = arguments as Measurement;
 
 			return new BooleanValue(string.Equals(measurement?.Unit, "em"));
@@ -20,7 +20,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 
 	public class IsNumberFunction : LessFunction {
 		public IsNumberFunction(Expression arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			var measurement = arguments as Measurement;
 
 			return new BooleanValue(measurement != null);
@@ -29,7 +29,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 
 	public class IsPercentageFunction : LessFunction {
 		public IsPercentageFunction(Expression arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			var measurement = arguments as Measurement;
 
 			return new BooleanValue(string.Equals(measurement?.Unit, "%"));
@@ -38,7 +38,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 
 	public class IsPixelFunction : LessFunction {
 		public IsPixelFunction(Expression arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			var measurement = arguments as Measurement;
 
 			return new BooleanValue(string.Equals(measurement?.Unit, "px"));
@@ -47,7 +47,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 
 	public class IsStringFunction : LessFunction {
 		public IsStringFunction(Expression arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			var str = arguments as LessString;
 
 			return new BooleanValue(str != null);
@@ -56,7 +56,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 
 	public class IsKeywordFunction : LessFunction {
 		public IsKeywordFunction(Expression arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			var identifier = arguments as Identifier;
 
 			return new BooleanValue(identifier != null);

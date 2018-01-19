@@ -21,6 +21,14 @@ namespace LessonNet.Parser {
 
 			return fileSystem.File.OpenRead(fixedPath);
 		}
+		public Stream GetContent(string filePath) {
+			var resolved = ResolvePath(filePath);
+
+			var fixedPath =
+				resolved.Replace(fileSystem.Path.AltDirectorySeparatorChar, fileSystem.Path.DirectorySeparatorChar);
+
+			return fileSystem.File.OpenRead(fixedPath);
+		}
 
 		public IFileResolver GetResolverFor(string lessFilePath) {
 			return new FileResolver(fileSystem, ResolvePath(lessFilePath));

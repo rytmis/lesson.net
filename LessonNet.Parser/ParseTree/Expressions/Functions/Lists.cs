@@ -8,7 +8,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 	public class LengthFunction : LessFunction {
 		public LengthFunction(Expression arguments) : base(arguments) { }
 
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			if (arguments is ExpressionList list) {
 				return new Measurement(list.Values.Count, "");
 			}
@@ -43,7 +43,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 			}
 		}
 
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			if (arguments is ExpressionList list) {
 				return new Measurement(list.Values.Count, "");
 			}

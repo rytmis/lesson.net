@@ -81,6 +81,9 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 		public char QuoteChar { get; }
 		private readonly IList<LessStringFragment> parts;
 
+		public LessString(char quoteChar, LessStringFragment fragment)
+			: this(quoteChar, new[] {fragment}) { }
+
 		public LessString(char quoteChar, IEnumerable<LessStringFragment> parts) {
 			this.QuoteChar = quoteChar;
 			this.parts = parts.ToList();

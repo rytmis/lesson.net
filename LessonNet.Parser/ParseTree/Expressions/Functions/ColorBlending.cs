@@ -6,7 +6,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 	public abstract class ColorBlendingFunction : LessFunction {
 		protected ColorBlendingFunction(Expression arguments) : base(arguments) { }
 
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			if (arguments is ExpressionList list
 				&& list.Values.Count == 2
 				&& list.Values[0] is Color backdrop
@@ -112,7 +112,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 
 		public MixFunction(Expression arguments) : base(arguments) { }
 
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			if (arguments is ExpressionList list) {
 				if (list.Values.Count == 2) {
 					var (c1, c2) = UnpackArguments<Color, Color>();
@@ -160,7 +160,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 	public class TintFunction : MixFunction {
 		public TintFunction(Expression arguments) : base(arguments) { }
 
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			var (color, weight) = UnpackArguments<Color, Measurement>();
 
 			return Mix(new Color(255, 255, 255), color, weight.Number);
@@ -170,7 +170,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 	public class ShadeFunction : MixFunction {
 		public ShadeFunction(Expression arguments) : base(arguments) { }
 
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 
 			var (color, weight) = UnpackArguments<Color, Measurement>();
 

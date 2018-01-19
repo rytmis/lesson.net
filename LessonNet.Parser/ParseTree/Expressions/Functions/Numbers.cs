@@ -5,7 +5,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 {
 	public abstract class NumberFunction : LessFunction {
 		protected NumberFunction(Expression arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			var number = arguments as Measurement;
 			if (number == null) {
 				throw new EvaluationException("Argument must be a number");
@@ -55,7 +55,7 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions
 
 	public class HexFunction : LessFunction {
 		public HexFunction(Expression arguments) : base(arguments) { }
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			var arg = UnpackArguments<Measurement>();
 
 			return new LessStringLiteral(((byte)arg.Number.Clamp(0, 255)).ToString("X2"));

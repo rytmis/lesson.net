@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
+using System.Reflection;
 using LessonNet.Parser;
 using LessonNet.Parser.CodeGeneration;
 using LessonNet.Parser.ParseTree;
+using LessonNet.Tests.Specs.Functions;
 using Xunit;
 using Xunit.Sdk;
 
@@ -114,6 +117,16 @@ namespace LessonNet.Tests
 
 		protected virtual EvaluationContext CreateContext(string input) {
 			return new EvaluationContext(new LessTreeParser(), GetFileResolver(input), StrictMath);
+		}
+
+		private Assembly assembly = Assembly.GetAssembly(typeof(SpecFixtureBase));
+
+		protected byte[] ReadEmbeddedResource(string name) {
+			using (var input = assembly.GetManifestResourceStream($"LessonNet.Tests.{name.Replace('/', '.')}"))
+			using (var memory = new MemoryStream(new byte[input.Length])) {
+				input.CopyTo(memory);
+				return memory.ToArray();
+			}
 		}
 
 		private IFileResolver GetFileResolver(string input) {

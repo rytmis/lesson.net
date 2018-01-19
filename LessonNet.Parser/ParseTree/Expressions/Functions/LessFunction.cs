@@ -1,18 +1,19 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace LessonNet.Parser.ParseTree.Expressions {
 	public abstract class LessFunction : Expression {
 		protected Expression Arguments { get; }
 
 		protected LessFunction(Expression arguments) {
-			this.Arguments = arguments;
+			this.Arguments = arguments ?? new ExpressionList(Enumerable.Empty<Expression>(), ' ');
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {
-			yield return EvaluateFunction(Arguments.EvaluateSingle<Expression>(context));
+			yield return EvaluateFunction(Arguments.EvaluateSingle<Expression>(context), context);
 		}
 
-		protected abstract Expression EvaluateFunction(Expression arguments);
+		protected abstract Expression EvaluateFunction(Expression arguments, EvaluationContext context);
 		protected bool Equals(LessFunction other) {
 			return Equals(Arguments, other.Arguments);
 		}

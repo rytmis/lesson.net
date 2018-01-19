@@ -2,7 +2,7 @@
 	public abstract class AlphaFunctionBase : LessFunction {
 		protected AlphaFunctionBase(Expression arguments) : base(arguments) { }
 
-		protected override Expression EvaluateFunction(Expression arguments) {
+		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			if (arguments is ExpressionList list
 				&& list.Values.Count == 2
 				&& list.Values[0] is Color color
