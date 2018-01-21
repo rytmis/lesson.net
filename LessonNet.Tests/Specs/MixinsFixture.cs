@@ -3,11 +3,11 @@ using Xunit;
 
 namespace LessonNet.Tests.Specs {
 	public class MixinsFixture : SpecFixtureBase {
-        [Fact]
-        public void Mixins() {
-            // Todo: split into separate atomic tests.
-            var input =
-                @"
+		[Fact]
+		public void Mixins() {
+			// Todo: split into separate atomic tests.
+			var input =
+				@"
 .mixin { border: 1px solid black; }
 .mixout { border-color: orange; }
 .borders { border-style: dashed; }
@@ -58,8 +58,8 @@ namespace LessonNet.Tests.Specs {
 
 ";
 
-            var expected =
-                @"
+			var expected =
+				@"
 .mixin {
   border: 1px solid black;
 }
@@ -112,16 +112,16 @@ namespace LessonNet.Tests.Specs {
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
 		// Unsupported
-        // [Fact]
-        public void CommaSeparatedMixins() {
-            // Note: http://github.com/cloudhead/less.js/issues/issue/8
+		// [Fact]
+		public void CommaSeparatedMixins() {
+			// Note: http://github.com/cloudhead/less.js/issues/issue/8
 
-            var input =
-                @"
+			var input =
+				@"
 .mixina() {
   color: red;
 }
@@ -134,20 +134,20 @@ namespace LessonNet.Tests.Specs {
 }
 ";
 
-            var expected = @"
+			var expected = @"
 .class {
   color: red;
   color: green;
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void ChildSelector() {
-            var input =
-                @"
+		[Fact]
+		public void ChildSelector() {
+			var input =
+				@"
 #bundle {
   .mixin {
     padding: 20px;
@@ -160,8 +160,8 @@ namespace LessonNet.Tests.Specs {
 }
 ";
 
-            var expected =
-                @"
+			var expected =
+				@"
 #bundle .mixin {
   padding: 20px;
   color: purple;
@@ -172,13 +172,13 @@ namespace LessonNet.Tests.Specs {
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void MixinNestedRules() {
-            var input =
-                @"
+		[Fact]
+		public void MixinNestedRules() {
+			var input =
+				@"
 .bundle() {
   p {
     padding: 20px;
@@ -192,7 +192,7 @@ namespace LessonNet.Tests.Specs {
 }
 ";
 
-            var expected = @"
+			var expected = @"
 #header p {
   padding: 20px;
   color: purple;
@@ -202,12 +202,12 @@ namespace LessonNet.Tests.Specs {
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void MultipleMixins() {
-            var input = @"
+		[Fact]
+		public void MultipleMixins() {
+			var input = @"
 .mixin{
     border:solid 1px red;
 }
@@ -219,8 +219,8 @@ namespace LessonNet.Tests.Specs {
 }
 ";
 
-            var expected =
-                @"
+			var expected =
+				@"
 .mixin {
   border: solid 1px red;
 }
@@ -233,14 +233,14 @@ namespace LessonNet.Tests.Specs {
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
 
-        [Fact]
-        public void MixinWithArgs() {
-            var input =
-                @".mixin (@a: 1px, @b: 50%) {
+		[Fact]
+		public void MixinWithArgs() {
+			var input =
+				@".mixin (@a: 1px, @b: 50%) {
   width: @a * 5;
   height: @b - 1%;
 }
@@ -249,19 +249,19 @@ namespace LessonNet.Tests.Specs {
   .mixin(4px, 21%);
 }";
 
-            var expected =
-                @".mixin-arg {
+			var expected =
+				@".mixin-arg {
   width: 20px;
   height: 20%;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void CanPassNamedArguments() {
-            var input =
-                @".mixin (@a: 1px, @b: 50%) {
+		[Fact]
+		public void CanPassNamedArguments() {
+			var input =
+				@".mixin (@a: 1px, @b: 50%) {
   width: @a * 5;
   height: @b - 1%;
 }
@@ -271,20 +271,20 @@ namespace LessonNet.Tests.Specs {
   .mixin(@b: 100%);
 }";
 
-            var expected =
-                @".named-arg {
+			var expected =
+				@".named-arg {
   color: blue;
   width: 5px;
   height: 99%;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void CanPassNamedArgumentsInDifferentOrder() {
-            var input =
-                @".mixin (@a: 1px, @b: 50%) {
+		[Fact]
+		public void CanPassNamedArgumentsInDifferentOrder() {
+			var input =
+				@".mixin (@a: 1px, @b: 50%) {
   width: @a * 5;
   height: @b - 1%;
 }
@@ -294,20 +294,20 @@ namespace LessonNet.Tests.Specs {
   .mixin(@b: 100%, @a: 2px);
 }";
 
-            var expected =
-                @".named-arg {
+			var expected =
+				@".named-arg {
   color: blue;
   width: 10px;
   height: 99%;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void CanPassNamedArgumentsWithoutDefaults() {
-            var input =
-                @".mixin (@a, @b) {
+		[Fact]
+		public void CanPassNamedArgumentsWithoutDefaults() {
+			var input =
+				@".mixin (@a, @b) {
   width: @a * 5;
   height: @b - 1%;
 }
@@ -317,20 +317,20 @@ namespace LessonNet.Tests.Specs {
   .mixin(@a: 2px, @b: 100%);
 }";
 
-            var expected =
-                @".named-arg {
+			var expected =
+				@".named-arg {
   color: blue;
   width: 10px;
   height: 99%;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void CanPassVariablesAsPositionalArgs() {
-            var input =
-                @".mixin (@a: 1px, @b: 50%) {
+		[Fact]
+		public void CanPassVariablesAsPositionalArgs() {
+			var input =
+				@".mixin (@a: 1px, @b: 50%) {
   width: @a * 5;
   height: @b - 1%;
 }
@@ -340,19 +340,19 @@ namespace LessonNet.Tests.Specs {
   .mixin(@var);
 }";
 
-            var expected =
-                @".class {
+			var expected =
+				@".class {
   width: 100px;
   height: 49%;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void CanPassVariablesAsNamedArgs() {
-            var input =
-                @".mixin (@a: 1px, @b: 50%) {
+		[Fact]
+		public void CanPassVariablesAsNamedArgs() {
+			var input =
+				@".mixin (@a: 1px, @b: 50%) {
   width: @a * 5;
   height: @b - 1%;
 }
@@ -362,19 +362,19 @@ namespace LessonNet.Tests.Specs {
   .mixin(@b: @var);
 }";
 
-            var expected =
-                @".class {
+			var expected =
+				@".class {
   width: 5px;
   height: 19%;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void MixedPositionalAndNamedArguments() {
-            var input =
-                @".mixin (@a: 1px, @b: 50%, @c: 50) {
+		[Fact]
+		public void MixedPositionalAndNamedArguments() {
+			var input =
+				@".mixin (@a: 1px, @b: 50%, @c: 50) {
   width: @a * 5;
   height: @b - 1%;
   color: #000000 + @c;
@@ -384,20 +384,20 @@ namespace LessonNet.Tests.Specs {
   .mixin(3px, @c: 100);
 }";
 
-            var expected =
-                @".mixed-args {
+			var expected =
+				@".mixed-args {
   width: 15px;
   height: 49%;
   color: #646464;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact(Skip = "Error reporting is still WIP")]
-        public void PositionalArgumentsMustAppearBeforeAllNamedArguments() {
-            var input =
-                @".mixin (@a: 1px, @b: 50%, @c: 50) {
+		[Fact(Skip = "Error reporting is still WIP")]
+		public void PositionalArgumentsMustAppearBeforeAllNamedArguments() {
+			var input =
+				@".mixin (@a: 1px, @b: 50%, @c: 50) {
   width: @a * 5;
   height: @b - 1%;
   color: #000000 + @c;
@@ -407,16 +407,16 @@ namespace LessonNet.Tests.Specs {
   .mixin(@c: 100, 3px);
 }";
 
-            AssertError(input, 
-                "Positional arguments must appear before all named arguments.",
-                8,
-                18,
-                "  .mixin(@c: 100, 3px);");
-        }
+			AssertError(input,
+				"Positional arguments must appear before all named arguments.",
+				8,
+				18,
+				"  .mixin(@c: 100, 3px);");
+		}
 
-        [Fact]
-        public void PassAllVariablesAsNamedArgumentsWhereNoDefaultValues() {
-            var input = @"
+		[Fact]
+		public void PassAllVariablesAsNamedArgumentsWhereNoDefaultValues() {
+			var input = @"
 .clb (@a, @b) {
   background-position: @a @b;
 }
@@ -424,17 +424,17 @@ namespace LessonNet.Tests.Specs {
   .clb(@a:23px, @b:12px);
 }";
 
-            var expected = @"
+			var expected = @"
 .cla {
   background-position: 23px 12px;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void SupportOnePositionArgumentOneDefaultVariableAndOneNamed() {
-            var input = @"
+		[Fact]
+		public void SupportOnePositionArgumentOneDefaultVariableAndOneNamed() {
+			var input = @"
 .clb (@a, @b: 12px, @c) {
   background-position: @a @c;
 }
@@ -442,12 +442,12 @@ namespace LessonNet.Tests.Specs {
   .clb(23px, @c: 12px);
 }";
 
-            var expected = @"
+			var expected = @"
 .cla {
   background-position: 23px 12px;
 }";
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
 //		// Unsupported
 //        // [Fact]
@@ -465,11 +465,11 @@ namespace LessonNet.Tests.Specs {
 //            AssertError("Argument '@var' not found. in '.mixin(@var: 6)'", input);
 //        }
 
-        [Fact]
-        public void OverrideMixinToAddNonSimpleDefaultArguments() {
-            // see https://github.com/dotless/dotless/issues/79
+		[Fact]
+		public void OverrideMixinToAddNonSimpleDefaultArguments() {
+			// see https://github.com/dotless/dotless/issues/79
 
-            var input = @"
+			var input = @"
 .gradient(@from, @to)
 {
     background: -moz-linear-gradient(@from, @to);
@@ -484,18 +484,18 @@ namespace LessonNet.Tests.Specs {
 }";
 
 
-            var expected = @"
+			var expected = @"
 .test {
   background: -moz-linear-gradient(#aaaaaa, #919191);
 }
 ";
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void MixinWithArgsInsideNamespace() {
-            var input =
-                @"#namespace {
+		[Fact]
+		public void MixinWithArgsInsideNamespace() {
+			var input =
+				@"#namespace {
   .mixin (@a: 1px, @b: 50%) {
     width: @a * 5;
     height: @b - 1%;
@@ -506,19 +506,19 @@ namespace LessonNet.Tests.Specs {
   #namespace .mixin(5px);
 }";
 
-            var expected =
-                @".namespace-mixin {
+			var expected =
+				@".namespace-mixin {
   width: 25px;
   height: 49%;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void NestedParameterizedMixins1() {
-            var input =
-                @"
+		[Fact]
+		public void NestedParameterizedMixins1() {
+			var input =
+				@"
 .outer(@a: 5) {
   .inner (@b: 10) {
     width: @a + @b;
@@ -530,15 +530,15 @@ namespace LessonNet.Tests.Specs {
 }
 ";
 
-            var expected = "";
+			var expected = "";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void NestedParameterizedMixins2() {
-            var input =
-                @"
+		[Fact]
+		public void NestedParameterizedMixins2() {
+			var input =
+				@"
 .outer(@a: 5) {
   .inner (@b: 10) {
     width: @a + @b;
@@ -551,20 +551,20 @@ namespace LessonNet.Tests.Specs {
 }
 ";
 
-            var expected = @"
+			var expected = @"
 .class {
   width: 15;
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
 		// Unsupported
-        // [Fact]
-        public void NestedParameterizedMixins3() {
-            var input =
-                @"
+		// [Fact]
+		public void NestedParameterizedMixins3() {
+			var input =
+				@"
 .outer(@a: 5) {
   .inner (@b: 10) {
     width: @a + @b;
@@ -576,19 +576,19 @@ namespace LessonNet.Tests.Specs {
 }
 ";
 
-            var expected = @"
+			var expected = @"
 .class {
   width: 15;
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void NestedParameterizedMixins4() {
-            var input =
-                @"
+		[Fact]
+		public void NestedParameterizedMixins4() {
+			var input =
+				@"
 .outer(@a: 5) {
   .inner (@b: 10) {
     width: @a + @b;
@@ -601,20 +601,20 @@ namespace LessonNet.Tests.Specs {
 }
 ";
 
-            var expected = @"
+			var expected = @"
 .class {
   width: 3;
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
 		// Unsupported
-        // [Fact]
-        public void NestedParameterizedMixins5() {
-            var input =
-                @"
+		// [Fact]
+		public void NestedParameterizedMixins5() {
+			var input =
+				@"
 .outer(@a: 5) {
   .inner (@b: 10) {
     width: @a + @b;
@@ -626,19 +626,19 @@ namespace LessonNet.Tests.Specs {
 }
 ";
 
-            var expected = @"
+			var expected = @"
 .class {
   width: 6;
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void NestedRulesInMixinsShouldRespectArguments() {
-            var input =
-                @"
+		[Fact]
+		public void NestedRulesInMixinsShouldRespectArguments() {
+			var input =
+				@"
 .mixin(@a: 5) {
     .someClass {
         width: @a;
@@ -649,7 +649,7 @@ namespace LessonNet.Tests.Specs {
 .class2 { .mixin(2); }
 ";
 
-            var expected = @"
+			var expected = @"
 .class1 .someClass {
   width: 1;
 }
@@ -658,13 +658,13 @@ namespace LessonNet.Tests.Specs {
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void MultipleCallsToMixinsContainingMixinCalls() {
-            var input =
-                @"
+		[Fact]
+		public void MultipleCallsToMixinsContainingMixinCalls() {
+			var input =
+				@"
 .mixintest(@a :5px){
     height: @a;
     input{
@@ -684,8 +684,8 @@ namespace LessonNet.Tests.Specs {
     .mixintest(15px);
 }";
 
-            var expected =
-                @"
+			var expected =
+				@"
 .test {
   height: 5px;
 }
@@ -699,14 +699,14 @@ namespace LessonNet.Tests.Specs {
   width: 15px;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
 
-        [Fact]
-        public void CanUseVariablesAsDefaultArgumentValues() {
-            var input =
-                @"@var: 5px;
+		[Fact]
+		public void CanUseVariablesAsDefaultArgumentValues() {
+			var input =
+				@"@var: 5px;
 
 .mixin (@a: @var, @b: 50%) {
   width: @a * 5;
@@ -718,19 +718,19 @@ namespace LessonNet.Tests.Specs {
   .mixin;
 }";
 
-            var expected =
-                @".class {
+			var expected =
+				@".class {
   width: 25px;
   height: 49%;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void ArgumentsOverridesVariableInSameScope() {
-            var input =
-                @"@a: 10px;
+		[Fact]
+		public void ArgumentsOverridesVariableInSameScope() {
+			var input =
+				@"@a: 10px;
 
 .mixin (@a: 5px, @b: 50%) {
   width: @a * 5;
@@ -742,20 +742,20 @@ namespace LessonNet.Tests.Specs {
   .mixin;
 }";
 
-            var expected =
-                @".class {
+			var expected =
+				@".class {
   width: 25px;
   height: 49%;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
 		// Unsupported
-        // [Fact]
-        public void CanUseArgumentsWithSameNameAsVariable() {
-            var input =
-                @"@a: 5px;
+		// [Fact]
+		public void CanUseArgumentsWithSameNameAsVariable() {
+			var input =
+				@"@a: 5px;
 
 .mixin (@a: @a, @b: 50%) {
   width: @a * 5;
@@ -767,19 +767,19 @@ namespace LessonNet.Tests.Specs {
   .mixin;
 }";
 
-            var expected =
-                @".class {
+			var expected =
+				@".class {
   width: 25px;
   height: 49%;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void CanNestParameterizedMixins() {
-            var input =
-                @"
+		[Fact]
+		public void CanNestParameterizedMixins() {
+			var input =
+				@"
 .inner(@size: 12px) {
   font-size: @size;
 }
@@ -793,19 +793,19 @@ namespace LessonNet.Tests.Specs {
  .outer(12px);
 }";
 
-            var expected = @"
+			var expected = @"
 .class {
   width: 12px;
   font-size: 10px;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void CanNestParameterizedMixinsWithDefaults() {
-            var input =
-                @"
+		[Fact]
+		public void CanNestParameterizedMixinsWithDefaults() {
+			var input =
+				@"
 .inner(@size: 12px) {
   font-size: @size;
 }
@@ -819,20 +819,20 @@ namespace LessonNet.Tests.Specs {
  .outer();
 }";
 
-            var expected = @"
+			var expected = @"
 .class {
   width: 20px;
   font-size: 12px;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
 
-        [Fact]
-        public void CanNestParameterizedMixinsWithSameParameterNames() {
-            var input =
-                @"
+		[Fact]
+		public void CanNestParameterizedMixinsWithSameParameterNames() {
+			var input =
+				@"
 .inner(@size: 12px) {
   font-size: @size;
 }
@@ -846,19 +846,19 @@ namespace LessonNet.Tests.Specs {
  .outer(16px);
 }";
 
-            var expected = @"
+			var expected = @"
 .class {
   width: 16px;
   font-size: 14px;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void IncludesAllMatchedMixins2() {
-            var input =
-                @"
+		[Fact]
+		public void IncludesAllMatchedMixins2() {
+			var input =
+				@"
 .mixout ('left') { left: 1; }
 
 .mixout ('right') { right: 1; }
@@ -867,7 +867,7 @@ namespace LessonNet.Tests.Specs {
 .right { .mixout('right'); }
 ";
 
-            var expected = @"
+			var expected = @"
 .left {
   left: 1;
 }
@@ -876,13 +876,13 @@ namespace LessonNet.Tests.Specs {
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact(Skip = "Error reporting is still WIP")]
-        public void ThrowsIfNoMatchFound() {
-            var input =
-                @"
+		[Fact(Skip = "Error reporting is still WIP")]
+		public void ThrowsIfNoMatchFound() {
+			var input =
+				@"
 .mixout ('left') { left: 1; }
 
 .mixout ('right') { right: 1; }
@@ -890,31 +890,31 @@ namespace LessonNet.Tests.Specs {
 .none { .mixout('top'); }
 ";
 
-            AssertError(
-                "No matching definition was found for `.mixout('top')`",
-                ".none { .mixout('top'); }",
-                5,
-                8,
-                input);
-        }
+			AssertError(
+				"No matching definition was found for `.mixout('top')`",
+				".none { .mixout('top'); }",
+				5,
+				8,
+				input);
+		}
 
-        [Fact(Skip = "Error reporting is still WIP")]
-        public void ThrowsIfNotDefined() {
-            var input = ".none { .mixin(); }";
+		[Fact(Skip = "Error reporting is still WIP")]
+		public void ThrowsIfNotDefined() {
+			var input = ".none { .mixin(); }";
 
-            AssertError(
-                ".mixin is undefined",
-                ".none { .mixin(); }",
-                1,
-                8,
-                input);
-        }
+			AssertError(
+				".mixin is undefined",
+				".none { .mixin(); }",
+				1,
+				8,
+				input);
+		}
 
-        [Fact(Skip = "Error reporting is still WIP")]
-        public void CallSiteCorrectWhenMixinThrowsAnError() {
-            var divideByZeroException = new DivideByZeroException();
+		[Fact(Skip = "Error reporting is still WIP")]
+		public void CallSiteCorrectWhenMixinThrowsAnError() {
+			var divideByZeroException = new DivideByZeroException();
 
-            var input = @"
+			var input = @"
 .mixin(@a: 5px) {
   width: 10px / @a;
 }
@@ -922,18 +922,18 @@ namespace LessonNet.Tests.Specs {
   .mixin(0px);
 }";
 
-            AssertError(
+			AssertError(
 				input,
-                divideByZeroException.Message,
-                2,
-                14,
-                "  .mixin(0px);");
-        }
+				divideByZeroException.Message,
+				2,
+				14,
+				"  .mixin(0px);");
+		}
 
-        [Fact]
-        public void IncludesAllMatchedMixins3() {
-            var input =
-                @"
+		[Fact]
+		public void IncludesAllMatchedMixins3() {
+			var input =
+				@"
 .border (@side, @width) {
     color: black;
     .border-side(@side, @width);
@@ -953,8 +953,8 @@ namespace LessonNet.Tests.Specs {
 }
 ";
 
-            var expected =
-                @"
+			var expected =
+				@"
 .border-right {
   color: black;
   border-right: 4px;
@@ -964,13 +964,13 @@ namespace LessonNet.Tests.Specs {
   border-left: 4px;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void InnerMixinEvaluatedCorrectly() {
-            var input =
-                @"
+		[Fact]
+		public void InnerMixinEvaluatedCorrectly() {
+			var input =
+				@"
 .inner-mixin(@width) {
     width: @width;
 }
@@ -985,19 +985,19 @@ namespace LessonNet.Tests.Specs {
     .mixin();
 }";
 
-            var expected = @"
+			var expected = @"
 #header span {
   color: red;
   width: 30px;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void InnerMixinsFindInnerVariables() {
-            var input =
-                @"
+		[Fact]
+		public void InnerMixinsFindInnerVariables() {
+			var input =
+				@"
 .inner-mixin(@width) {
     width: @width;
 }
@@ -1012,31 +1012,31 @@ namespace LessonNet.Tests.Specs {
     .mixin();
 }";
 
-            var expected = @"
+			var expected = @"
 #header span {
   width: 20px;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact(Skip = "Error reporting is still WIP")]
-        public void ThrowsIfMixinNotFound() {
-            var input =
-                @"
+		[Fact(Skip = "Error reporting is still WIP")]
+		public void ThrowsIfMixinNotFound() {
+			var input =
+				@"
 .class {
   .mixin();
 }
 ";
-            AssertError(".mixin is undefined", "  .mixin();", 2, 2, input);
-        }
+			AssertError(".mixin is undefined", "  .mixin();", 2, 2, input);
+		}
 
-        [Fact]
-        public void DontCacheFunctions() {
-            var input =
-                @"
+		[Fact]
+		public void DontCacheFunctions() {
+			var input =
+				@"
 .margin(@t, @r) {
-  margin: formatString(""{0} {1}"", @t, @r);
+  margin: e(%(""%d %d"", @t, @r));
 }
 ul.bla {
   .margin(10px, 15px);
@@ -1045,7 +1045,7 @@ ul.bla2 {
   .margin(0, 0);
 }";
 
-            var expected = @"
+			var expected = @"
 ul.bla {
   margin: 10px 15px;
 }
@@ -1053,13 +1053,13 @@ ul.bla2 {
   margin: 0 0;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void MixinsKeepImportantKeyword() {
-            var input =
-                @"
+		[Fact]
+		public void MixinsKeepImportantKeyword() {
+			var input =
+				@"
 .important-mixin(@colour: #FFFFFF) {
   color: @colour !important;
 }
@@ -1069,19 +1069,19 @@ important-rule {
 }
 ";
 
-            var expected = @"
+			var expected = @"
 important-rule {
   color: #3f3f3f !important;
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void ShortMixinDoesntMatchLongerSelectors() {
-            var input =
-            @"
+		[Fact]
+		public void ShortMixinDoesntMatchLongerSelectors() {
+			var input =
+				@"
 #test {
   .mixin();
 }
@@ -1091,8 +1091,8 @@ important-rule {
 .mixin .inner, .dummy { color: blue; }
 ";
 
-            var expected =
-                @"
+			var expected =
+				@"
 #test {
   color: red;
 }
@@ -1109,13 +1109,13 @@ important-rule {
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void CanCallMixinFromWithinInnerRuleset() {
-            var input =
-            @"
+		[Fact]
+		public void CanCallMixinFromWithinInnerRuleset() {
+			var input =
+				@"
 #mybox {
   .box;
 }
@@ -1128,8 +1128,8 @@ important-rule {
 }
 ";
 
-            var expected =
-                @"
+			var expected =
+				@"
 #mybox {
   width: 10px;
   height: 10px;
@@ -1140,13 +1140,13 @@ important-rule {
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void CanResolveMixinsInSameScopeAsMixinDefinition() {
-            var input =
-            @"
+		[Fact]
+		public void CanResolveMixinsInSameScopeAsMixinDefinition() {
+			var input =
+				@"
 #ns {
   .square() {
     width: 10px;
@@ -1162,21 +1162,21 @@ important-rule {
 }
 ";
 
-            var expected =
-                @"
+			var expected =
+				@"
 #mybox {
   width: 10px;
   height: 10px;
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void CanResolveVariablesInSameScopeAsMixinDefinition() {
-            var input =
-            @"
+		[Fact]
+		public void CanResolveVariablesInSameScopeAsMixinDefinition() {
+			var input =
+				@"
 #ns {
   @width: 10px;
   .box() {
@@ -1189,20 +1189,20 @@ important-rule {
 }
 ";
 
-            var expected =
-                @"
+			var expected =
+				@"
 #mybox {
   width: 10px;
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void IncludeAllMixinsInSameScope() {
-            var input =
-            @"
+		[Fact]
+		public void IncludeAllMixinsInSameScope() {
+			var input =
+				@"
 #ns {
   .mixin() { color: red; }
 }
@@ -1214,41 +1214,40 @@ important-rule {
 }
 ";
 
-            var expected =
-                @"
+			var expected =
+				@"
 #ns .box {
   color: red;
   color: blue;
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void StringMixinArgument() {
-
-            var input = @"
+		[Fact]
+		public void StringMixinArgument() {
+			var input = @"
 .mixin(@val) {
-  property: formatString(@val);
+  property: e(%(@val));
 }
 .box {
   .mixin( ""5px 5px 10px rgba(0,0,0,0.3)"" );
 }";
 
-            var output = @"
+			var output = @"
 .box {
   property: 5px 5px 10px rgba(0,0,0,0.3);
 }";
 
-            AssertLess(input, output);
-        }
+			AssertLess(input, output);
+		}
 
-        [Fact]
-        public void MultipleCallsToMixinsUsingAndHoisting() {
-            // bug https://github.com/dotless/dotless/issues/78
-            var input =
-                @"
+		[Fact]
+		public void MultipleCallsToMixinsUsingAndHoisting() {
+			// bug https://github.com/dotless/dotless/issues/78
+			var input =
+				@"
 @host: ""https://github.com/"";
 @grey8: #f5f5f5;
 @grey5: #ccc;
@@ -1257,10 +1256,10 @@ important-rule {
 
 .buttonIcon(@filename) {
     &.fancy {
-        @imgbg: formatString(""url({0}images/icons/{1})"", @host, @filename);
+        @imgbg: e(%(""url(%simages/icons/%s)"", @host, @filename));
         &:hover {
-            background-image: @imgbg, formatString(""-webkit-gradient(linear, 0% 0%, 0% 100%, from({0}), to({1}))"", @colorA + 30%, @colorA - 20%);
-            background-image: @imgbg, formatString(""-moz-linear-gradient(0% 100% 90deg,{1}, {0})"", @colorA + 30%, @colorA - 20%);
+            background-image: @imgbg, e(%(""-webkit-gradient(linear, 0% 0%, 0% 100%, from(%d), to(%d))"", @colorA + 30%, @colorA - 20%));
+            background-image: @imgbg, e(%(""-moz-linear-gradient(0% 100% 90deg,%d, %d)"", @colorA - 20%, @colorA + 30%));
         }
     }
 }
@@ -1274,8 +1273,8 @@ important-rule {
     }
 }";
 
-            var expected =
-                @"
+			var expected =
+				@"
 .button.lefticon.icon-tick.fancy:hover,
 button.lefticon.icon-tick.fancy:hover,
 input[type=""submit""].lefticon.icon-tick.fancy:hover {
@@ -1289,14 +1288,14 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
   background-image: url(https://github.com/images/icons/fugue/icons-24/tick.png), -moz-linear-gradient(0% 100% 90deg,#d10e47, #ff4079);
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void MultipleCallsToMixinsUsingAndHoistingSimple() {
-            // bug https://github.com/dotless/dotless/issues/78
-            var input =
-                @"
+		[Fact]
+		public void MultipleCallsToMixinsUsingAndHoistingSimple() {
+			// bug https://github.com/dotless/dotless/issues/78
+			var input =
+				@"
 .test(@arg) {
     .outer {
         .inner {
@@ -1313,8 +1312,8 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
 }
 ";
 
-            var expected =
-                @"
+			var expected =
+				@"
 .one .outer .inner {
   border: 1;
 }
@@ -1322,12 +1321,12 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
   border: 2;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void MixinMatchingAllowsMultiples() {
-            var input = @"
+		[Fact]
+		public void MixinMatchingAllowsMultiples() {
+			var input = @"
 .bo,
 .bar {
   width: 100%;
@@ -1342,7 +1341,7 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
   .bar;
 }
 ";
-            var expected = @"
+			var expected = @"
 .bo,
 .bar {
   width: 100%;
@@ -1358,12 +1357,12 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
   width: 100%;
 }
 ";
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void MixinImportant() {
-            var input = @"
+		[Fact]
+		public void MixinImportant() {
+			var input = @"
 .mixin (9) {
   border: 9 !important;  
 }
@@ -1381,7 +1380,7 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
   .mixin !important;
   .mixin(9);
 }";
-            var expected = @"
+			var expected = @"
 .class {
   border: 1;
   boxer: 1, 1;
@@ -1399,12 +1398,12 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
   border: 9;
   boxer: 1, 9;
 }";
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void MixinImportantRecursive() {
-            var input = @"
+		[Fact]
+		public void MixinImportantRecursive() {
+			var input = @"
 .x
 {
     .test !important;
@@ -1433,7 +1432,7 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
 {
     background-color: black;
 }";
-            var expected = @"
+			var expected = @"
 .x {
   color: red !important;
 }
@@ -1463,13 +1462,13 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
 .anothermixin {
   background-color: black;
 }";
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void MixinCallingSameName() {
-            // attempt to reproduce bug #136
-            var input = @"
+		[Fact]
+		public void MixinCallingSameName() {
+			// attempt to reproduce bug #136
+			var input = @"
 .clearfix() {
   // For IE 6/7 (trigger hasLayout)
   zoom:1; 
@@ -1489,7 +1488,7 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
 .clearfix { 
   .clearfix();
 }";
-            var expected = @"
+			var expected = @"
 .clearfix {
   zoom: 1;
 }
@@ -1505,12 +1504,12 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
   clear: both;
 }
 ";
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void DuplicatesRemovedFromMixinCall() {
-            var input = @"
+		[Fact]
+		public void DuplicatesRemovedFromMixinCall() {
+			var input = @"
 .test() {
   background: none;
   color: red;
@@ -1522,17 +1521,17 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
   .test;
 }";
 
-            var expected = @"
+			var expected = @"
 .test2 {
   color: red;
   background: none;
 }";
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void TestMixinCallIncorrectlyRecognisedLessJsBug901() {
-            var input = @"
+		[Fact]
+		public void TestMixinCallIncorrectlyRecognisedLessJsBug901() {
+			var input = @"
 .mixin_def(@url, @position){
     background-image: @url;
     background-position: @position;
@@ -1541,25 +1540,25 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
   @s: ""/"";
   .mixin_def( ""@{s}a.png"", center center);
 }";
-            var expected = @"
+			var expected = @"
 .error {
   background-image: ""/a.png"";
   background-position: center center;
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void MixinUsedInsideSelectorWithInsideSameNameAndInsideSiblingSelector() {
-            // This relates to https://github.com/dotless/dotless/issues/136, the bare minimum reproduce case appears to be a mixin (eg. ".clearfix()"),
-            // followed by a selector (eg. ".panel-body") that imports that mixin follow by a selector whose name matches the mixin's name (".clearfix")
-            // that also imports that mixin. Previously this would lead to a stack overflow when the ".panel-body" selector was evaluated. Note that if
-            // only the ".clearfix()" mixin and the ".clearfix" selector are present then the stack overflow does not occur, it is the ".panel-body"
-            // selector that triggers it.
-            var input =
-                @"
+		[Fact]
+		public void MixinUsedInsideSelectorWithInsideSameNameAndInsideSiblingSelector() {
+			// This relates to https://github.com/dotless/dotless/issues/136, the bare minimum reproduce case appears to be a mixin (eg. ".clearfix()"),
+			// followed by a selector (eg. ".panel-body") that imports that mixin follow by a selector whose name matches the mixin's name (".clearfix")
+			// that also imports that mixin. Previously this would lead to a stack overflow when the ".panel-body" selector was evaluated. Note that if
+			// only the ".clearfix()" mixin and the ".clearfix" selector are present then the stack overflow does not occur, it is the ".panel-body"
+			// selector that triggers it.
+			var input =
+				@"
 .clearfix() {
   color: red;
 }
@@ -1573,7 +1572,7 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
 }
 ";
 
-            var expected = @"
+			var expected = @"
 .panel-body {
   color: red;
 }
@@ -1581,16 +1580,16 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
   color: red;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void MultipleElementSelectorMixin() {
-            // Previously, dotLess would require that mixins be selectors with single elements (eg. ".dropdown-menu") since the matching algorithm
-            // would try to match only a single element and then drill down into the selector's rules for any additional elements.. Bootstrap uses
-            // multi-element mixin selectors (eg. ".pull-right > .dropdown"), the drilling down should only be done if the selector does not already
-            // fully match the specified selector.
-            var input = @".pull-right > .dropdown-menu {
+		[Fact]
+		public void MultipleElementSelectorMixin() {
+			// Previously, dotLess would require that mixins be selectors with single elements (eg. ".dropdown-menu") since the matching algorithm
+			// would try to match only a single element and then drill down into the selector's rules for any additional elements.. Bootstrap uses
+			// multi-element mixin selectors (eg. ".pull-right > .dropdown"), the drilling down should only be done if the selector does not already
+			// fully match the specified selector.
+			var input = @".pull-right > .dropdown-menu {
   right: 0;
 }
 
@@ -1600,19 +1599,19 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
   }
 }";
 
-            var expected = @".pull-right > .dropdown-menu {
+			var expected = @".pull-right > .dropdown-menu {
   right: 0;
 }
 .navbar-right .dropdown-menu {
   right: 0;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void ImplicitMixinWithSameNameAsExplicitUnaryMixinWorks() {
-            var input = @"
+		[Fact]
+		public void ImplicitMixinWithSameNameAsExplicitUnaryMixinWorks() {
+			var input = @"
 .link-reset {
   text-decoration: none !important;
 }
@@ -1629,7 +1628,7 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
     .link-reset(noborder);
 }
 ";
-            var expected = @"
+			var expected = @"
 .link-reset {
   text-decoration: none !important;
 }
@@ -1641,12 +1640,12 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void MixinCallsInNestedRulesetsHaveCorrectVariableScope() {
-            var input = @"
+		[Fact]
+		public void MixinCallsInNestedRulesetsHaveCorrectVariableScope() {
+			var input = @"
 .opacity(@opacity) {
   opacity: @opacity;
   // IE8 filter
@@ -1661,7 +1660,7 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
   }
 }";
 
-            var expected = @"
+			var expected = @"
 .test {
   opacity: 0.2;
   filter: alpha(opacity=20);
@@ -1671,12 +1670,12 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
   filter: alpha(opacity=50);
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact(Skip = "Output minification is still WIP")]
-        public void OutputMinificationDoesNotBreakMixinCalls() {
-            var input = @"
+		[Fact(Skip = "Output minification is still WIP")]
+		public void OutputMinificationDoesNotBreakMixinCalls() {
+			var input = @"
 .pull-right > .dropdown-menu {
   right: 0;
   left: auto;
@@ -1690,15 +1689,15 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
   }
 }";
 
-            var expected = @"
+			var expected = @"
 .pull-right>.dropdown-menu{right:0;left:auto}@media (min-width:768px){.navbar-right .dropdown-menu{right:0;left:auto}}";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void SemicolonAsSeparatorAllowsListArguments() {
-            var input = @"
+		[Fact]
+		public void SemicolonAsSeparatorAllowsListArguments() {
+			var input = @"
 .mix(@list1, @list2) {
     test: @list1;
     test2: @list2;
@@ -1708,19 +1707,19 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
     .mix(1, 2, 3; 4, 5, 6)
 }
 ";
-            var expected = @"
+			var expected = @"
 .test {
   test: 1, 2, 3;
   test2: 4, 5, 6;
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void DummySemicolonInArgumentListAllowsUnaryCallWithListArgument() {
-            var input = @"
+		[Fact]
+		public void DummySemicolonInArgumentListAllowsUnaryCallWithListArgument() {
+			var input = @"
 .mix(@list) {
     test: @list;
 }
@@ -1729,18 +1728,18 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
     .mix(1, 2, 3;)
 }
 ";
-            var expected = @"
+			var expected = @"
 .test {
   test: 1, 2, 3;
 }
 ";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void SemicolonAsArgumentSeparator() {
-            var input = @"
+		[Fact]
+		public void SemicolonAsArgumentSeparator() {
+			var input = @"
 .mix(@p1, @p2) {
     test: @p1;
     test2: @p2;
@@ -1751,18 +1750,18 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
 }
 ";
 
-            var expected = @"
+			var expected = @"
 .test {
   test: 1;
   test2: 2;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void RulesetDefinedWithParentSelectorIsCallableAsMixin() {
-            var input = @"
+		[Fact]
+		public void RulesetDefinedWithParentSelectorIsCallableAsMixin() {
+			var input = @"
 .foo {
   &-bar {
     color: blue;
@@ -1774,7 +1773,7 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
 }
 ";
 
-            var expected = @"
+			var expected = @"
 .foo-bar {
   color: blue;
 }
@@ -1782,12 +1781,12 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
   color: blue;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void SimpleGeneratedSelectorIsCallableAsMixin() {
-            var input = @"
+		[Fact]
+		public void SimpleGeneratedSelectorIsCallableAsMixin() {
+			var input = @"
 @selector: .col;
 @{selector} {
   width: 120px;
@@ -1798,7 +1797,7 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
 }
 ";
 
-            var expected = @"
+			var expected = @"
 .col {
   width: 120px;
 }
@@ -1806,12 +1805,12 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
   width: 120px;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void MixinCallDoesNotMultiplyAttributeSelectorElements() {
-            var input = @"
+		[Fact]
+		public void MixinCallDoesNotMultiplyAttributeSelectorElements() {
+			var input = @"
 .form-control {
   fieldset[disabled] & {
     cursor: not-allowed;
@@ -1823,7 +1822,7 @@ input[type=""submit""].lefticon.icon24-tick.extralarge.fancy:hover {
 }
 ";
 
-            var expected = @"
+			var expected = @"
 fieldset[disabled] .form-control {
   cursor: not-allowed;
 }
@@ -1831,12 +1830,12 @@ fieldset[disabled] .test {
   cursor: not-allowed;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void MultipleCommaseparatedGeneratedSelectorsAreCallableAsMixins() {
-            var input = @"
+		[Fact]
+		public void MultipleCommaseparatedGeneratedSelectorsAreCallableAsMixins() {
+			var input = @"
 @a: 1;
 @b: 2;
 .col@{a}, .col@{b} {
@@ -1851,7 +1850,7 @@ fieldset[disabled] .test {
 }
 ";
 
-            var expected = @"
+			var expected = @"
 .col1,
 .col2 {
   width: 120px;
@@ -1863,12 +1862,12 @@ fieldset[disabled] .test {
   width: 120px;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void MixinScopesAreIsolated() {
-            var input = @"
+		[Fact]
+		public void MixinScopesAreIsolated() {
+			var input = @"
 // ............................................................
 // .for
 
@@ -1901,7 +1900,7 @@ fieldset[disabled] .test {
 }
 ";
 
-            var expected = @"
+			var expected = @"
 .abc-1 {
   color: red;
 }
@@ -1909,13 +1908,12 @@ fieldset[disabled] .test {
   color: blue;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void MixinCallWithContentAfterSemicolonOnSameLine()
-        {
-            var input = @"
+		[Fact]
+		public void MixinCallWithContentAfterSemicolonOnSameLine() {
+			var input = @"
 .mixin(@color1, @color2) {
   background-color: @color1;
 }
@@ -1924,19 +1922,18 @@ fieldset[disabled] .test {
 }
 ";
 
-            var expected = @"
+			var expected = @"
 .test {
   background-color: black;
   color: blue;
 }";
 
-            AssertLess(input, expected);
-        }
+			AssertLess(input, expected);
+		}
 
-        [Fact]
-        public void MixinWithBackgroundUrl() {
-
-            var input = @"
+		[Fact]
+		public void MixinWithBackgroundUrl() {
+			var input = @"
 .cssClass {
   background-image:url('image.png');
 }
@@ -1945,7 +1942,7 @@ fieldset[disabled] .test {
   .cssClass;
   color:#000;
 }";
-            var expected = @"
+			var expected = @"
 .cssClass {
   background-image: url('image.png');
 }
@@ -1955,7 +1952,7 @@ fieldset[disabled] .test {
 }
 ";
 
-            AssertLess(input, expected);
-        }
-    }
+			AssertLess(input, expected);
+		}
+	}
 }

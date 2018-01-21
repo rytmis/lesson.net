@@ -89,8 +89,8 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			this.parts = parts.ToList();
 		}
 
-		public static LessString FromString(string str) {
-			return new LessString('"', new[] {new LessStringLiteral(str)});
+		public static LessString FromString(string str, char quoteChar = '"') {
+			return new LessString(quoteChar, new[] {new LessStringLiteral(str)});
 		}
 
 		protected override IEnumerable<LessNode> EvaluateCore(EvaluationContext context) {

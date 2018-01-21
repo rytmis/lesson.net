@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace LessonNet.Parser.ParseTree.Expressions.Functions {
@@ -17,32 +19,52 @@ namespace LessonNet.Parser.ParseTree.Expressions.Functions {
 		}
 	}
 
-	[FunctionName("formatString")]
+	[FunctionName("%")]
 	public class FormatStringFunction : LessFunction {
 		public FormatStringFunction(Expression arguments) : base(arguments) { }
 		protected override Expression EvaluateFunction(Expression arguments, EvaluationContext context) {
 			if (arguments is LessString onlyStr) {
-				var formatted = string.Format(onlyStr.GetUnquotedValue());
-
-				return new QuotedExpression(LessString.FromString(formatted));
+				return onlyStr;
 			}
 
-			if (arguments is ExpressionList list && list.IsCommaSeparated && list.Values[0] is LessString str) {
-				var formatted = string.Format(str.GetUnquotedValue(), ConvertToStrings(list.Values.Skip(1)).ToArray<object>());
+			if (arguments is ExpressionList list && list.IsCommaSeparated && list.Values[0] is LessString formatStr) {
+				var formatted = ReplacePlaceholders(formatStr.GetUnquotedValue(), list.Values.Skip(1).ToArray());
 
-				return new QuotedExpression(LessString.FromString(formatted));
+				return LessString.FromString(formatted, formatStr.QuoteChar);
 			}
 
 			throw new EvaluationException("First argument must be a string");
 		}
 
-		private IEnumerable<string> ConvertToStrings(IEnumerable<Expression> expressions) {
-			foreach (var expression in expressions) {
-				if (expression is LessString str) {
-					yield return str.GetUnquotedValue();
-				} else {
-					yield return expression.ToString();
-				}
+		private string ReplacePlaceholders(string formatString, Expression[] items) {
+			return Regex.Replace(
+				formatString,
+				"%(d|a|s)",
+				MakeEvaluator(),
+				RegexOptions.IgnoreCase);
+
+			MatchEvaluator MakeEvaluator() {
+				int replacementItemIndex = 0;
+
+				return match => {
+					if (replacementItemIndex >= items.Length) {
+						return match.Value;
+					}
+
+					char matched = match.Value[1];
+
+					bool unquote = matched == 's' || matched == 'S';
+
+					return GetStringValue(items[replacementItemIndex++], unquote, escape: char.IsUpper(matched));
+				};
+			}
+
+			string GetStringValue(Expression expression, bool unquote, bool escape) {
+				string value = expression is LessString str && unquote
+					? str.GetUnquotedValue()
+					: expression.ToString();
+
+				return escape ? Uri.EscapeDataString(value) : value;
 			}
 		}
 	}
