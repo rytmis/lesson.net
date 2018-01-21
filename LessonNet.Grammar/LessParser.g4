@@ -18,7 +18,7 @@ statement
   ;
 
 terminatedStatement
-  : lineStatement SEMI
+  : lineStatement SEMI+
   | blockStatement SEMI?
   ;
 
