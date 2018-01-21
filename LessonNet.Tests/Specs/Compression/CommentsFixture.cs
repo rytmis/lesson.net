@@ -39,6 +39,7 @@ namespace LessonNet.Tests.Specs.Compression
         [Fact]
         public void CheckCommentsAreNotTakenToBeWhitespace2()
         {
+
             var input = @".cls/* COMMENT */ + /* COMMENT */.cla {background-image: url(pickture.asp);}";
 
             var expected = @".cls+.cla{background-image:url(pickture.asp)}";

@@ -10,6 +10,18 @@ lexer grammar LessLexer;
 		_input.Seek(this._tokenStartCharIndex);
 	}
 }
+channels { COMMENTS }
+
+/* Single-line comments */
+SL_COMMENT
+  :  '//'
+    (~('\n'|'\r'))* ('\n'|'\r'('\n')?) -> channel(COMMENTS)
+  ;
+
+/* multiple-line comments */
+COMMENT
+  :  '/*' .*? '*/' -> channel(COMMENTS)
+  ;
 
 NULL: 'null';
 
@@ -174,17 +186,6 @@ WS
   : (' '|'\t'|'\n'|'\r'|'\r\n')+ -> channel(HIDDEN)
   ;
 
-/* Single-line comments */
-SL_COMMENT
-  :  '//'
-    (~('\n'|'\r'))* ('\n'|'\r'('\n')?) -> skip
-  ;
-
-/* multiple-line comments */
-COMMENT
-  :  '/*' .*? '*/' -> skip
-  ;
-
 /* Function reference */
 /* Misc http://lesscss.org/functions/#misc-functions */
 COLOR:'color';
@@ -317,37 +318,12 @@ URL_SEMI               : SEMI -> type(SEMI), popMode;
 
 mode IDENTIFY;
 BlockStart_ID             : BlockStart -> popMode, type(BlockStart);
-SPACE                  : WS -> popMode, type(WS), channel(HIDDEN);
-
-DOLLAR_ID              : DOLLAR -> type(DOLLAR);
-
 InterpolationStartAfter  : InterpolationStart;
 InterpolationEnd_ID    : BlockEnd -> popMode, type(BlockEnd);
-
 IdentifierAfter        : Identifier;
-Ellipsis_ID            : Ellipsis -> popMode, type(Ellipsis);
-DOT_ID                 : DOT -> popMode, type(DOT);
-HASH_ID                : HASH -> popMode, type(HASH);
+MINUS_ID               : MINUS -> type(IdentifierAfter);
 
-LPAREN_ID                 : LPAREN -> popMode, type(LPAREN);
-RPAREN_ID                 : RPAREN -> popMode, type(RPAREN);
-
-COLONCOLON_ID             : COLONCOLON -> popMode, type(COLONCOLON);
-COLON_ID                  : COLON -> popMode, type(COLON);
-COMMA_ID                  : COMMA -> popMode, type(COMMA);
-SEMI_ID                  : SEMI -> popMode, type(SEMI);
-LBRACK_ID              : LBRACK -> popMode, pushMode(ATTRIB), type(LBRACK);
-RBRACK_ID              : RBRACK -> popMode, type(RBRACK);
-EQ_ID       : EQ -> popMode, type(EQ);
-PIPE_EQ_ID  : PIPE_EQ -> popMode, type(PIPE_EQ);
-TILD_EQ_ID  : TILD_EQ -> popMode, type(TILD_EQ);
-CIRC_EQ_ID  : CIRC_EQ -> popMode, type(CIRC_EQ);
-DOLLAR_EQ_ID: DOLLAR_EQ -> popMode, type(DOLLAR_EQ);
-STAR_EQ_ID  : STAR_EQ -> popMode, type(STAR_EQ);
-PARENTREF_ID: PARENTREF -> popMode, type(PARENTREF);
-DIV_ID      : DIV -> popMode, type(DIV);
-MINUS_ID    : MINUS -> type(IdentifierAfter);
-PLUS_ID     : PLUS -> popMode, type(PLUS);
+ID_ANYTHING_ELSE       : . { less(); } -> more, popMode;
 
 
 mode ATTRIB;

@@ -118,13 +118,22 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			foreach (var element in Elements) {
+			for (var index = 0; index < Elements.Count; index++) {
+				var element = Elements[index];
 				if (!(element is ParentReferenceSelectorElement)) {
 					context.Append(element);
 				}
-			}
 
-			context.TrimTrailingWhitespace();
+				bool isLastElement = index == Elements.Count - 1;
+				if (element.HasTrailingWhitespace && !isLastElement) {
+					var nextElement = Elements[index + 1];
+					if (element is IdentifierSelectorElement && nextElement is IdentifierSelectorElement) {
+						context.Append(' ');
+					} else {
+						context.AppendOptional(' ');
+					}
+				}
+			}
 		}
 
 		public bool Matches(Selector other) {
@@ -253,12 +262,7 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			base.WriteOutput(context);
 			context.Append(ToString());
-
-			if (HasTrailingWhitespace) {
-				context.Append(' ');
-			}
 		}
 
 		public abstract SelectorElement Clone(bool withTrailingWhitespace);
@@ -281,10 +285,6 @@ namespace LessonNet.Parser.ParseTree {
 
 		public override void WriteOutput(OutputContext context) {
 			context.Append(Identifier);
-
-			if (HasTrailingWhitespace) {
-				context.Append(' ');
-			}
 		}
 
 		public override SelectorElement Clone(bool withTrailingWhitespace) {

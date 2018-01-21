@@ -316,12 +316,25 @@ namespace LessonNet.Parser {
 				return new CombinatorSelectorElement(context.combinator().GetText(), hasTrailingWhitespace);
 			}
 
-			int possibleWhitespaceIndex = context.Stop.TokenIndex + 1;
+			bool HasTrailingWhitespace() {
+				int index = context.Stop.TokenIndex + 1;
+				while (index < tokenStream.Size) {
+					var tokenType = tokenStream.Get(index).Type;
+					if (tokenType == LessLexer.WS) {
+						return true;
+					}
 
-			bool trailingWhitespace = possibleWhitespaceIndex < tokenStream.Size
-				&& tokenStream.Get(possibleWhitespaceIndex).Type == LessLexer.WS;
+					if (tokenType != LessLexer.COMMENT) {
+						return false;
+					}
 
-			return GetElement(trailingWhitespace);
+					index++;
+				}
+
+				return false;
+			}
+
+			return GetElement(HasTrailingWhitespace());
 		}
 
 		public override LessNode VisitAttribValue(LessParser.AttribValueContext context) {

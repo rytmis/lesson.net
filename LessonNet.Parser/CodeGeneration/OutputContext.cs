@@ -83,12 +83,6 @@ namespace LessonNet.Parser.CodeGeneration
 			indentLevel--;
 		}
 
-		public void TrimTrailingWhitespace() {
-			while (outputBuffer.Length > 0 && Char.IsWhiteSpace(outputBuffer[outputBuffer.Length - 1])) {
-				outputBuffer.Remove(outputBuffer.Length - 1, 1);
-			}
-		}
-
 		public string GetCss() => outputBuffer.ToString();
 
 		public UndoScope BeginUndoableScope() {
