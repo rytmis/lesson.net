@@ -17,7 +17,15 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			context.Append(measurements, " ");
+			bool first = true;
+			foreach (var node in (IEnumerable<LessNode>) measurements) {
+				if (!first) {
+					context.Append(' ');
+				}
+				node.WriteOutput(context);
+
+				first = false;
+			}
 		}
 
 		protected bool Equals(MeasurementList other) {

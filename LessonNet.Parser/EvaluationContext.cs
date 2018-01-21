@@ -45,8 +45,8 @@ namespace LessonNet.Parser
 			}
 		}
 
-		public OutputContext GetOutputContext(char indent, int indentationCount) {
-			return new OutputContext(Extenders, indent, indentationCount);
+		public OutputContext GetOutputContext(char indent, int indentationCount, bool compress) {
+			return new OutputContext(Extenders, indent, indentationCount, compress);
 		}
 
 		public IDisposable EnterScope(SelectorList selectors) {

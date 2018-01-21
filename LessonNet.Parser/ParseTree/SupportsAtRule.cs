@@ -17,9 +17,10 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			context.Append("@supports ");
-			context.Append(condition);
+			context.Append("@supports");
 			context.Append(' ');
+			context.Append(condition);
+			context.AppendOptional(' ');
 
 			context.AppendLine("{");
 			context.Append(block);

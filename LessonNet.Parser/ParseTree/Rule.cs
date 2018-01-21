@@ -52,7 +52,7 @@ namespace LessonNet.Parser.ParseTree {
 		public override void WriteOutput(OutputContext context) {
 			context.Append(Property);
 			context.Append(':');
-			context.Append(' ');
+			context.AppendOptional(' ');
 			if (Value != null) {
 				context.Append(Value);
 			}

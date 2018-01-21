@@ -17,6 +17,7 @@ namespace LessonNet.Tests
 	public abstract class SpecFixtureBase
 	{
 		protected bool StrictMath { get; set; }
+		protected bool Compress { get; set; }
 		protected virtual Dictionary<string, MockFileData> SetupImports() {
 			return new Dictionary<string, MockFileData>();
 		}
@@ -109,7 +110,7 @@ namespace LessonNet.Tests
 			var stylesheet = context.ParseCurrentStylesheet(isReference: false);
 			var evaluated = stylesheet.EvaluateSingle<Stylesheet>(context);
 
-			var output = context.GetOutputContext(' ', 2);
+			var output = context.GetOutputContext(' ', 2, Compress);
 			output.Append(evaluated);
 
 			return output.GetCss();

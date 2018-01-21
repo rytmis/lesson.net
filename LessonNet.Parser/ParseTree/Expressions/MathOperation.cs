@@ -40,13 +40,13 @@ namespace LessonNet.Parser.ParseTree.Expressions {
 			context.Append(LeftOperand);
 
 			if (keepSpaces) {
-				context.Append(' ');
+				context.AppendOptional(' ');
 			}
 
 			context.Append(Operator);
 
 			if (keepSpaces) {
-				context.Append(' ');
+				context.AppendOptional(' ');
 			}
 
 			context.Append(RightOperand);

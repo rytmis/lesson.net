@@ -101,7 +101,8 @@ namespace LessonNet.Parser.ParseTree
 				context.Append(Selectors);
 			}
 
-			context.AppendLine(" {");
+			context.AppendOptional(' ');
+			context.AppendLine("{");
 			context.Append(Block);
 			context.Indent();
 			context.AppendLine("}");

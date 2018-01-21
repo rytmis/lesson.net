@@ -26,7 +26,8 @@ namespace LessonNet.Parser.ParseTree {
 				context.Append(' ');
 				context.Append(additionalSelector);
 			}
-			context.Append(' ');
+
+			context.AppendOptional(' ');
 			context.AppendLine("{");
 			context.Append(block);
 

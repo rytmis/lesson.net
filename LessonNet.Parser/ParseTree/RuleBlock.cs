@@ -57,14 +57,23 @@ namespace LessonNet.Parser.ParseTree {
 				context.IncreaseIndentLevel();
 
 				bool hasOutput = false;
-				foreach (var statement in Statements) {
+
+				for (var index = 0; index < Statements.Count; index++) {
+					var statement = Statements[index];
 					if (statement is Rule r) {
 						// Rules may exist within media queries, but are only indented and semicolon-terminated within rule blocks
 						context.Indent();
 
 						hasOutput |= context.Append(r);
 
-						context.AppendLine(";");
+						bool isLast = index == Statements.Count - 1;
+						if (isLast) {
+							context.AppendOptional(';');
+						} else {
+							context.Append(';');
+						}
+						context.AppendLine();
+
 					} else {
 						hasOutput |= context.Append(statement);
 					}

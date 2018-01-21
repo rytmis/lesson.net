@@ -111,13 +111,29 @@ namespace LessonNet.Parser.ParseTree
 
 		public override void WriteOutput(OutputContext context) {
 			context.Indent();
-			context.Append("@import ");
+			context.Append("@import");
+			context.Append(' ');
 			context.Append(Url);
 			if (mediaQueries.Any()) {
 				context.Append(' ');
-				context.Append(mediaQueries, ", ");
+
+				WriteQueries(context);
 			}
 			context.AppendLine(";");
+		}
+
+		private void WriteQueries(OutputContext context) {
+			bool first = true;
+			foreach (var node in (IEnumerable<LessNode>) mediaQueries) {
+				if (!first) {
+					context.Append(',');
+					context.AppendOptional(' ');
+				}
+
+				node.WriteOutput(context);
+
+				first = false;
+			}
 		}
 	}
 

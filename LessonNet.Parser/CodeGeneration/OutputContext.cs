@@ -12,20 +12,28 @@ namespace LessonNet.Parser.CodeGeneration
 		public ExtenderRegistry Extensions { get; }
 		private readonly char indentChar;
 		private readonly int indentCount;
+		private readonly bool compress;
 		private short indentLevel = 0;
 
 		private readonly StringBuilder outputBuffer = new StringBuilder();
 
-		internal OutputContext(ExtenderRegistry extensions, char indentChar, int indentCount) {
+		internal OutputContext(ExtenderRegistry extensions, char indentChar, int indentCount, bool compress) {
 			this.Extensions = extensions ?? new ExtenderRegistry();
 			this.indentChar = indentChar;
 			this.indentCount = indentCount;
+			this.compress = compress;
 		}
 
-		public OutputContext(char indentChar, int indentCount) : this(null, indentChar, indentCount) {
+		public OutputContext(char indentChar, int indentCount) : this(null, indentChar, indentCount, false) {
 		}
 
 		public bool IsReference { get; private set; }
+
+		public void AppendOptional(char input) {
+			if (!compress) {
+				outputBuffer.Append(input);
+			}
+		}
 
 		public void Append(char input) {
 			outputBuffer.Append(input);
@@ -37,7 +45,15 @@ namespace LessonNet.Parser.CodeGeneration
 
 		public void AppendLine(string input) {
 			outputBuffer.Append(input);
-			outputBuffer.Append(Environment.NewLine);
+			if (!compress) {
+				outputBuffer.Append(Environment.NewLine);
+			}
+		}
+
+		public void AppendLine() {
+			if (!compress) {
+				outputBuffer.Append(Environment.NewLine);
+			}
 		}
 
 		public bool Append(LessNode node) {
@@ -48,19 +64,11 @@ namespace LessonNet.Parser.CodeGeneration
 			return previousLength != outputBuffer.Length;
 		}
 
-		public void Append(IEnumerable<LessNode> nodes, string separator) {
-			bool first = true;
-			foreach (var node in nodes) {
-				if (!first) {
-					Append(separator);
-				}
-				node.WriteOutput(this);
-
-				first = false;
-			}
-		}
-
 		public void Indent() {
+			if (compress) {
+				return;
+			}
+
 			int indentCharCount = indentLevel * indentCount;
 			for (int i = 0; i < indentCharCount; i++) {
 				outputBuffer.Append(indentChar);

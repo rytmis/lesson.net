@@ -43,23 +43,24 @@ namespace LessonNet.Parser.ParseTree {
 		}
 
 		public override void WriteOutput(OutputContext context) {
-			string sep = GetSeparatorString();
+			bool isWhitespaceSeparator = char.IsWhiteSpace(Separator);
+
 			for (var index = 0; index < Values.Count; index++) {
 				var expression = Values[index];
 				context.Append(expression);
 
 				if (index < Values.Count - 1) {
-					context.Append(sep);
+					context.Append(Separator);
+
+					if (!isWhitespaceSeparator) {
+						context.AppendOptional(' ');
+					}
 				}
 			}
 		}
 
-		private string GetSeparatorString() {
-			return !char.IsWhiteSpace(Separator) ? Separator + " " : " ";
-		}
-
 		protected override string GetStringRepresentation() {
-			return string.Join(GetSeparatorString(), Values);
+			return string.Join(("" + Separator).Trim() + " ", Values);
 		}
 
 		protected bool Equals(ExpressionList other) {

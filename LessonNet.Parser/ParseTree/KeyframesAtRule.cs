@@ -29,7 +29,7 @@ namespace LessonNet.Parser.ParseTree {
 			context.Append(ruleIdentifier);
 			context.Append(' ');
 			context.Append(identifier);
-			context.Append(' ');
+			context.AppendOptional(' ');
 			context.AppendLine("{");
 			foreach (var keyframe in keyframes) {
 				context.Append(keyframe);
@@ -83,7 +83,7 @@ namespace LessonNet.Parser.ParseTree {
 				}
 			}
 
-			context.Append(' ');
+			context.AppendOptional(' ');
 			context.AppendLine("{");
 
 			context.Append(block);

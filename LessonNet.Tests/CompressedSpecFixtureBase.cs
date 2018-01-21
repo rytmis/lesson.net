@@ -1,7 +1,7 @@
-namespace LessonNet.Tests
-{
-    public class CompressedSpecFixtureBase : SpecFixtureBase
-    {
-		// TODO: Configure tests to turn on compression
-    }
+namespace LessonNet.Tests {
+	public class CompressedSpecFixtureBase : SpecFixtureBase {
+		public CompressedSpecFixtureBase() {
+			Compress = true;
+		}
+	}
 }

@@ -30,7 +30,8 @@ namespace LessonNet.Parser.ParseTree {
 				context.Append(' ');
 				context.Append(value);
 			}
-			context.Append(' ');
+
+			context.AppendOptional(' ');
 			context.AppendLine("{");
 			context.Append(block);
 
