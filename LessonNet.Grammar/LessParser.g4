@@ -103,21 +103,21 @@ genericAtRule
   ;
 
 variableName
-  : AT variableName
+  : ( ARGUMENTS
+      | REST
+      | MEDIA
+      | IMPORT
+      | IMPORT_ONCE
+      | CHARSET
+      | NAMESPACE
+      | SUPPORTS
+      | DOCUMENT
+      | PAGE
+      | KEYFRAMES
+      | COUNTERSTYLE
+      | REST ) identifier?
+  | AT variableName
   | AT identifier
-  | ARGUMENTS
-  | REST
-  | MEDIA
-  | IMPORT
-  | CHARSET
-  | NAMESPACE
-  | SUPPORTS
-  | DOCUMENT
-  | PAGE
-  | KEYFRAMES
-  | COUNTERSTYLE
-  | ARGUMENTS
-  | REST
   ;
 
 
