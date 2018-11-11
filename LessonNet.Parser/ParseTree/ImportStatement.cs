@@ -74,12 +74,34 @@ namespace LessonNet.Parser.ParseTree
 				: filePath;
 
 
+			var importResults = GetImportResults(options.HasFlag(ImportOptions.Optional));
+
+			if (importResults == null) {
+				return Enumerable.Empty<LessNode>();
+			}
+
+			if (mediaQueries.Any()) {
+				return new[] {new MediaBlock(mediaQueries, new RuleBlock(importResults)).EvaluateSingle<MediaBlock>(context)};
+			}
+
+			return importResults;
+
 			IEnumerable<Statement> GetImportResults(bool optional) {
+				if (context.SeenImport(actualImportPath))
+				{
+					return Enumerable.Empty<Statement>();
+				}
+
+				if (!options.HasFlag(ImportOptions.Reference)) {
+					context.NoteImport(actualImportPath);
+				}
+
 				using (context.EnterImportScope(actualImportPath)) {
 					try {
 						if (isCssFile && isInlineImport) {
 							return new Statement[] {new InlineCssImportStatement(context.GetFileContent())};
 						}
+						
 
 						return context
 							.ParseCurrentStylesheet(isReference: options.HasFlag(ImportOptions.Reference))
@@ -96,17 +118,6 @@ namespace LessonNet.Parser.ParseTree
 					}
 				}
 			}
-
-			var importResults = GetImportResults(options.HasFlag(ImportOptions.Optional));
-			if (importResults == null) {
-				return Enumerable.Empty<LessNode>();
-			}
-
-			if (mediaQueries.Any()) {
-				return new[] {new MediaBlock(mediaQueries, new RuleBlock(importResults)).EvaluateSingle<MediaBlock>(context)};
-			}
-
-			return importResults;
 		}
 
 		public override void WriteOutput(OutputContext context) {

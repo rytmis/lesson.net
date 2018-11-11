@@ -82,6 +82,21 @@ namespace LessonNet.Parser
 			return new ReferenceScope(this, isReference);
 		}
 
+		public void NoteImport(string importedPath)
+		{
+			var actualPath = CurrentScope.FileResolver.ResolvePath(importedPath);
+			imports[actualPath] = true;
+		}
+
+		public bool SeenImport(string importedPath)
+		{
+			var actualPath = CurrentScope.FileResolver.ResolvePath(importedPath);
+			return imports.ContainsKey(actualPath);
+		}
+
+		private Dictionary<string, bool> imports = new Dictionary<string, bool>();
+			
+
 		private class ReferenceScope : IDisposable {
 			private readonly EvaluationContext ctx;
 			private readonly bool wasReference;
