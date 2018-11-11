@@ -13,7 +13,7 @@ namespace LessonNet.Parser.ParseTree {
 
 			foreach (var extender in extension.Extenders) {
 				foreach (var selector in context.CurrentScope.Selectors.Selectors) {
-					context.Extenders.Add(extender, selector, context.IsReference);
+					context.Extensions.Add(extender, selector, context.IsReference);
 				}
 			}
 

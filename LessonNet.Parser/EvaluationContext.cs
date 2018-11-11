@@ -13,8 +13,8 @@ using LessonNet.Parser.ParseTree.Mixins;
 
 namespace LessonNet.Parser
 {
-	public class EvaluationContext {
-		public ExtenderRegistry Extenders { get; private set; } = new ExtenderRegistry();
+	public class EvaluationContext : IExtensionContext {
+		public ExtenderRegistry Extensions { get; set; } = new ExtenderRegistry();
 
 		private Stack<Scope> scopeStack = new Stack<Scope>();
 
@@ -46,7 +46,7 @@ namespace LessonNet.Parser
 		}
 
 		public OutputContext GetOutputContext(char indent, int indentationCount, bool compress) {
-			return new OutputContext(Extenders, indent, indentationCount, compress);
+			return new OutputContext(Extensions, indent, indentationCount, compress);
 		}
 
 		public IDisposable EnterScope(SelectorList selectors) {
@@ -93,6 +93,13 @@ namespace LessonNet.Parser
 			var actualPath = CurrentScope.FileResolver.ResolvePath(importedPath);
 			return imports.ContainsKey(actualPath);
 		}
+
+		public ExtenderScope BeginExtenderScope()
+		{
+			return new ExtenderScope(this);
+		}
+		
+		
 
 		private Dictionary<string, bool> imports = new Dictionary<string, bool>();
 			

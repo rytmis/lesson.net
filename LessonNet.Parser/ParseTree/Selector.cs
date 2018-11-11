@@ -28,7 +28,7 @@ namespace LessonNet.Parser.ParseTree {
 		public void AddExtenders(EvaluationContext context) {
 			if (Extend != null) {
 				foreach (var extender in Extend.Extenders) {
-					context.Extenders.Add(extender, this, context.IsReference);
+					context.Extensions.Add(extender, this, context.IsReference);
 				}
 			}
 		}

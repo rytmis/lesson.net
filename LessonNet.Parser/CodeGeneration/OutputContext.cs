@@ -7,9 +7,9 @@ using LessonNet.Parser.ParseTree;
 
 namespace LessonNet.Parser.CodeGeneration
 {
-	public class OutputContext
+	public class OutputContext : IExtensionContext
 	{
-		public ExtenderRegistry Extensions { get; }
+		public ExtenderRegistry Extensions { get; set; }
 		private readonly char indentChar;
 		private readonly int indentCount;
 		private readonly bool compress;
@@ -26,7 +26,7 @@ namespace LessonNet.Parser.CodeGeneration
 
 		public OutputContext(char indentChar, int indentCount) : this(null, indentChar, indentCount, false) {
 		}
-
+		
 		public bool IsReference { get; private set; }
 
 		public void AppendOptional(char input) {
@@ -125,21 +125,58 @@ namespace LessonNet.Parser.CodeGeneration
 
 			public void Dispose() => ctx.IsReference = wasReference;
 		}
+
+		public IDisposable EnterExtenderScope(ExtenderRegistry extenders)
+		{
+			return new ExtenderScope(this, extenders);
+		}
+	}
+
+	public interface IExtensionContext
+	{
+		ExtenderRegistry Extensions { get; set; }
+	}
+
+	public class ExtenderScope : IDisposable
+	{
+		private readonly IExtensionContext ctx;
+		private readonly ExtenderRegistry originalExtensions;
+
+		public ExtenderScope(IExtensionContext ctx) : this(ctx, new ExtenderRegistry(ctx.Extensions))
+		{
+		}
+
+		public ExtenderScope(IExtensionContext ctx, ExtenderRegistry newScope)
+		{
+			this.ctx = ctx;
+			this.originalExtensions = this.ctx.Extensions;
+			// If we don't actually have a new scope, then this is a no-op.
+			this.ctx.Extensions = newScope ?? this.originalExtensions;
+		}
+
+		public void Dispose()
+		{
+			this.ctx.Extensions = this.originalExtensions;
+		}
 	}
 
 	public class ExtenderRegistry {
-		private readonly IList<(Extender Extender, Selector Selector, bool isReference)> extensions 
+		private readonly ExtenderRegistry parent;
+
+		private readonly List<(Extender Extender, Selector Selector, bool isReference)> extensions 
 			= new List<(Extender, Selector, bool)>();
+
+		public ExtenderRegistry() { }
+
+		public ExtenderRegistry(ExtenderRegistry parent) {
+			this.parent = parent;
+		}
 
 		public void Add(Extender target, Selector extension, bool isReference) {
 			extensions.Add((target, extension, isReference));
 		}
 
 		public IEnumerable<Selector> GetExtensions(Selector candidate, bool includeReferences) {
-			if (extensions == null) {
-				yield break;
-			}
-
 			foreach (var extension in extensions) {
 				if (extension.isReference && !includeReferences) {
 					continue;
@@ -150,6 +187,14 @@ namespace LessonNet.Parser.CodeGeneration
 				} else if (extension.Extender.PartialMatch && candidate.Contains(extension.Extender.Target)) {
 					yield return candidate.Replace(extension.Extender.Target, extension.Selector);
 				}
+			}
+
+			if (parent == null) {
+				yield break;
+			}
+
+			foreach (var extension in parent.GetExtensions(candidate, includeReferences)) {
+				yield return extension;
 			}
 		}
 	}

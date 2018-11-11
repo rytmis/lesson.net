@@ -13,6 +13,11 @@ namespace LessonNet.Parser.ParseTree
 	{
 		private readonly IList<MediaQuery> mediaQueries;
 		public RuleBlock Block { get; }
+		public ExtenderRegistry Extenders { get; }
+		
+		public MediaBlock(IEnumerable<MediaQuery> mediaQueries, RuleBlock block, ExtenderRegistry extenders) : this(mediaQueries, block) {
+			Extenders = extenders;
+		}
 
 		public MediaBlock(IEnumerable<MediaQuery> mediaQueries, RuleBlock block) {
 			this.mediaQueries = mediaQueries.ToList();
@@ -29,12 +34,17 @@ namespace LessonNet.Parser.ParseTree
 			}
 
 			var evaluatedQueries = mediaQueries.Select(q => q.EvaluateSingle<MediaQuery>(context)).ToArray();
-			(var mediaBlocks, var statements) = Block.Evaluate(context).Split<MediaBlock, Statement>();
+			using (context.BeginExtenderScope())
+			{
+				(var mediaBlocks, var statements) = Block.Evaluate(context).Split<MediaBlock, Statement>();
 
-			yield return new MediaBlock(evaluatedQueries, new RuleBlock(statements)) ;
+				yield return new MediaBlock(evaluatedQueries, new RuleBlock(statements), context.Extensions);
 
-			foreach (var mediaBlock in mediaBlocks) {
-				yield return new MediaBlock(CombineQueries(evaluatedQueries, mediaBlock.mediaQueries), mediaBlock.Block);
+				foreach (var mediaBlock in mediaBlocks)
+				{
+					yield return new MediaBlock(CombineQueries(evaluatedQueries, mediaBlock.mediaQueries),
+						mediaBlock.Block, context.Extensions);
+				}
 			}
 		}
 
@@ -67,8 +77,12 @@ namespace LessonNet.Parser.ParseTree
 
 				context.AppendLine(" {");
 
-				if (context.Append(Block)) {
-					scope.KeepChanges();
+				using (context.EnterExtenderScope(Extenders))
+				{
+					if (context.Append(Block))
+					{
+						scope.KeepChanges();
+					}
 				}
 
 				context.AppendLine("}");
